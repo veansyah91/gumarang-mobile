@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.';
 
@@ -21,7 +21,7 @@ export function toAppError(error: unknown) {
     return error;
   }
 
-  if (axios.isAxiosError(error)) {
+  if (isAxiosError(error)) {
     const status = error.response?.status;
     const responseMessage =
       typeof error.response?.data === 'object' && error.response?.data && 'message' in error.response.data

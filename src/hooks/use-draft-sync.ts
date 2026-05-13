@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { syncDraftTransactions } from '@/src/services/sync/draft-sync';
 import { useAppStore } from '@/src/state/app-store';
@@ -12,7 +12,7 @@ export function useDraftSync() {
   const refreshDrafts = useAppStore((state) => state.refreshDrafts);
   const isAuthenticated = useAuthStore((state) => state.status === 'authenticated');
 
-  const syncDrafts = async () => {
+  const syncDrafts = useCallback(async () => {
     if (!isOnline || !offlineSyncEnabled || !isAuthenticated || !pendingDrafts || isSyncing) {
       return;
     }
@@ -25,11 +25,11 @@ export function useDraftSync() {
       await refreshDrafts();
       setIsSyncing(false);
     }
-  };
+  }, [isAuthenticated, isOnline, offlineSyncEnabled, pendingDrafts, isSyncing, refreshDrafts]);
 
   useEffect(() => {
     void syncDrafts();
-  }, [isAuthenticated, isOnline, offlineSyncEnabled, pendingDrafts]);
+  }, [syncDrafts]);
 
   return {
     isSyncing,

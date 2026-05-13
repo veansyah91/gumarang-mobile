@@ -19,7 +19,7 @@ export function useCachedResource<TData>({ queryKey, storageKey, staleTime, enab
       const cached = await getCachedData<TData>(storageKey);
       const isFresh = cached ? Date.now() - cached.updatedAt < staleTime : false;
 
-      if (isFresh) {
+      if (cached && isFresh) {
         return {
           data: cached.data,
           isFromCache: true,

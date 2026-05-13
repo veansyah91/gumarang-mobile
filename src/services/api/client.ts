@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { create } from 'axios';
 
 import { getApiBaseUrl } from '@/src/utils/env';
 import { toAppError } from '@/src/utils/errors';
@@ -6,7 +6,7 @@ import { toAppError } from '@/src/utils/errors';
 let accessToken: string | null = null;
 let unauthorizedHandler: (() => void) | undefined;
 
-export const apiClient = axios.create({
+export const apiClient = create({
   baseURL: getApiBaseUrl(),
   headers: {
     Accept: 'application/json',

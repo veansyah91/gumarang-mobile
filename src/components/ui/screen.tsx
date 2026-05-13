@@ -1,5 +1,13 @@
-import { type PropsWithChildren, type ReactNode } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { type PropsWithChildren, type ReactElement } from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
+  type RefreshControlProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { palette, spacing } from '@/src/theme/tokens';
@@ -7,7 +15,7 @@ import { palette, spacing } from '@/src/theme/tokens';
 type Props = PropsWithChildren<{
   scrollable?: boolean;
   contentContainerStyle?: StyleProp<ViewStyle>;
-  refreshControl?: ReactNode;
+  refreshControl?: ReactElement<RefreshControlProps>;
 }>;
 
 export function Screen({ children, scrollable, contentContainerStyle, refreshControl }: Props) {
