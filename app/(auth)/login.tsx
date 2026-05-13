@@ -32,7 +32,7 @@ export default function LoginScreen() {
     const success = await login(credentials);
 
     if (success) {
-      router.replace('/(app)');
+      router.replace('/(app)/(tabs)');
     }
   };
 
