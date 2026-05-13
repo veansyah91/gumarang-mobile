@@ -15,6 +15,8 @@ type LoginResponse = {
   };
 };
 
+const DEFAULT_DEVICE_NAME = 'gumarang-mobile';
+
 function normalizeSession(response: LoginResponse): Session {
   const token = response.token ?? response.access_token ?? response.data?.token ?? response.data?.access_token;
   const user = response.user ?? response.data?.user;
@@ -36,7 +38,7 @@ export const authApi = {
   async login(credentials: LoginCredentials) {
     const response = await apiClient.post<LoginResponse>('/auth/login', {
       ...credentials,
-      device_name: credentials.deviceName ?? 'gumarang-mobile',
+      device_name: credentials.deviceName ?? DEFAULT_DEVICE_NAME,
     });
 
     return normalizeSession(response.data);

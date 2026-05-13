@@ -9,12 +9,16 @@ export async function syncDraftTransactions() {
     return 0;
   }
 
-  const syncedIds = new Set<string>();
+  const results = await Promise.allSettled(
+    pendingDrafts.map(async (draft) => {
+      await draftsApi.syncDraft(draft);
+      return draft.id;
+    }),
+  );
 
-  for (const draft of pendingDrafts) {
-    await draftsApi.syncDraft(draft);
-    syncedIds.add(draft.id);
-  }
+  const syncedIds = new Set(
+    results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : [])),
+  );
 
   await saveDraftTransactions(
     drafts.map((draft) =>

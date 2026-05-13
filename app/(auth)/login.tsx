@@ -11,16 +11,14 @@ import { useAuth } from '@/src/hooks/use-auth';
 import { useAppStore } from '@/src/state/app-store';
 import { spacing } from '@/src/theme/tokens';
 
-const defaultCredentials = {
-  email: 'admin@example.com',
-  password: 'password',
-};
-
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoading, error } = useAuth();
   const apiBaseUrl = useAppStore((state) => state.apiBaseUrl);
-  const [credentials, setCredentials] = useState(defaultCredentials);
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: '',
+  });
 
   const helperText = useMemo(
     () =>

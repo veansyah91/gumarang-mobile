@@ -36,6 +36,10 @@ export function useCachedResource<TData>({ queryKey, storageKey, staleTime, enab
         };
       } catch (error) {
         if (cached) {
+          if (__DEV__) {
+            console.warn(`Falling back to cached data for ${storageKey}.`, error);
+          }
+
           return {
             data: cached.data,
             isFromCache: true,
