@@ -1,6 +1,13 @@
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { Button } from '@/src/components/ui/button';
 import { Card } from '@/src/components/ui/card';
@@ -8,29 +15,40 @@ import { Input } from '@/src/components/ui/input';
 import { Screen } from '@/src/components/ui/screen';
 import { Text } from '@/src/components/ui/text';
 import { useAuth } from '@/src/hooks/use-auth';
-import { useAppStore } from '@/src/state/app-store';
-import { spacing } from '@/src/theme/tokens';
+import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { palette, spacing } from '@/src/theme/tokens';
+
+const logo = require('@/assets/images/logo.png');
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoading, error } = useAuth();
-  const apiBaseUrl = useAppStore((state) => state.apiBaseUrl);
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: '',
-  });
+  const theme = useResolvedTheme();
+  const colors = palette[theme];
+  const [credentials, setCredentials] = useState({ phone: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
-  const helperText = useMemo(
-    () =>
-      `API base URL: ${apiBaseUrl}\nUse your Laravel Sanctum credentials. The form will keep working once the backend endpoint is ready.`,
-    [apiBaseUrl],
-  );
+  useEffect(() => {
+    setDisplayError(error);
+  }, [error]);
+
+  const handlePhoneChange = (phone: string) => {
+    setCredentials((c) => ({ ...c, phone }));
+    setDisplayError(null);
+  };
+
+  const handlePasswordChange = (password: string) => {
+    setCredentials((c) => ({ ...c, password }));
+    setDisplayError(null);
+  };
 
   const handleSubmit = async () => {
-    const success = await login(credentials);
-
-    if (success) {
+    const result = await login(credentials);
+    if (result === true) {
       router.replace('/(app)/(tabs)');
+    } else if (result === 'unverified') {
+      router.push('/(auth)/verify-phone');
     }
   };
 
@@ -41,60 +59,104 @@ export default function LoginScreen() {
         style={styles.flex}
       >
         <View style={styles.header}>
-          <Text variant="eyebrow">Laravel + Expo foundation</Text>
-          <Text variant="title">Welcome to Gumarang Mobile</Text>
-          <Text tone="muted">
-            Secure authentication, offline-ready storage, and scalable routing are wired in from the start.
+          <Image source={logo} style={styles.logo} resizeMode="contain" />
+          <Text variant="eyebrow" style={styles.centered}>
+            Toko Mas Gumarang
+          </Text>
+          <Text variant="title" style={styles.centered}>
+            Masuk
+          </Text>
+          <Text tone="muted" style={styles.centered}>
+            Masukkan nomor handphone dan sandi
           </Text>
         </View>
 
         <Card>
-          <Text variant="subtitle">Sign in</Text>
           <View style={styles.form}>
             <Input
+              label="No. Handphone"
+              placeholder="628xxx"
+              keyboardType="phone-pad"
               autoCapitalize="none"
-              keyboardType="email-address"
-              label="Email"
-              placeholder="you@example.com"
-              value={credentials.email}
-              onChangeText={(email) => setCredentials((current) => ({ ...current, email }))}
+              value={credentials.phone}
+              onChangeText={handlePhoneChange}
             />
-            <Input
-              label="Password"
-              placeholder="••••••••"
-              secureTextEntry
-              value={credentials.password}
-              onChangeText={(password) => setCredentials((current) => ({ ...current, password }))}
+
+            <View style={styles.fieldGroup}>
+              <View style={styles.labelRow}>
+                <Text variant="eyebrow">Sandi</Text>
+                <Pressable
+                  onPress={() => router.push('/(auth)/forgot-password')}
+                >
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 11,
+                      fontWeight: '600',
+                    }}
+                  >
+                    Lupa Sandi?
+                  </Text>
+                </Pressable>
+              </View>
+              <Input
+                placeholder="••••••••"
+                secureTextEntry={!showPassword}
+                value={credentials.password}
+                onChangeText={handlePasswordChange}
+                rightElement={
+                  <Pressable onPress={() => setShowPassword((v) => !v)}>
+                    <Text tone="muted" style={{ fontSize: 12 }}>
+                      {showPassword ? 'Tutup' : 'Lihat'}
+                    </Text>
+                  </Pressable>
+                }
+              />
+            </View>
+
+            {displayError ? <Text tone="danger">{displayError}</Text> : null}
+
+            <Button
+              label={isLoading ? 'Memuat...' : 'Masuk'}
+              onPress={handleSubmit}
+              disabled={isLoading}
             />
-            {error ? <Text tone="danger">{error}</Text> : null}
-            <Button label={isLoading ? 'Signing in...' : 'Sign in'} onPress={handleSubmit} disabled={isLoading} />
           </View>
         </Card>
 
-        <Card>
-          <Text variant="subtitle">Environment ready</Text>
-          <Text tone="muted">{helperText}</Text>
-        </Card>
+        <View style={styles.footer}>
+          <Text tone="muted">Belum punya akun? </Text>
+          <Pressable onPress={() => router.push('/(auth)/register')}>
+            <Text style={{ color: colors.primary, fontWeight: '700' }}>
+              Daftar
+            </Text>
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    gap: spacing.lg,
-  },
+  flex: { flex: 1, gap: spacing.lg },
   content: {
     flexGrow: 1,
     justifyContent: 'center',
-    gap: spacing.lg,
+    paddingVertical: spacing.xl,
   },
-  header: {
-    gap: spacing.sm,
+  header: { alignItems: 'center', gap: spacing.sm },
+  logo: { width: 80, height: 80, marginBottom: spacing.sm },
+  centered: { textAlign: 'center' },
+  form: { gap: spacing.md },
+  fieldGroup: { gap: spacing.xs },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  form: {
-    gap: spacing.md,
-    marginTop: spacing.md,
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

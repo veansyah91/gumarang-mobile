@@ -1,0 +1,28 @@
+buat issue.md untuk planning:
+
+- gunakan aset-aset berikut:
+  logo.ico, logo.jpg, logo.png 
+  ganti semua penggunaan asset imagenya
+  sesuaikan ukuran jarang padding dan margin top dengan ui pada C:\External\Projects\laragon\www\gumarang, untuk halaman authentication
+
+- desain kembali halaman authentication seperti berikut:
+  -----------------------------------------------------
+  |                                                   |
+  |                                                   |
+  |          Logo Image (center)                      |
+  |                                                   |
+  |       ...........................                 |
+  |       ...........................                 |
+  |       ...........................                 |
+  |       ...........................                 |
+  |                                                   |
+  |  [    Masuk          ]                            |
+  |                                                   |
+  -----------------------------------------------------
+  gunakan halaman login berikut sebagai acuan dan referensi UI:
+  C:\External\Projects\laragon\www\gumarang\resources\js\pages\auth\login.tsx
+
+Jangan terlalu low level atau detail
+Cukup instruksikan high level 
+
+Nanti dokumen planningnya akan digunakan oleh model AI yang lebih murah untuk diimplementasikan.
