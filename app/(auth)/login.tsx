@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    View,
 } from 'react-native';
 
 import { Button } from '@/src/components/ui/button';
@@ -65,9 +65,6 @@ export default function LoginScreen() {
           </Text>
           <Text variant="title" style={styles.centered}>
             Masuk
-          </Text>
-          <Text tone="muted" style={styles.centered}>
-            Masukkan nomor handphone dan sandi
           </Text>
         </View>
 
@@ -132,6 +129,14 @@ export default function LoginScreen() {
             </Text>
           </Pressable>
         </View>
+
+        <View style={styles.footer}>
+          <Pressable onPress={() => router.push('/(app)/(tabs)')}>
+            <Text style={{ color: colors.primary, fontWeight: '600' }}>
+              ← Kembali ke Home
+            </Text>
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -143,9 +148,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingVertical: spacing.xl,
+    paddingTop: 48,
   },
   header: { alignItems: 'center', gap: spacing.sm },
-  logo: { width: 80, height: 80, marginBottom: spacing.sm },
+  logo: { width: 120, height: 120, marginBottom: spacing.sm },
   centered: { textAlign: 'center' },
   form: { gap: spacing.md },
   fieldGroup: { gap: spacing.xs },

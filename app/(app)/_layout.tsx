@@ -1,14 +1,6 @@
-import { Redirect, Stack } from 'expo-router';
-
-import { useAuthStore } from '@/src/state/auth-store';
+import { Stack } from 'expo-router';
 
 export default function AppLayout() {
-  const status = useAuthStore((state) => state.status);
-
-  if (status !== 'authenticated') {
-    return <Redirect href="/(auth)/login" />;
-  }
-
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

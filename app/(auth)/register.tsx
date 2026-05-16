@@ -56,7 +56,7 @@ export default function RegisterScreen() {
             Daftar
           </Text>
           <Text tone="muted" style={styles.centered}>
-            Buat akun tabungan emas baru.
+            Buat akun pelanggan
           </Text>
         </View>
 
@@ -64,7 +64,7 @@ export default function RegisterScreen() {
           <View style={styles.form}>
             <Input
               label="Nama Lengkap"
-              placeholder="John Doe"
+              placeholder="Ferdi Yansyah"
               autoCapitalize="words"
               value={form.name}
               onChangeText={(name) => setForm((f) => ({ ...f, name }))}
@@ -135,6 +135,14 @@ export default function RegisterScreen() {
           <Pressable onPress={() => router.back()}>
             <Text style={{ color: colors.primary, fontWeight: '700' }}>
               Masuk
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.footer}>
+          <Pressable onPress={() => router.push('/(app)/(tabs)')}>
+            <Text style={{ color: colors.primary, fontWeight: '600' }}>
+              ← Kembali ke Home
             </Text>
           </Pressable>
         </View>

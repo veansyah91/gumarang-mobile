@@ -3,16 +3,16 @@ import { create } from 'zustand';
 import { authApi } from '@/src/services/api/auth';
 import { setApiAccessToken } from '@/src/services/api/client';
 import {
-    clearStoredSession,
-    getStoredSession,
-    setStoredSession,
+  clearStoredSession,
+  getStoredSession,
+  setStoredSession,
 } from '@/src/storage/session-storage';
 import type {
-    AuthStatus,
-    LoginCredentials,
-    RegisterCredentials,
-    Session,
-    VerifyPhonePayload,
+  AuthStatus,
+  LoginCredentials,
+  RegisterCredentials,
+  Session,
+  VerifyPhonePayload,
 } from '@/src/types/auth';
 import type { User } from '@/src/types/user';
 import { toAppError } from '@/src/utils/errors';

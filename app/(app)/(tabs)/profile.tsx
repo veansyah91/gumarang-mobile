@@ -1,3 +1,4 @@
+import { Redirect, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/src/components/ui/button';
@@ -8,32 +9,51 @@ import { useAuth } from '@/src/hooks/use-auth';
 import { spacing } from '@/src/theme/tokens';
 
 export default function ProfileScreen() {
-  const { user, logout, status } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  const handleLogout = async () => {
+    router.replace('/(app)/(tabs)');
+    await logout();
+  };
 
   return (
     <Screen contentContainerStyle={styles.content} scrollable>
       <View style={styles.header}>
-        <Text variant="eyebrow">Profile</Text>
-        <Text variant="title">Persistent session</Text>
-        <Text tone="muted">The auth store restores the last secure session before protected routes are shown.</Text>
+        <Text variant="eyebrow">Akun Saya</Text>
+        <Text variant="title">{user?.name ?? '-'}</Text>
       </View>
 
       <Card>
-        <Text variant="subtitle">Current user</Text>
+        <Text variant="subtitle">Informasi Akun</Text>
         <View style={styles.stack}>
-          <Text>{user?.name ?? 'Guest session'}</Text>
-          <Text tone="muted">{user?.email ?? 'No stored profile available.'}</Text>
-          <Text tone="muted">Status: {status}</Text>
+          <View style={styles.row}>
+            <Text tone="muted" style={styles.label}>
+              Nama
+            </Text>
+            <Text>{user?.name ?? '-'}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text tone="muted" style={styles.label}>
+              No. Handphone
+            </Text>
+            <Text>{user?.phone ?? '-'}</Text>
+          </View>
         </View>
       </Card>
 
       <Card>
-        <Text variant="subtitle">Security guardrails</Text>
+        <Text variant="subtitle">Keamanan</Text>
         <View style={styles.stack}>
-          <Text>• Tokens are stored in SecureStore</Text>
-          <Text>• Protected routes redirect on expired or missing sessions</Text>
-          <Text>• Unauthorized API responses clear invalid sessions centrally</Text>
-          <Button label="Log out" variant="danger" onPress={logout} />
+          <Text tone="muted" style={styles.hint}>
+            Token tersimpan aman menggunakan SecureStore. Sesi Anda akan
+            berakhir secara otomatis jika token tidak valid.
+          </Text>
+          <Button label="Keluar" variant="danger" onPress={handleLogout} />
         </View>
       </Card>
     </Screen>
@@ -45,10 +65,22 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   header: {
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   stack: {
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: 13,
+  },
+  hint: {
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

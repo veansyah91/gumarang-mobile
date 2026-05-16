@@ -6,11 +6,15 @@ import { toAppError } from '@/src/utils/errors';
 let accessToken: string | null = null;
 let unauthorizedHandler: (() => void) | undefined;
 
+const baseURL = getApiBaseUrl();
+const isNgrok = baseURL.includes('ngrok');
+
 export const apiClient = create({
-  baseURL: getApiBaseUrl(),
+  baseURL,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
+    ...(isNgrok && { 'ngrok-skip-browser-warning': 'true' }),
   },
   timeout: 10000,
 });

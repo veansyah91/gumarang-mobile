@@ -1,26 +1,8 @@
 buat issue.md untuk planning:
 
-- gunakan aset-aset berikut:
-  logo.ico, logo.jpg, logo.png 
-  ganti semua penggunaan asset imagenya
-  sesuaikan ukuran jarang padding dan margin top dengan ui pada C:\External\Projects\laragon\www\gumarang, untuk halaman authentication
-
-- desain kembali halaman authentication seperti berikut:
-  -----------------------------------------------------
-  |                                                   |
-  |                                                   |
-  |          Logo Image (center)                      |
-  |                                                   |
-  |       ...........................                 |
-  |       ...........................                 |
-  |       ...........................                 |
-  |       ...........................                 |
-  |                                                   |
-  |  [    Masuk          ]                            |
-  |                                                   |
-  -----------------------------------------------------
-  gunakan halaman login berikut sebagai acuan dan referensi UI:
-  C:\External\Projects\laragon\www\gumarang\resources\js\pages\auth\login.tsx
+masalah:
+- saat ini ketika aplikasi pertama kali dibuka, langsung mengarah ke halaman login, aku ingin saat pertama kali aplikasi diakses langsung masuk ke halaman home
+- saat logout, halaman direct ke halaman login, aku ingin halaman direct ke halaman home
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

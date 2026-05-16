@@ -1,25 +1,40 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 
+import { Header } from '@/src/components/ui/header';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
-import { palette } from '@/src/theme/tokens';
+import { useAuthStore } from '@/src/state/auth-store';
+import { palette, spacing } from '@/src/theme/tokens';
 
-function TabIcon(props: { name: React.ComponentProps<typeof FontAwesome>['name']; color: string }) {
-  return <FontAwesome size={20} style={{ marginBottom: -2 }} {...props} />;
+function TabIcon({
+  name,
+  color,
+}: {
+  name: React.ComponentProps<typeof Ionicons>['name'];
+  color: string;
+}) {
+  return <Ionicons name={name} size={22} color={color} />;
 }
 
 export default function TabsLayout() {
   const theme = useResolvedTheme();
   const colors = palette[theme];
+  const user = useAuthStore((state) => state.user);
 
   return (
     <Tabs
       screenOptions={{
         headerStyle: { backgroundColor: colors.background },
-        headerTitleStyle: { color: colors.text },
         headerShadowVisible: false,
-        sceneStyle: { backgroundColor: colors.background },
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        header: () => <Header />,
+        sceneStyle: {
+          backgroundColor: colors.background,
+          paddingBottom: -spacing.xl,
+          marginBottom: -spacing.xl,
+        },
+        tabBarStyle: user
+          ? { backgroundColor: colors.surface, borderTopColor: colors.border }
+          : { display: 'none' },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
       }}
@@ -27,24 +42,40 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <TabIcon name="home" color={color} />,
+          title: 'Dasbor',
+          tabBarIcon: ({ color }) => (
+            <TabIcon name="grid-outline" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="my-gold"
+        options={{
+          title: 'Emasku',
+          tabBarIcon: ({ color }) => (
+            <TabIcon name="cash-outline" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="saving"
+        options={{
+          title: 'Tabunganku',
+          tabBarIcon: ({ color }) => (
+            <TabIcon name="book-outline" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <TabIcon name="user-o" color={color} />,
+          title: 'Profil',
+          tabBarIcon: ({ color }) => (
+            <TabIcon name="person-outline" color={color} />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <TabIcon name="cog" color={color} />,
-        }}
-      />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }

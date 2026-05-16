@@ -1,8 +1,11 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { LogBox } from 'react-native';
 
 import { AppProviders, useAppBootstrap } from '@/src/providers/app-providers';
+
+LogBox.ignoreLogs(['props.pointerEvents is deprecated']);
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -25,7 +28,6 @@ function RootNavigator() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { suppressHydrationWarning: true },
       }}
     >
       <Stack.Screen name="index" />

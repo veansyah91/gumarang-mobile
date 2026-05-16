@@ -1,11 +1,12 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const appEnv = process.env.APP_ENV ?? 'development';
-const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api';
+const apiBaseUrl =
+  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Gumarang Mobile',
+  name: 'Toko Mas Gumarang',
   slug: 'gumarang-mobile',
   scheme: 'gumarang-mobile',
   version: '1.0.0',
@@ -39,7 +40,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-secure-store',
       {
-        faceIDPermission: 'Allow Gumarang Mobile to securely access your saved session.',
+        faceIDPermission:
+          'Allow Gumarang Mobile to securely access your saved session.',
       },
     ],
   ],

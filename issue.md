@@ -1,61 +1,30 @@
-# Issue: Redesign Halaman Authentication
+# Issue: Navigasi Awal dan Setelah Logout
 
-## Tujuan
-Redesign semua halaman auth (login, register, forgot-password, verify-phone, new-password) agar tampilannya selaras dengan UI web di `C:\External\Projects\laragon\www\gumarang`.
+## Masalah
 
----
+1. **App buka → langsung ke login**: Saat pertama kali dibuka, app mengarahkan pengguna ke halaman login, padahal seharusnya ke halaman home.
+2. **Logout → langsung ke login**: Setelah logout, app mengarahkan ke login, padahal seharusnya kembali ke home.
 
-## Task 1 – Ganti Asset Logo
-- Ganti semua penggunaan asset gambar lama dengan `assets/images/logo.png` (atau `logo.jpg`)
-- Hapus referensi ke asset lama yang tidak dipakai
+## Root Cause
 
----
+`app/(app)/_layout.tsx` melakukan redirect ke `/(auth)/login` jika status auth bukan `'authenticated'`. Ini menyebabkan halaman home tidak bisa diakses oleh pengguna yang belum login.
 
-## Task 2 – Redesign Layout Auth (semua halaman)
-Ikuti pola `auth-simple-layout.tsx` dari web sebagai acuan:
+## Rencana Perbaikan
 
-```
-[Layar penuh, konten di tengah vertikal]
+### 1. Jadikan halaman home dapat diakses tanpa login
 
-  Logo (gambar, centered, ~80x80)
-  Nama Toko / App Name (teks, centered)
-  Subtitle / description (teks muted, centered)
+Hapus atau ubah guard di `app/(app)/_layout.tsx` agar tidak redirect ke login secara global. Halaman home (tabs index) harus bisa diakses oleh semua pengguna, baik yang sudah login maupun belum.
 
-  [Card / form area]
-    ... field-field form ...
-    [Tombol aksi utama, full width]
-  [/Card]
+### 2. Pindahkan guard auth ke tab/halaman yang memerlukan login
 
-  [Footer link (centered)]
-```
+Tab seperti **Profil**, **Emasku**, dan **Tabunganku** harus tetap terlindungi. Tambahkan redirect ke login hanya di dalam halaman-halaman tersebut, bukan di level layout `(app)`.
 
-- Gunakan `spacing.lg` (gap besar antar section) dan `spacing.md` (gap dalam form)
-- Padding container menyesuaikan `p-6` (mobile) dari web → pakai `spacing.lg` horizontal
-- Logo ditampilkan di atas form, bukan di dalam Card
+### 3. Sembunyikan tab bar untuk pengguna yang belum login
 
----
+Tab bar sudah dikondisikan dengan `user` di `app/(app)/(tabs)/_layout.tsx`. Pastikan perilaku ini tetap berjalan setelah perubahan guard.
 
-## Task 3 – Sinkronisasi Field Login dengan Web
-Sesuaikan halaman `login.tsx` agar fieldnya cocok dengan `web/pages/auth/login.tsx`:
-- Field: Nomor Handphone + Sandi
-- Toggle tampilkan/sembunyikan sandi
-- Tombol "Masuk" (full width)
-- Link "Lupa Sandi?" di samping label Sandi
-- Link "Belum Punya Akun? → Daftar" di footer
+## Hasil yang Diharapkan
 
----
-
-## Task 4 – Konsistensi Halaman Auth Lainnya
-Terapkan layout yang sama (logo + title + card + footer) ke halaman:
-- `register.tsx`
-- `forgot-password.tsx`
-- `verify-phone.tsx`
-- `new-password.tsx`
-
----
-
-## Referensi
-- Web login: `C:\External\Projects\laragon\www\gumarang\resources\js\pages\auth\login.tsx`
-- Web layout: `C:\External\Projects\laragon\www\gumarang\resources\js\layouts\auth\auth-simple-layout.tsx`
-- Mobile login saat ini: `app/(auth)/login.tsx`
-- Asset logo: `assets/images/logo.png`, `assets/images/logo.jpg`
+- App dibuka → masuk ke halaman home (tanpa perlu login)
+- Logout → kembali ke halaman home (bukan login)
+- Mengakses tab Profil/Emasku/Tabunganku tanpa login → redirect ke login
