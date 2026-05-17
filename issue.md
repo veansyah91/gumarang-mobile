@@ -1,14 +1,30 @@
-# Perbaiki gap bawah di tab footer
+# Issue: Refaktor CertificateSubnav menjadi Subnav reusable
 
-**Ringkasan:** Ada jarak kecil antara konten halaman dan komponen tab menu di bagian bawah. Hilangkan gap tersebut tanpa merusak safe-area atau tampilan tab bar.
+## Ringkasan
 
-**Rencana tingkat tinggi**
+Komponen CertificateSubnav masih spesifik untuk halaman certificate. Targetnya adalah menjadikannya komponen Subnav yang reusable agar bisa dipakai di halaman lain tanpa duplikasi.
 
-1. Audit sumber padding/margin bawah pada layar tab (mis. `Screen`/`ScrollView`, safe area, dan `tabBarStyle`) serta layar yang menampilkan `Footer`.
-2. Hilangkan penyebab gap (termasuk hack margin/padding negatif jika ada) dan rapikan pengaturan spacing bawah agar konten berhenti tepat di atas tab bar.
-3. Cek ulang di beberapa tab yang menampilkan `Footer` untuk memastikan tidak ada jarak kosong dan tab bar tetap aman terhadap safe-area.
+## Tujuan
 
-**Kriteria selesai**
+- Subnav dapat digunakan lintas halaman dengan data menu berbeda.
+- API props sederhana dan jelas untuk penggunaan ulang.
+- Perilaku di halaman certificate tetap sama.
 
-1. Tidak ada gap kosong antara konten terakhir dan tab bar.
-2. Tab bar tetap terlihat normal dan tidak overlap dengan konten.
+## Ruang lingkup
+
+- Rename/ekstrak komponen menjadi Subnav generik.
+- Pindahkan konfigurasi item menu ke level halaman.
+- Perbarui import/export dan hapus referensi ke CertificateSubnav lama.
+
+## Rencana tingkat tinggi
+
+1. Audit penggunaan CertificateSubnav di halaman certificate.
+2. Definisikan API Subnav generik (items, active/selected, handler).
+3. Migrasikan halaman certificate memakai Subnav dengan data menu yang disuplai dari halaman.
+4. Rapikan struktur file dan update semua referensi.
+
+## Kriteria selesai
+
+- Halaman certificate tidak berubah secara fungsional.
+- Subnav bisa digunakan di halaman lain hanya dengan memberikan data item.
+- Tidak ada referensi tersisa ke CertificateSubnav.

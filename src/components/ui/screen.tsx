@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingTop: 0,
+    paddingBottom: spacing.md,
   },
 });

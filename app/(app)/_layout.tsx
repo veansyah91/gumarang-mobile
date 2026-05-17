@@ -10,6 +10,10 @@ export default function AppLayout() {
         options={{ title: 'Data Sertifikatku' }}
       />
       <Stack.Screen
+        name="certificate/[id]"
+        options={{ title: 'Detail Sertifikat' }}
+      />
+      <Stack.Screen
         name="purchase-member"
         options={{ title: 'Riwayat Pembelian Emas' }}
       />

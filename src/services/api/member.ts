@@ -1,4 +1,10 @@
 import type {
+    CertificateDetail,
+    CertificateDetailData,
+    CertificateListData,
+    CertificateListFilters,
+} from '@/src/types/certificate';
+import type {
     DashboardSummary,
     DepositsData,
     GoldListData,
@@ -24,6 +30,12 @@ type PaginatedResponse<T> = {
   message?: string;
   data: T[];
   pagination: Pagination;
+};
+
+type CertificateResponse<T> = {
+  success: boolean;
+  message?: string;
+  data: T;
 };
 
 export const memberApi = {
@@ -96,5 +108,24 @@ export const memberApi = {
       '/api/v1/member/lists',
     );
     return res.data.data;
+  },
+
+  async getCertificates(
+    params?: CertificateListFilters,
+  ): Promise<CertificateListData> {
+    const res = await apiClient.get<CertificateResponse<CertificateListData>>(
+      '/api/v1/member/certificates',
+      { params },
+    );
+
+    return res.data.data;
+  },
+
+  async getCertificate(id: number | string): Promise<CertificateDetail> {
+    const res = await apiClient.get<CertificateResponse<CertificateDetailData>>(
+      `/api/v1/member/certificates/${id}`,
+    );
+
+    return res.data.data.certificate;
   },
 };

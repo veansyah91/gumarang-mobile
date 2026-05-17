@@ -1,21 +1,9 @@
 buat issue.md untuk planning:
 
-Task: Perbaiki padding dan margin bottom
+Task: refaktor komponen CertificateSubnav
 
-- pada komponen footer ada gap sedikit:
-                          | |                                  |
-                          | |                                  |
-                          | |                                  |
-                          | |                                  |
-                          | |       Konten halaman             |
-                          | |__________________________________| 
-          ada gap margin {|
-                          | [komponen tab menu]
+- jadikan komponen ini reusable, sehingga bisa digunakan pada halaman lainnya. buat menjadi Subnav
 
-masih ada gap kosong antara konten halaman dan footer tab, sehingga ketika konten halaman discroll, konten halaman tidak ditimpa komponent tab menu, namun tertimpa oleh gap kosong, harusnya gap ini tidak ada.
-lakukan analisa lebih dalam, dan selesaikan penyebabnya
-
-      
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
 
