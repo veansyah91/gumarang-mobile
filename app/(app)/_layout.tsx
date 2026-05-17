@@ -22,6 +22,14 @@ export default function AppLayout() {
         options={{ title: 'Detail Pembelian Emas' }}
       />
       <Stack.Screen
+        name="sale-member"
+        options={{ title: 'Riwayat Penjualan Emas' }}
+      />
+      <Stack.Screen
+        name="sale-member/[id]"
+        options={{ title: 'Detail Penjualan Emas' }}
+      />
+      <Stack.Screen
         name="invoice-member"
         options={{ title: 'Riwayat Penjualan Emas' }}
       />

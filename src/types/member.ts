@@ -154,3 +154,69 @@ export interface GoldListData {
   products: GoldListProduct[];
   price_list: GoldListPriceList;
 }
+
+export interface SaleTransactionMemberListFilters {
+  page?: number;
+  query?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface SaleTransactionMemberInvoice {
+  id: number;
+  no_ref: string;
+  user_id: number;
+  value: number | string;
+  date: string;
+}
+
+export interface SaleTransactionMemberPaginationLink {
+  url: string | null;
+  label: string;
+  page: number | null;
+  active: boolean;
+}
+
+export interface SaleTransactionMemberPagination {
+  current_page: number;
+  data: SaleTransactionMemberInvoice[];
+  first_page_url: string | null;
+  from: number | null;
+  last_page: number;
+  last_page_url: string | null;
+  links: SaleTransactionMemberPaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
+export interface SaleTransactionMemberListData {
+  invoices: SaleTransactionMemberPagination;
+  total: number | string;
+}
+
+export interface SaleTransactionMemberProduct {
+  id: number;
+  name: string;
+  code: string;
+  unit: string;
+  weight: number | string;
+  qty: number | string;
+  amount: number | string;
+  price: number | string;
+}
+
+export interface SaleTransactionMemberInvoiceDetail {
+  id: number;
+  no_ref: string;
+  date: string;
+  value: number | string;
+  products: SaleTransactionMemberProduct[];
+}
+
+export interface SaleTransactionMemberDetailData {
+  invoice: SaleTransactionMemberInvoiceDetail;
+}

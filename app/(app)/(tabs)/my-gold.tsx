@@ -14,6 +14,7 @@ type MenuItem = {
     | '/(app)/gold-list'
     | '/(app)/certificate'
     | '/(app)/purchase-member'
+    | '/(app)/sale-member'
     | '/(app)/invoice-member'
     | '/(app)/gold-convertion-member';
   icon: React.ComponentProps<typeof Ionicons>['name'];
@@ -49,7 +50,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     title: 'Riwayat Penjualan Emas',
     description: 'Pantau transaksi penjualan emas.',
-    href: '/(app)/invoice-member',
+    href: '/(app)/sale-member',
     icon: 'newspaper-outline',
     color: '#e11d48',
     tint: '#ffe4e6',

@@ -1,102 +1,81 @@
 buat issue.md untuk planning:
 
-Task: buat fitur purchase-transaction-member alias Riwayat Pembelian Emas
+Task: buat fitur sale-transaction-member alias Riwayat Pembelian Emas
 
-- gunakan halaman certificate sebagai template UI, dan adaptasikan komponen-komponennya
+- gunakan halaman purchase-transaction-member sebagai template UI, dan adaptasikan komponen-komponennya
 
-- untuk endpoint: GET|HEAD  api/v1/member/purchase-transaction-member
+- untuk endpoint: GET|HEAD  api/v1/member/sale-transaction-member
+## Filter Query (Index)
+
+| Parameter   | Tipe   | Keterangan                        |
+|-------------|--------|-----------------------------------|
+| `query`     | string | Cari berdasarkan no_ref atau nama |
+| `start_date`| date   | Filter tanggal mulai              |
+| `end_date`  | date   | Filter tanggal akhir              |
 - gunakan response berikut sebagai acuan:
 {
-    "success": true,
-    "message": "OK",
-    "data": {
-        "invoices": {
-            "current_page": 1,
-            "data": [
-                {
-                    "id": 3,
-                    "no_ref": "INV-20260500003",
-                    "user_id": 108,
-                    "value": 849000,
-                    "date": "2026-05-12",
-                    "draft": 0
-                },
-                {
-                    "id": 2,
-                    "no_ref": "INV-20260500002",
-                    "user_id": 108,
-                    "value": 2626000,
-                    "date": "2026-05-12",
-                    "draft": 0
-                }
-            ],
-            "first_page_url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
-            "from": 1,
-            "last_page": 1,
-            "last_page_url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
-            "links": [
-                {
-                    "url": null,
-                    "label": "pagination.previous",
-                    "page": null,
-                    "active": false
-                },
-                {
-                    "url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
-                    "label": "1",
-                    "page": 1,
-                    "active": true
-                },
-                {
-                    "url": null,
-                    "label": "pagination.next",
-                    "page": null,
-                    "active": false
-                }
-            ],
-            "next_page_url": null,
-            "path": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member",
-            "per_page": 50,
-            "prev_page_url": null,
-            "to": 2,
-            "total": 2
+  "success": true,
+  "message": "OK",
+  "data": {
+    "invoices": {
+      "data": [
+        {
+          "id": 1,
+          "no_ref": "SI-202605001",
+          "user_id": 5,
+          "value": 1500000,
+          "date": "2026-05-15"
         },
-        "total": 3475000
-    }
+        {
+          "id": 2,
+          "no_ref": "SI-202605002",
+          "user_id": 5,
+          "value": 2000000,
+          "date": "2026-05-14"
+        }
+      ],
+      "current_page": 1,
+      "from": 1,
+      "last_page": 1,
+      "per_page": 50,
+      "to": 2,
+      "total": 2
+    },
+    "total": 3500000
+  }
 }
 - data yang ditampilkan:
   ----------------------------------------------------------
-  | INV-20260500002
+  | SI-202605001
   | 12 Mei 2026 
-  | Rp. 2.626.000
+  | Rp. 1.500.000
   ----------------------------------------------------------
 - komponen diatas bisa diklik dan mengarah ke halaman detail
 
-- untuk endpoint: api/v1/member/purchase-transaction-member/{id}
+- untuk endpoint: api/v1/member/sale-transaction-member/{id}
   response: {
-    "success": true,
-    "message": "OK",
-    "data": {
-        "invoice": {
-            "id": 2,
-            "no_ref": "INV-20260500002",
-            "date": "2026-05-12",
-            "value": 2626000,
-            "draft": 0,
-            "products": [
-                {
-                    "id": 10,
-                    "name": "Logam Mulia 1 gram",
-                    "code": "LM-0002",
-                    "unit": "gram",
-                    "weight": 1,
-                    "qty": 1,
-                    "amount": 2626000,
-                    "price": 2626000
-                }
-            ]
+  "success": true,
+  "message": "OK",
+  "data": {
+    "invoice": {
+      "id": 1,
+      "no_ref": "SI-202605001",
+      "date": "2026-05-15",
+      "value": 1500000,
+      "products": [
+        {
+          "id": 1,
+          "name": "Emas Batangan 1g",
+          "code": "EMB-1G",
+          "unit": "gram",
+          "weight": 1.0,
+          "qty": 1,
+          "amount": 1500000,
+          "price": 1500000
         }
+      ]
     }
+  }
 }
 - data yang ditampilkan pada detail
   ----------------------------------------------------------
@@ -110,7 +89,16 @@ Task: buat fitur purchase-transaction-member alias Riwayat Pembelian Emas
   | qty
   | Nilai
   ----------------------------------------------------------
-- komponen diatas bisa diklik dan mengarah ke halaman detail
+## HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200  | OK - Request berhasil |
+| 401  | Unauthorized - Token tidak valid/expired |
+| 403  | Forbidden - Invoice tidak ditemukan atau bukan milik user |
+| 500  | Internal Server Error - Error server |
+
+- lakukan testing
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

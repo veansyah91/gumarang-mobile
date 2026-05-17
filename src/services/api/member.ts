@@ -17,6 +17,10 @@ import type {
   PurchaseTransactionMemberListData,
   PurchaseTransactionMemberListFilters,
   SaleInvoicesData,
+  SaleTransactionMemberDetailData,
+  SaleTransactionMemberInvoiceDetail,
+  SaleTransactionMemberListData,
+  SaleTransactionMemberListFilters,
   SavingWeightData,
   WithdrawsData,
 } from '@/src/types/member';
@@ -86,6 +90,27 @@ export const memberApi = {
   ): Promise<PurchaseTransactionMemberInvoiceDetail> {
     const res = await apiClient.get<WrappedResponse<PurchaseTransactionMemberDetailData>>(
       `/api/v1/member/purchase-transaction-member/${id}`,
+    );
+
+    return res.data.data.invoice;
+  },
+
+  async getSaleTransactionMembers(
+    params?: SaleTransactionMemberListFilters,
+  ): Promise<SaleTransactionMemberListData> {
+    const res = await apiClient.get<WrappedResponse<SaleTransactionMemberListData>>(
+      '/api/v1/member/sale-transaction-member',
+      { params },
+    );
+
+    return res.data.data;
+  },
+
+  async getSaleTransactionMember(
+    id: number | string,
+  ): Promise<SaleTransactionMemberInvoiceDetail> {
+    const res = await apiClient.get<WrappedResponse<SaleTransactionMemberDetailData>>(
+      `/api/v1/member/sale-transaction-member/${id}`,
     );
 
     return res.data.data.invoice;
