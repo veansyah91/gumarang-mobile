@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 import { Header } from '@/src/components/ui/header';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { useAuthStore } from '@/src/state/auth-store';
-import { palette, spacing } from '@/src/theme/tokens';
+import { palette } from '@/src/theme/tokens';
 
 function TabIcon({
   name,
@@ -27,11 +27,7 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: colors.background },
         headerShadowVisible: false,
         header: () => <Header />,
-        sceneStyle: {
-          backgroundColor: colors.background,
-          paddingBottom: -spacing.xl,
-          marginBottom: -spacing.xl,
-        },
+        sceneStyle: { backgroundColor: colors.background },
         tabBarStyle: user
           ? { backgroundColor: colors.surface, borderTopColor: colors.border }
           : { display: 'none' },

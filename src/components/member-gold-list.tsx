@@ -197,16 +197,21 @@ export function MemberGoldList() {
       return null;
     }
 
-    const totalProducts = data.products.length;
-    const totalWeight = data.products.reduce(
+    // Filter out products with qty === 0
+    const filteredProducts = data.products.filter(
+      (product) => toNumber(product.qty) > 0,
+    );
+
+    const totalProducts = filteredProducts.length;
+    const totalWeight = filteredProducts.reduce(
       (sum, product) => sum + toNumber(product.weight),
       0,
     );
-    const totalAmount = data.products.reduce(
+    const totalAmount = filteredProducts.reduce(
       (sum, product) => sum + toNumber(product.amount),
       0,
     );
-    const totalEstimatedBuyback = data.products.reduce((sum, product) => {
+    const totalEstimatedBuyback = filteredProducts.reduce((sum, product) => {
       const unit = normalizeUnit(product.unit);
 
       if (!unit) {
@@ -217,6 +222,7 @@ export function MemberGoldList() {
     }, 0);
 
     return {
+      filteredProducts,
       totalProducts,
       totalWeight,
       totalAmount,
@@ -258,7 +264,7 @@ export function MemberGoldList() {
               </Text>
             </View>
 
-            {data.products.length === 0 ? (
+            {summary.totalProducts === 0 ? (
               <Card>
                 <Text variant="subtitle">Belum ada data emas</Text>
                 <Text tone="muted">
@@ -267,7 +273,7 @@ export function MemberGoldList() {
                 </Text>
               </Card>
             ) : (
-              data.products.map((product) => (
+              summary.filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}

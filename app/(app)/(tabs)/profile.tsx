@@ -22,7 +22,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <Screen contentContainerStyle={styles.content} scrollable>
+    <Screen
+      contentContainerStyle={styles.content}
+      scrollable
+      safeAreaEdges={['top', 'left', 'right']}
+    >
       <View style={styles.header}>
         <Text variant="eyebrow">Akun Saya</Text>
         <Text variant="title">{user?.name ?? '-'}</Text>

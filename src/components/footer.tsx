@@ -116,8 +116,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderTopWidth: 1,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.lg, // <-- Menambahkan padding di bagian bawah dalam container
-    marginBottom: spacing.lg, // <-- Menambahkan jarak di luar bagian bawah container
+    paddingBottom: spacing.lg,
   },
   heading: {
     fontSize: 16,

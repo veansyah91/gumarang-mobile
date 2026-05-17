@@ -112,7 +112,7 @@ function MenuCard({ item }: { item: MenuItem }) {
 
 export default function MyGoldScreen() {
   return (
-    <Screen scrollable>
+    <Screen scrollable safeAreaEdges={['top', 'left', 'right']}>
       <View style={styles.grid}>
         {MENU_ITEMS.map((item) => (
           <MenuCard key={item.title} item={item} />

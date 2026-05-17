@@ -37,7 +37,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/images/favicon.png',
   },
   updates: {
-    enabled: false,
+    url: 'https://u.expo.dev/296271a2-3fa9-408e-b9ec-f2e953847d44',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
   },
   plugins: [
     'expo-router',
@@ -56,7 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appEnv,
     apiBaseUrl,
     eas: {
-      projectId: 'ec4809fc-4ed9-43cd-8cce-cc01f2779590',
+      projectId: '296271a2-3fa9-408e-b9ec-f2e953847d44',
     },
   },
 });

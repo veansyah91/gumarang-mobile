@@ -13,7 +13,10 @@ export default function SavingScreen() {
   }
 
   return (
-    <Screen contentContainerStyle={styles.content}>
+    <Screen
+      contentContainerStyle={styles.content}
+      safeAreaEdges={['top', 'left', 'right']}
+    >
       <Text variant="title">Tabunganku</Text>
       <Text tone="muted">Halaman ini sedang dalam pengembangan.</Text>
     </Screen>

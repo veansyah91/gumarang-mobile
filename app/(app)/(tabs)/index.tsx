@@ -12,7 +12,11 @@ export default function HomeScreen() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <Screen scrollable contentContainerStyle={styles.content}>
+    <Screen
+      scrollable
+      contentContainerStyle={styles.content}
+      safeAreaEdges={['top', 'left', 'right']}
+    >
       <PricelistCard />
       {user ? (
         <MemberDashboard />

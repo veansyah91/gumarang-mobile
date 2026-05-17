@@ -17,11 +17,18 @@ export default function SettingsScreen() {
         : 'Dark theme';
 
   return (
-    <Screen contentContainerStyle={styles.content} scrollable>
+    <Screen
+      contentContainerStyle={styles.content}
+      scrollable
+      safeAreaEdges={['top', 'left', 'right']}
+    >
       <View style={styles.header}>
         <Text variant="eyebrow">Settings</Text>
         <Text variant="title">Local preferences</Text>
-        <Text tone="muted">App settings are persisted locally and restored on launch without blocking the UI.</Text>
+        <Text tone="muted">
+          App settings are persisted locally and restored on launch without
+          blocking the UI.
+        </Text>
       </View>
 
       <Card>
@@ -29,11 +36,15 @@ export default function SettingsScreen() {
         <View style={styles.row}>
           <View style={styles.copy}>
             <Text>{themeLabel}</Text>
-            <Text tone="muted">Toggle between system and dark mode for quick theme verification.</Text>
+            <Text tone="muted">
+              Toggle between system and dark mode for quick theme verification.
+            </Text>
           </View>
           <Switch
             value={settings.themePreference === 'dark'}
-            onValueChange={(value) => updateSettings({ themePreference: value ? 'dark' : 'system' })}
+            onValueChange={(value) =>
+              updateSettings({ themePreference: value ? 'dark' : 'system' })
+            }
           />
         </View>
       </Card>
@@ -43,11 +54,16 @@ export default function SettingsScreen() {
         <View style={styles.row}>
           <View style={styles.copy}>
             <Text>Background draft sync</Text>
-            <Text tone="muted">Keep local drafts queued and sync them automatically whenever the network is back.</Text>
+            <Text tone="muted">
+              Keep local drafts queued and sync them automatically whenever the
+              network is back.
+            </Text>
           </View>
           <Switch
             value={settings.offlineSyncEnabled}
-            onValueChange={(offlineSyncEnabled) => updateSettings({ offlineSyncEnabled })}
+            onValueChange={(offlineSyncEnabled) =>
+              updateSettings({ offlineSyncEnabled })
+            }
           />
         </View>
       </Card>
@@ -57,11 +73,16 @@ export default function SettingsScreen() {
         <View style={styles.row}>
           <View style={styles.copy}>
             <Text>Skeleton loading</Text>
-            <Text tone="muted">Standardize loading states with reusable placeholders and cache-aware fallbacks.</Text>
+            <Text tone="muted">
+              Standardize loading states with reusable placeholders and
+              cache-aware fallbacks.
+            </Text>
           </View>
           <Switch
             value={settings.skeletonEnabled}
-            onValueChange={(skeletonEnabled) => updateSettings({ skeletonEnabled })}
+            onValueChange={(skeletonEnabled) =>
+              updateSettings({ skeletonEnabled })
+            }
           />
         </View>
       </Card>
