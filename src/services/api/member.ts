@@ -1,6 +1,7 @@
 import type {
     DashboardSummary,
     DepositsData,
+    GoldListData,
     Pagination,
     ProductWeightData,
     ProfitData,
@@ -86,6 +87,13 @@ export const memberApi = {
   async getProfit(): Promise<ProfitData> {
     const res = await apiClient.get<WrappedResponse<ProfitData>>(
       '/api/v1/member/profit',
+    );
+    return res.data.data;
+  },
+
+  async getGoldList(): Promise<GoldListData> {
+    const res = await apiClient.get<WrappedResponse<GoldListData>>(
+      '/api/v1/member/lists',
     );
     return res.data.data;
   },

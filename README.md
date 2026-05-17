@@ -43,3 +43,4 @@ Modern React Native Expo foundation for the Gumarang Laravel API.
 - Cached API responses fall back to local storage when the network is unavailable.
 - Draft transactions are saved locally first and can sync when the user is back online.
 - Route groups cleanly separate authentication, main application, and settings/profile flows.
+- OTA updates are currently disabled. If you later use EAS Update, add a proper `runtimeVersion` and `updates.url` before enabling it again.

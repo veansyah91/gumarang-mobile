@@ -8,6 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Toko Mas Gumarang',
   slug: 'gumarang-mobile',
+  owner: 'veansyah91',
   scheme: 'gumarang-mobile',
   version: '1.0.0',
   orientation: 'portrait',
@@ -35,6 +36,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     output: 'static',
     favicon: './assets/images/favicon.png',
   },
+  updates: {
+    enabled: false,
+  },
   plugins: [
     'expo-router',
     [
@@ -51,5 +55,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     appEnv,
     apiBaseUrl,
+    eas: {
+      projectId: 'ec4809fc-4ed9-43cd-8cce-cc01f2779590',
+    },
   },
 });

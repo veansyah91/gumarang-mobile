@@ -1,4 +1,4 @@
-import type { PriceListsDashboardTrend } from './home';
+import type { PriceListsDashboardTrend, PricePoint } from './home';
 
 export interface Pagination {
   total: number;
@@ -54,4 +54,35 @@ export interface DashboardSummary {
   withdraws: { unit: string; total_amount: number | string }[];
   user_profit: number;
   price_list_trend: PriceListsDashboardTrend;
+}
+
+export type UnitKey = 'gram' | 'miligram';
+
+export interface GoldListMember {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface GoldListProduct {
+  id: number;
+  name: string;
+  code: string;
+  unit: string;
+  weight: number | string;
+  price: number | string;
+  qty: number | string;
+  amount: number | string;
+}
+
+export interface GoldListPriceList {
+  gram: PricePoint;
+  miligram: PricePoint;
+}
+
+export interface GoldListData {
+  member: GoldListMember;
+  products: GoldListProduct[];
+  price_list: GoldListPriceList;
 }

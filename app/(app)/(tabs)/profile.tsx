@@ -47,12 +47,7 @@ export default function ProfileScreen() {
       </Card>
 
       <Card>
-        <Text variant="subtitle">Keamanan</Text>
         <View style={styles.stack}>
-          <Text tone="muted" style={styles.hint}>
-            Token tersimpan aman menggunakan SecureStore. Sesi Anda akan
-            berakhir secara otomatis jika token tidak valid.
-          </Text>
           <Button label="Keluar" variant="danger" onPress={handleLogout} />
         </View>
       </Card>

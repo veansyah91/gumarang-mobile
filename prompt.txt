@@ -1,0 +1,94 @@
+buat issue.md untuk planning:
+
+Task: Perbaiki member gold list
+
+dari response dari backend:
+  {
+    "success": true,
+    "message": "OK",
+    "data": {
+        "member": {
+            "id": 108,
+            "name": "sutan khalifah",
+            "email": null,
+            "phone": "6281276811842"
+        },
+        "products": [
+            {
+                "id": 9,
+                "name": "Logam Mulia 0,1 gram",
+                "code": "LM-0001",
+                "unit": "miligram",
+                "weight": "1200.00",
+                "price": 2677000,
+                "qty": 12,
+                "amount": 3212400
+            },
+            {
+                "id": 10,
+                "name": "Logam Mulia 1 gram",
+                "code": "LM-0002",
+                "unit": "gram",
+                "weight": "0.00",
+                "price": 2626000,
+                "qty": 0,
+                "amount": 0
+            }
+        ],
+        "price_list": {
+            "miligram": {
+                "purchaseValue": 249000,
+                "saleValue": 283000
+            },
+            "gram": {
+                "purchaseValue": 2499000,
+                "saleValue": 2626000
+            }
+        }
+    }
+  }
+
+- gunakan metode berikut untuk analisa Status Buyback:
+  const analyze = (amount: number, unit: UnitKey, priceList: PriceListsDashboard): number => {
+    const array = priceList[unit];    
+    
+    return ((array.purchaseValue * (unit === 'miligram' ? 10 : 1)) - amount) / amount * 100;
+  }
+
+- perbaiki lagi perhitungan analisamu, saat ini kamu melakukan perhitungan yang salah:
+  untuk data berikut:
+  {
+    "id": 9,
+    "name": "Logam Mulia 0,1 gram",
+    "code": "LM-0001",
+    "unit": "miligram",
+    "weight": "1200.00",
+    "price": 2677000,
+    "qty": 12,
+    "amount": 3212400
+  },
+
+  "price_list": {
+    "miligram": {
+      "purchaseValue": 249000,
+      "saleValue": 283000
+    },
+    "gram": {
+      "purchaseValue": 2499000,
+      "saleValue": 2626000
+    }
+  }
+
+  perhitunganmu menghasilkan: -22.49%
+
+  harusnya adalah: -6.99%
+
+  berikut perhitungannya seharusnya:
+  (249000 - (2677000 / 10)) / (2677000 / 10) * 100 = -6.99
+
+  catatan: weight / 10 karena unit = "miligram"
+
+Jangan terlalu low level atau detail
+Cukup instruksikan high level 
+
+Nanti dokumen planningnya akan digunakan oleh model AI yang lebih murah untuk diimplementasikan.
