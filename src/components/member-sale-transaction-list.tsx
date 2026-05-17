@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Modal,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Modal,
+    Pressable,
+    RefreshControl,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -282,40 +282,40 @@ export function MemberSaleTransactionList() {
         ) : data ? (
           <View style={styles.section}>
             <View style={styles.listSection}>
-            {invoices.length > 0 ? (
-              invoices.map((item) => (
-                <SaleTransactionCard
-                  key={item.id}
-                  item={item}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/(app)/sale-member/[id]',
-                      params: { id: String(item.id) },
-                    })
-                  }
-                />
-              ))
-            ) : (
-              <Card>
-                <Text tone="muted">Belum ada riwayat penjualan emas.</Text>
-              </Card>
-            )}
+              {invoices.length > 0 ? (
+                invoices.map((item) => (
+                  <SaleTransactionCard
+                    key={item.id}
+                    item={item}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(app)/sale-member/[id]',
+                        params: { id: String(item.id) },
+                      })
+                    }
+                  />
+                ))
+              ) : (
+                <Card>
+                  <Text tone="muted">Belum ada riwayat penjualan emas.</Text>
+                </Card>
+              )}
+            </View>
           </View>
-        </View>
-      ) : (
-        <Card>
-          <Text tone="muted">Data tidak tersedia.</Text>
-        </Card>
-      )}
-    </Screen>
+        ) : (
+          <Card>
+            <Text tone="muted">Data tidak tersedia.</Text>
+          </Card>
+        )}
+      </Screen>
 
-    <SaleTransactionFilterModal
-      visible={isFilterVisible}
-      draft={filterDraft}
-      onChangeDraft={setFilterDraft}
-      onClose={() => setIsFilterVisible(false)}
-      onSubmit={handleSubmitFilter}
-    />
+      <SaleTransactionFilterModal
+        visible={isFilterVisible}
+        draft={filterDraft}
+        onChangeDraft={setFilterDraft}
+        onClose={() => setIsFilterVisible(false)}
+        onSubmit={handleSubmitFilter}
+      />
     </View>
   );
 }

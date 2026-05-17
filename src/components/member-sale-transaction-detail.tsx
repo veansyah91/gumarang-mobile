@@ -9,8 +9,8 @@ import { Text } from '@/src/components/ui/text';
 import { memberApi } from '@/src/services/api/member';
 import { spacing } from '@/src/theme/tokens';
 import type {
-  SaleTransactionMemberInvoiceDetail,
-  SaleTransactionMemberProduct,
+    SaleTransactionMemberInvoiceDetail,
+    SaleTransactionMemberProduct,
 } from '@/src/types/member';
 import { formatIDR } from '@/src/utils/currency';
 import { formatDateID } from '@/src/utils/date';
@@ -71,7 +71,9 @@ function ProductCard({ product }: { product: SaleTransactionMemberProduct }) {
       <Text variant="subtitle" style={styles.productTitle}>
         {product.name}
       </Text>
-      <Text tone="muted">Berat: {formatWeight(product.weight, product.unit)}</Text>
+      <Text tone="muted">
+        Berat: {formatWeight(product.weight, product.unit)}
+      </Text>
       <Text tone="muted">Qty: {formatQuantity(product.qty)}</Text>
       <Text tone="muted">Nilai: {formatIDR(product.amount)}</Text>
     </Card>

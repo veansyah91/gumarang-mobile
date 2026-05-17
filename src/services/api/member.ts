@@ -1,8 +1,8 @@
 import type {
-    CertificateDetail,
-    CertificateDetailData,
-    CertificateListData,
-    CertificateListFilters,
+  CertificateDetail,
+  CertificateDetailData,
+  CertificateListData,
+  CertificateListFilters,
 } from '@/src/types/certificate';
 import type {
   DashboardSummary,
@@ -77,10 +77,9 @@ export const memberApi = {
   async getPurchaseTransactionMembers(
     params?: PurchaseTransactionMemberListFilters,
   ): Promise<PurchaseTransactionMemberListData> {
-    const res = await apiClient.get<WrappedResponse<PurchaseTransactionMemberListData>>(
-      '/api/v1/member/purchase-transaction-member',
-      { params },
-    );
+    const res = await apiClient.get<
+      WrappedResponse<PurchaseTransactionMemberListData>
+    >('/api/v1/member/purchase-transaction-member', { params });
 
     return res.data.data;
   },
@@ -88,9 +87,9 @@ export const memberApi = {
   async getPurchaseTransactionMember(
     id: number | string,
   ): Promise<PurchaseTransactionMemberInvoiceDetail> {
-    const res = await apiClient.get<WrappedResponse<PurchaseTransactionMemberDetailData>>(
-      `/api/v1/member/purchase-transaction-member/${id}`,
-    );
+    const res = await apiClient.get<
+      WrappedResponse<PurchaseTransactionMemberDetailData>
+    >(`/api/v1/member/purchase-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
@@ -98,10 +97,9 @@ export const memberApi = {
   async getSaleTransactionMembers(
     params?: SaleTransactionMemberListFilters,
   ): Promise<SaleTransactionMemberListData> {
-    const res = await apiClient.get<WrappedResponse<SaleTransactionMemberListData>>(
-      '/api/v1/member/sale-transaction-member',
-      { params },
-    );
+    const res = await apiClient.get<
+      WrappedResponse<SaleTransactionMemberListData>
+    >('/api/v1/member/sale-transaction-member', { params });
 
     return res.data.data;
   },
@@ -109,9 +107,9 @@ export const memberApi = {
   async getSaleTransactionMember(
     id: number | string,
   ): Promise<SaleTransactionMemberInvoiceDetail> {
-    const res = await apiClient.get<WrappedResponse<SaleTransactionMemberDetailData>>(
-      `/api/v1/member/sale-transaction-member/${id}`,
-    );
+    const res = await apiClient.get<
+      WrappedResponse<SaleTransactionMemberDetailData>
+    >(`/api/v1/member/sale-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
