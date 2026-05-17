@@ -5,16 +5,20 @@ import type {
     CertificateListFilters,
 } from '@/src/types/certificate';
 import type {
-    DashboardSummary,
-    DepositsData,
-    GoldListData,
-    Pagination,
-    ProductWeightData,
-    ProfitData,
-    PurchaseInvoicesData,
-    SaleInvoicesData,
-    SavingWeightData,
-    WithdrawsData,
+  DashboardSummary,
+  DepositsData,
+  GoldListData,
+  Pagination,
+  ProductWeightData,
+  ProfitData,
+  PurchaseInvoicesData,
+  PurchaseTransactionMemberDetailData,
+  PurchaseTransactionMemberInvoiceDetail,
+  PurchaseTransactionMemberListData,
+  PurchaseTransactionMemberListFilters,
+  SaleInvoicesData,
+  SavingWeightData,
+  WithdrawsData,
 } from '@/src/types/member';
 
 import { apiClient } from './client';
@@ -64,6 +68,27 @@ export const memberApi = {
       { params: { limit: 1 } },
     );
     return { data: res.data.data, pagination: res.data.pagination };
+  },
+
+  async getPurchaseTransactionMembers(
+    params?: PurchaseTransactionMemberListFilters,
+  ): Promise<PurchaseTransactionMemberListData> {
+    const res = await apiClient.get<WrappedResponse<PurchaseTransactionMemberListData>>(
+      '/api/v1/member/purchase-transaction-member',
+      { params },
+    );
+
+    return res.data.data;
+  },
+
+  async getPurchaseTransactionMember(
+    id: number | string,
+  ): Promise<PurchaseTransactionMemberInvoiceDetail> {
+    const res = await apiClient.get<WrappedResponse<PurchaseTransactionMemberDetailData>>(
+      `/api/v1/member/purchase-transaction-member/${id}`,
+    );
+
+    return res.data.data.invoice;
   },
 
   async getProductWeight(): Promise<ProductWeightData> {

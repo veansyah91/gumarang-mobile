@@ -1,8 +1,116 @@
 buat issue.md untuk planning:
 
-Task: refaktor komponen CertificateSubnav
+Task: buat fitur purchase-transaction-member alias Riwayat Pembelian Emas
 
-- jadikan komponen ini reusable, sehingga bisa digunakan pada halaman lainnya. buat menjadi Subnav
+- gunakan halaman certificate sebagai template UI, dan adaptasikan komponen-komponennya
+
+- untuk endpoint: GET|HEAD  api/v1/member/purchase-transaction-member
+- gunakan response berikut sebagai acuan:
+{
+    "success": true,
+    "message": "OK",
+    "data": {
+        "invoices": {
+            "current_page": 1,
+            "data": [
+                {
+                    "id": 3,
+                    "no_ref": "INV-20260500003",
+                    "user_id": 108,
+                    "value": 849000,
+                    "date": "2026-05-12",
+                    "draft": 0
+                },
+                {
+                    "id": 2,
+                    "no_ref": "INV-20260500002",
+                    "user_id": 108,
+                    "value": 2626000,
+                    "date": "2026-05-12",
+                    "draft": 0
+                }
+            ],
+            "first_page_url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
+            "from": 1,
+            "last_page": 1,
+            "last_page_url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
+            "links": [
+                {
+                    "url": null,
+                    "label": "pagination.previous",
+                    "page": null,
+                    "active": false
+                },
+                {
+                    "url": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member?page=1",
+                    "label": "1",
+                    "page": 1,
+                    "active": true
+                },
+                {
+                    "url": null,
+                    "label": "pagination.next",
+                    "page": null,
+                    "active": false
+                }
+            ],
+            "next_page_url": null,
+            "path": "http://127.0.0.1:8000/api/v1/member/purchase-transaction-member",
+            "per_page": 50,
+            "prev_page_url": null,
+            "to": 2,
+            "total": 2
+        },
+        "total": 3475000
+    }
+}
+- data yang ditampilkan:
+  ----------------------------------------------------------
+  | INV-20260500002
+  | 12 Mei 2026 
+  | Rp. 2.626.000
+  ----------------------------------------------------------
+- komponen diatas bisa diklik dan mengarah ke halaman detail
+
+- untuk endpoint: api/v1/member/purchase-transaction-member/{id}
+  response: {
+    "success": true,
+    "message": "OK",
+    "data": {
+        "invoice": {
+            "id": 2,
+            "no_ref": "INV-20260500002",
+            "date": "2026-05-12",
+            "value": 2626000,
+            "draft": 0,
+            "products": [
+                {
+                    "id": 10,
+                    "name": "Logam Mulia 1 gram",
+                    "code": "LM-0002",
+                    "unit": "gram",
+                    "weight": 1,
+                    "qty": 1,
+                    "amount": 2626000,
+                    "price": 2626000
+                }
+            ]
+        }
+    }
+}
+- data yang ditampilkan pada detail
+  ----------------------------------------------------------
+  | No invoice
+  | Tanggal
+  | Nilai invoice
+  |
+  | DETAIL
+  | Nama Produk
+  | Berat
+  | qty
+  | Nilai
+  ----------------------------------------------------------
+- komponen diatas bisa diklik dan mengarah ke halaman detail
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

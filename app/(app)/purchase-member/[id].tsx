@@ -1,14 +1,14 @@
 import { Redirect } from 'expo-router';
 
-import { MemberPurchaseTransactionList } from '@/src/components/member-purchase-transaction-list';
+import { MemberPurchaseTransactionDetail } from '@/src/components/member-purchase-transaction-detail';
 import { useAuth } from '@/src/hooks/use-auth';
 
-export default function PurchaseMemberScreen() {
+export default function PurchaseMemberDetailScreen() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  return <MemberPurchaseTransactionList />;
+  return <MemberPurchaseTransactionDetail />;
 }

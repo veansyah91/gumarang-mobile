@@ -20,7 +20,8 @@ import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { memberApi } from '@/src/services/api/member';
 import { palette, spacing } from '@/src/theme/tokens';
-import type { CertificateListItem } from '@/src/types/certificate';
+import type { PurchaseTransactionMemberInvoice } from '@/src/types/member';
+import { formatIDR } from '@/src/utils/currency';
 import { formatDateID, isDateAfter, isValidDateInput } from '@/src/utils/date';
 import { toAppError } from '@/src/utils/errors';
 
@@ -29,29 +30,27 @@ type FilterDraft = {
   endDate: string;
 };
 
-function toNumber(value: number | string | null | undefined) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function formatWeight(value: number | string | null | undefined) {
-  return `${toNumber(value).toFixed(2)} gram`;
-}
-
-function CertificateListSkeleton() {
+function PurchaseTransactionListSkeleton() {
   return (
     <View style={styles.section}>
+      <Card>
+        <Skeleton height={18} />
+        <Skeleton height={28} />
+        <Skeleton height={18} />
+      </Card>
+      <Card>
+        <Skeleton height={48} />
+      </Card>
       <View style={styles.listSection}>
-        <Skeleton height={24} />
-        <Skeleton height={92} />
-        <Skeleton height={92} />
-        <Skeleton height={92} />
+        <Skeleton height={90} />
+        <Skeleton height={90} />
+        <Skeleton height={90} />
       </View>
     </View>
   );
 }
 
-function CertificateListErrorState({
+function PurchaseTransactionListErrorState({
   message,
   onRetry,
   isRetrying,
@@ -62,38 +61,39 @@ function CertificateListErrorState({
 }) {
   return (
     <Card>
-      <Text variant="subtitle">Data sertifikat belum bisa dimuat</Text>
+      <Text variant="subtitle">Riwayat pembelian belum bisa dimuat</Text>
       <Text tone="muted">{message}</Text>
-      <TouchableOpacity
-        onPress={onRetry}
-        disabled={isRetrying}
-        style={styles.retryButton}
-      >
-        <Text tone="success">{isRetrying ? 'Memuat...' : 'Coba lagi'}</Text>
-      </TouchableOpacity>
+      <View style={styles.retryButton}>
+        <Button
+          label={isRetrying ? 'Memuat...' : 'Coba lagi'}
+          onPress={onRetry}
+          disabled={isRetrying}
+          variant="secondary"
+        />
+      </View>
     </Card>
   );
 }
 
-function CertificateCard({
+function PurchaseTransactionCard({
   item,
   onPress,
 }: {
-  item: CertificateListItem;
+  item: PurchaseTransactionMemberInvoice;
   onPress: () => void;
 }) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
       <Card>
         <Text variant="subtitle">{item.no_ref}</Text>
-        <Text tone="muted">Tanggal: {formatDateID(item.created_at)}</Text>
-        <Text tone="muted">Berat: {formatWeight(item.weight)}</Text>
+        <Text tone="muted">{formatDateID(item.date)}</Text>
+        <Text>{formatIDR(item.value)}</Text>
       </Card>
     </TouchableOpacity>
   );
 }
 
-function CertificateFilterModal({
+function PurchaseTransactionFilterModal({
   visible,
   draft,
   onChangeDraft,
@@ -161,7 +161,7 @@ function CertificateFilterModal({
   );
 }
 
-export function MemberCertificateList() {
+export function MemberPurchaseTransactionList() {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -186,16 +186,15 @@ export function MemberCertificateList() {
 
   const query = useQuery({
     queryKey: [
-      'member-certificate-list',
+      'member-purchase-transaction-list',
       page,
       searchQuery,
       startDate,
       endDate,
     ],
     queryFn: () =>
-      memberApi.getCertificates({
+      memberApi.getPurchaseTransactionMembers({
         page,
-        limit: 10,
         query: searchQuery || undefined,
         start_date: startDate || undefined,
         end_date: endDate || undefined,
@@ -206,10 +205,19 @@ export function MemberCertificateList() {
 
   const data = query.data;
   const errorMessage = query.error ? toAppError(query.error).userMessage : null;
-  const isListLoading = query.isLoading || query.isFetching;
+  const invoices = data?.invoices.data ?? [];
+  const pagination = data?.invoices;
 
-  const certificates = data?.certificates.data ?? [];
-  const pagination = data?.certificates;
+  const paginationInfo = useMemo(
+    () => ({
+      currentPage: pagination?.current_page ?? 1,
+      lastPage: pagination?.last_page ?? 1,
+      from: pagination?.from,
+      to: pagination?.to,
+      total: pagination?.total,
+    }),
+    [pagination],
+  );
 
   const handleClearSearch = () => {
     setSearchInput('');
@@ -235,22 +243,11 @@ export function MemberCertificateList() {
     setIsRefreshing(false);
   };
 
-  const paginationInfo = useMemo(
-    () => ({
-      currentPage: pagination?.current_page ?? 1,
-      lastPage: pagination?.last_page ?? 1,
-      from: pagination?.from,
-      to: pagination?.to,
-      total: pagination?.total,
-    }),
-    [pagination],
-  );
-
   return (
     <View style={styles.container}>
       <Subnav
         searchValue={searchInput}
-        searchPlaceholder="Cari sertifikat"
+        searchPlaceholder="Cari invoice"
         onSearchChange={setSearchInput}
         onSearchClear={handleClearSearch}
         onFilterPress={handleOpenFilter}
@@ -272,10 +269,10 @@ export function MemberCertificateList() {
         }
         contentContainerStyle={styles.content}
       >
-        {isListLoading && !data ? (
-          <CertificateListSkeleton />
+        {query.isLoading && !data ? (
+          <PurchaseTransactionListSkeleton />
         ) : errorMessage && !data ? (
-          <CertificateListErrorState
+          <PurchaseTransactionListErrorState
             message={errorMessage}
             onRetry={async () => {
               await query.refetch();
@@ -285,42 +282,40 @@ export function MemberCertificateList() {
         ) : data ? (
           <View style={styles.section}>
             <View style={styles.listSection}>
-              {isListLoading ? (
-                <CertificateListSkeleton />
-              ) : certificates.length > 0 ? (
-                certificates.map((item) => (
-                  <CertificateCard
-                    key={item.id}
-                    item={item}
-                    onPress={() =>
-                      router.push({
-                        pathname: '/(app)/certificate/[id]',
-                        params: { id: String(item.id) },
-                      })
-                    }
-                  />
-                ))
-              ) : (
-                <Card>
-                  <Text tone="muted">Belum ada data sertifikat.</Text>
-                </Card>
-              )}
-            </View>
+            {invoices.length > 0 ? (
+              invoices.map((item) => (
+                <PurchaseTransactionCard
+                  key={item.id}
+                  item={item}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(app)/purchase-member/[id]',
+                      params: { id: String(item.id) },
+                    })
+                  }
+                />
+              ))
+            ) : (
+              <Card>
+                <Text tone="muted">Belum ada riwayat pembelian emas.</Text>
+              </Card>
+            )}
           </View>
-        ) : (
-          <Card>
-            <Text tone="muted">Data tidak tersedia.</Text>
-          </Card>
-        )}
-      </Screen>
+        </View>
+      ) : (
+        <Card>
+          <Text tone="muted">Data tidak tersedia.</Text>
+        </Card>
+      )}
+    </Screen>
 
-      <CertificateFilterModal
-        visible={isFilterVisible}
-        draft={filterDraft}
-        onChangeDraft={setFilterDraft}
-        onClose={() => setIsFilterVisible(false)}
-        onSubmit={handleSubmitFilter}
-      />
+    <PurchaseTransactionFilterModal
+      visible={isFilterVisible}
+      draft={filterDraft}
+      onChangeDraft={setFilterDraft}
+      onClose={() => setIsFilterVisible(false)}
+      onSubmit={handleSubmitFilter}
+    />
     </View>
   );
 }
@@ -352,9 +347,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderRadius: 24,
     padding: spacing.lg,
-  },
-  helperText: {
-    fontSize: 12,
   },
   modalActions: {
     gap: spacing.sm,

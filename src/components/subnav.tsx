@@ -1,7 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { Card } from '@/src/components/ui/card';
 import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { palette, radius, spacing } from '@/src/theme/tokens';
@@ -97,7 +96,15 @@ export function Subnav({
   const canNext = currentPage < lastPage;
 
   return (
-    <Card>
+    <View
+      style={[
+        styles.subnavCard,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+        },
+      ]}
+    >
       <View style={styles.controlsRow}>
         <View style={styles.searchWrapper}>
           <SearchField
@@ -169,11 +176,20 @@ export function Subnav({
           />
         </Pressable>
       </View>
-    </Card>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  subnavCard: {
+    borderBottomLeftRadius: radius.md,
+    borderBottomRightRadius: radius.md,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
   controlsRow: {
     flexDirection: 'row',
     gap: spacing.sm,

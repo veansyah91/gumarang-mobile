@@ -17,6 +17,74 @@ export interface PurchaseInvoicesData {
   pagination: Pagination;
 }
 
+export interface PurchaseTransactionMemberListFilters {
+  page?: number;
+  query?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface PurchaseTransactionMemberInvoice {
+  id: number;
+  no_ref: string;
+  user_id: number;
+  value: number | string;
+  date: string;
+  draft: number;
+}
+
+export interface PurchaseTransactionMemberPaginationLink {
+  url: string | null;
+  label: string;
+  page: number | null;
+  active: boolean;
+}
+
+export interface PurchaseTransactionMemberPagination {
+  current_page: number;
+  data: PurchaseTransactionMemberInvoice[];
+  first_page_url: string | null;
+  from: number | null;
+  last_page: number;
+  last_page_url: string | null;
+  links: PurchaseTransactionMemberPaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
+export interface PurchaseTransactionMemberListData {
+  invoices: PurchaseTransactionMemberPagination;
+  total: number | string;
+}
+
+export interface PurchaseTransactionMemberProduct {
+  id: number;
+  name: string;
+  code: string;
+  unit: string;
+  weight: number | string;
+  qty: number | string;
+  amount: number | string;
+  price: number | string;
+}
+
+export interface PurchaseTransactionMemberInvoiceDetail {
+  id: number;
+  no_ref: string;
+  date: string;
+  value: number | string;
+  draft: number;
+  products: PurchaseTransactionMemberProduct[];
+}
+
+export interface PurchaseTransactionMemberDetailData {
+  invoice: PurchaseTransactionMemberInvoiceDetail;
+}
+
 export interface ProductWeightData {
   total_weight: number;
   currency: string;
