@@ -1,14 +1,14 @@
 import { Redirect } from 'expo-router';
 
-import { MemberGoldConvertionList } from '@/src/components/member-gold-convertion-list';
+import { MemberSavingDetailList } from '@/src/components/member-saving-detail-list';
 import { useAuth } from '@/src/hooks/use-auth';
 
-export default function GoldConvertionMemberScreen() {
+export default function SavingDetailMemberScreen() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  return <MemberGoldConvertionList />;
+  return <MemberSavingDetailList />;
 }

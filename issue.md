@@ -1,79 +1,85 @@
-# Issue: Fitur Sale Transaction Member (Riwayat Penjualan Emas)
+# Fitur: Saving Detail Member (Riwayat Mutasi Simpanan)
 
-## Overview
-
-Tambahkan fitur **Riwayat Penjualan Emas** untuk member, mengikuti pola yang sudah ada di fitur `purchase-transaction-member`.
-
----
-
-## 1. Type Definitions
-
-Di `src/types/member.ts`, tambahkan tipe data untuk sale transaction:
-
-- `SaleInvoice` — id, no_ref, user_id, value, date
-- `SaleInvoiceDetail` — id, no_ref, date, value, products[]
-- `SaleProduct` — id, name, code, unit, weight, qty, amount, price
-- Response types untuk list (dengan pagination + total) dan detail
+## Tujuan
+Menampilkan riwayat mutasi simpanan emas milik member, lengkap dengan filter tanggal, tipe transaksi, dan pilihan akun simpanan.
 
 ---
 
-## 2. API Layer
-
-Di `src/services/api/member.ts`, tambahkan dua fungsi:
-
-- `getSaleTransactionMembers(filters)` → `GET /api/v1/member/sale-transaction-member`
-  - Filter: `page`, `query`, `start_date`, `end_date`
-- `getSaleTransactionMember(id)` → `GET /api/v1/member/sale-transaction-member/{id}`
+## Referensi Template UI
+Gunakan `member-saving-detail-list.tsx` (pola `Subnav`, filter modal, pagination, search) sebagai referensi struktur komponen.
 
 ---
 
-## 3. Komponen UI
+## 1. Type Definitions (`src/types/member.ts`)
 
-Buat dua komponen baru dengan menggunakan `member-purchase-transaction-list.tsx` dan `member-purchase-transaction-detail.tsx` sebagai template:
+Tambah tipe baru untuk fitur ini:
 
-### `src/components/member-sale-transaction-list.tsx`
+- **`SavingDetailItem`** — item per transaksi:
+  - `id`, `no_ref`, `date`, `type` (`"debit" | "credit"`), `amount` (string), `balance` (string), `description`, `qty`
+  - `user_saving`: `{ id, no_ref, weight, value, value_per_unit, product_category: { id, name } }`
 
-- Search input (debounce ~400ms) berdasarkan `no_ref` atau nama
-- Filter tanggal (start_date / end_date) via modal
-- List item menampilkan: `no_ref`, tanggal, nilai (Rp)
-- Tap item navigasi ke `/(app)/sale-member/[id]`
-- Pagination
+- **`SavingDetailListFilters`** — parameter query:
+  - `page`, `query`, `start_date`, `end_date`, `type` (`"debit" | "credit" | ""`), `userSaving` (id saving)
 
-### `src/components/member-sale-transaction-detail.tsx`
-
-- Header: no invoice, tanggal, total nilai
-- List produk: nama produk, berat, qty, nilai
-- Handle error 403 (invoice tidak ditemukan / bukan milik user)
+- **`SavingDetailListResponse`** — wrapper response pagination (gunakan pola `links` + `meta` yang sudah ada di codebase)
 
 ---
 
-## 4. Halaman (Screens)
+## 2. API Service (`src/services/api/member.ts`)
 
-Buat dua screen mengikuti struktur `app/(app)/purchase-member`:
+Tambah fungsi baru:
 
-- `app/(app)/sale-member.tsx` — wrap list component
-- `app/(app)/sale-member/[id].tsx` — wrap detail component, baca `id` dari `useLocalSearchParams()`
-
----
-
-## 5. Router
-
-Di `app/(app)/_layout.tsx`, daftarkan dua route baru pada Stack:
-
-- `sale-member` → title: `"Riwayat Penjualan Emas"`
-- `sale-member/[id]` → title: `"Detail Penjualan Emas"`
+- **`getSavingDetails(filters: SavingDetailListFilters)`**
+  - `GET /api/v1/member/saving-details`
+  - Query params: `startDate`, `endDate`, `type`, `query`, `userSaving`, `page`
 
 ---
 
-## 6. Navigasi / Entry Point
+## 3. Komponen List (`src/components/member-saving-detail-list.tsx`)
 
-Tambahkan tombol / menu masuk ke halaman `sale-member` dari halaman member utama (sejajarkan dengan entri "Riwayat Pembelian Emas").
+Komponen utama halaman. Ikuti pola `member-saving-detail-list.tsx` yang sudah ada:
+
+### Filter
+- Filter modal berisi:
+  - Input tanggal: `start_date` dan `end_date`
+  - Select saving: list dari `memberApi.getSavingMembers()` → tampilkan `no_ref` + `product_category.name`
+  - Select tipe: pilihan `Semua`, `Debit`, `Credit`
+- Gunakan pola `filterDraft` (state sementara di modal, apply saat submit)
+
+### Card Item
+Tiap item tampil sebagai card dua baris:
+
+```
+| [tanggal + jam]              [amount] gram |
+| [no_ref]                                   |
+|         [DEBIT / CREDIT badge]             |
+```
+
+- Badge tipe: background **merah** untuk `debit`, **hijau** untuk `credit`, teks putih
+- Format amount: angka desimal + " gram"
+- Format tanggal: `DD MMM YYYY, HH:mm:ss`
+
+### State & Fitur
+- Search query (debounce 400ms)
+- Pagination (page state, tampil di Subnav)
+- Pull-to-refresh
+- Loading skeleton, empty state, error state
 
 ---
 
-## 7. Testing
+## 4. Screen (`app/(app)/saving-detail-member.tsx`)
 
-- Pastikan list tampil dan filter (query, tanggal) berjalan
-- Pastikan navigasi ke detail berfungsi
-- Pastikan data detail (produk, berat, qty, nilai) tampil benar
-- Cek handling error 401 dan 403
+Screen wrapper sederhana, ikuti pola `saving-member.tsx`:
+- Ambil `user` dari `useAuth()`
+- Render `<MemberSavingDetailList />`
+
+---
+
+## 5. Testing
+
+- Filter modal terbuka dan tertutup dengan benar
+- Filter tanggal, tipe, dan saving bekerja (request API berubah sesuai filter)
+- Badge warna tampil sesuai tipe transaksi
+- Pagination berfungsi
+- Pull-to-refresh berfungsi
+- State loading/error/empty tampil dengan benar

@@ -220,3 +220,173 @@ export interface SaleTransactionMemberInvoiceDetail {
 export interface SaleTransactionMemberDetailData {
   invoice: SaleTransactionMemberInvoiceDetail;
 }
+
+export interface SavingMemberListFilters {
+  query?: string;
+}
+
+export interface SavingMemberProductCategory {
+  id: number;
+  name: string;
+}
+
+export interface SavingMember {
+  id: number;
+  no_ref: string;
+  unit: string;
+  weight: string;
+  value: number | string;
+  value_per_unit: number | string;
+  is_active: number;
+  product_category: SavingMemberProductCategory;
+}
+
+export interface SavingMemberListData {
+  data: SavingMember[];
+}
+
+export interface SavingDetailMemberListFilters {
+  page?: number;
+  query?: string;
+  start_date?: string;
+  end_date?: string;
+  user_saving_id?: number | string;
+}
+
+export interface SavingDetailMember {
+  id: number;
+  date: string;
+  type: string;
+  amount: number | string;
+  value: number | string;
+}
+
+export interface SavingDetailMemberPaginationLink {
+  url: string | null;
+  label: string;
+  page: number | null;
+  active: boolean;
+}
+
+export interface SavingDetailMemberPagination {
+  current_page: number;
+  data: SavingDetailMember[];
+  first_page_url: string | null;
+  from: number | null;
+  last_page: number;
+  last_page_url: string | null;
+  links: SavingDetailMemberPaginationLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
+export interface SavingDetailMemberListData {
+  details: SavingDetailMemberPagination;
+  total: number | string;
+}
+
+export interface SavingDetailListFilters {
+  page?: number;
+  query?: string;
+  start_date?: string;
+  end_date?: string;
+  type?: 'debit' | 'credit' | '';
+  userSaving?: number | string;
+}
+
+export interface SavingDetailItem {
+  id: number;
+  no_ref: string;
+  date: string;
+  type: 'debit' | 'credit';
+  amount: string;
+  balance: string;
+  description: string;
+  qty: number;
+  user_saving: {
+    id: number;
+    no_ref: string;
+    weight: string;
+    value: number | string;
+    value_per_unit: number | string;
+    product_category: SavingMemberProductCategory;
+  };
+}
+
+export interface SavingDetailListPaginationLink {
+  url: string | null;
+  label: string;
+  page: number | null;
+  active: boolean;
+}
+
+export interface SavingDetailListMeta {
+  current_page: number;
+  from: number | null;
+  last_page: number;
+  links: SavingDetailListPaginationLink[];
+  path: string;
+  per_page: number;
+  to: number | null;
+  total: number;
+}
+
+export interface SavingDetailListResponse {
+  data: SavingDetailItem[];
+  links: {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+  };
+  meta: SavingDetailListMeta;
+}
+
+export interface GoldConvertionListFilters {
+  page?: number;
+  query?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface GoldConvertionItem {
+  id: number;
+  no_ref: string;
+  user_id: number;
+  user_name: string;
+  date: string;
+  weight: string;
+  unit: string;
+  draft: boolean;
+}
+
+export interface GoldConvertionProduct {
+  id: number;
+  gold_convert_id: number;
+  product_id: number;
+  product_name: string;
+  weight: string;
+  unit: string;
+  qty: number;
+  status: 'start' | 'end';
+}
+
+export interface GoldConvertionDetail extends GoldConvertionItem {
+  products: GoldConvertionProduct[];
+}
+
+export interface GoldConvertionListResponse {
+  data: GoldConvertionItem[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+    per_page: number;
+  };
+}

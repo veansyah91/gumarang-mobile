@@ -1,28 +1,38 @@
 import type {
-  CertificateDetail,
-  CertificateDetailData,
-  CertificateListData,
-  CertificateListFilters,
+    CertificateDetail,
+    CertificateDetailData,
+    CertificateListData,
+    CertificateListFilters,
 } from '@/src/types/certificate';
 import type {
-  DashboardSummary,
-  DepositsData,
-  GoldListData,
-  Pagination,
-  ProductWeightData,
-  ProfitData,
-  PurchaseInvoicesData,
-  PurchaseTransactionMemberDetailData,
-  PurchaseTransactionMemberInvoiceDetail,
-  PurchaseTransactionMemberListData,
-  PurchaseTransactionMemberListFilters,
-  SaleInvoicesData,
-  SaleTransactionMemberDetailData,
-  SaleTransactionMemberInvoiceDetail,
-  SaleTransactionMemberListData,
-  SaleTransactionMemberListFilters,
-  SavingWeightData,
-  WithdrawsData,
+    DashboardSummary,
+    DepositsData,
+    GoldConvertionDetail,
+    GoldConvertionListFilters,
+    GoldConvertionListResponse,
+    GoldListData,
+    Pagination,
+    ProductWeightData,
+    ProfitData,
+    PurchaseInvoicesData,
+    PurchaseTransactionMemberDetailData,
+    PurchaseTransactionMemberInvoiceDetail,
+    PurchaseTransactionMemberListData,
+    PurchaseTransactionMemberListFilters,
+    SaleInvoicesData,
+    SaleTransactionMemberDetailData,
+    SaleTransactionMemberInvoiceDetail,
+    SaleTransactionMemberListData,
+    SaleTransactionMemberListFilters,
+    SavingDetailListFilters,
+    SavingDetailListResponse,
+    SavingDetailMemberListData,
+    SavingDetailMemberListFilters,
+    SavingMember,
+    SavingMemberListData,
+    SavingMemberListFilters,
+    SavingWeightData,
+    WithdrawsData,
 } from '@/src/types/member';
 
 import { apiClient } from './client';
@@ -175,5 +185,56 @@ export const memberApi = {
     );
 
     return res.data.data.certificate;
+  },
+
+  async getGoldConvertions(
+    params?: GoldConvertionListFilters,
+  ): Promise<GoldConvertionListResponse> {
+    const res = await apiClient.get<GoldConvertionListResponse>(
+      '/api/v1/member/gold-convertion',
+      { params },
+    );
+
+    return res.data;
+  },
+
+  async getGoldConvertion(id: number | string): Promise<GoldConvertionDetail> {
+    const res = await apiClient.get<WrappedResponse<GoldConvertionDetail>>(
+      `/api/v1/member/gold-convertion/${id}`,
+    );
+
+    return res.data.data;
+  },
+
+  async getSavingMembers(
+    params?: SavingMemberListFilters,
+  ): Promise<SavingMember[]> {
+    const res = await apiClient.get<SavingMemberListData>(
+      '/api/v1/member/savings',
+      { params },
+    );
+
+    return res.data.data;
+  },
+
+  async getSavingDetailMembers(
+    params?: SavingDetailMemberListFilters,
+  ): Promise<SavingDetailMemberListData> {
+    const res = await apiClient.get<
+      WrappedResponse<SavingDetailMemberListData>
+    >('/api/v1/member/saving-details', { params });
+
+    return res.data.data;
+  },
+
+  async getSavingDetails(
+    params?: SavingDetailListFilters,
+  ): Promise<SavingDetailListResponse> {
+    const res = await apiClient.get<SavingDetailListResponse>(
+      '/api/v1/member/saving-details',
+      { params },
+    );
+
+    return res.data;
   },
 };

@@ -37,6 +37,18 @@ export default function AppLayout() {
         name="gold-convertion-member"
         options={{ title: 'Riwayat Tukar Emas' }}
       />
+      <Stack.Screen
+        name="gold-convertion-member/[id]"
+        options={{ title: 'Detail Tukar Emas' }}
+      />
+      <Stack.Screen
+        name="saving-member"
+        options={{ title: 'Data Tabunganku' }}
+      />
+      <Stack.Screen
+        name="saving-detail-member"
+        options={{ title: 'Buku Tabungan' }}
+      />
     </Stack>
   );
 }
