@@ -85,8 +85,10 @@ function PurchaseTransactionCard({
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
       <Card>
-        <Text variant="subtitle">{item.no_ref}</Text>
-        <Text tone="muted">{formatDateID(item.date)}</Text>
+        <View style={styles.cardHeader}>
+          <Text variant="subtitle">{item.no_ref}</Text>
+          <Text tone="muted">{formatDateID(item.date)}</Text>
+        </View>
         <Text>{formatIDR(item.value)}</Text>
       </Card>
     </TouchableOpacity>
@@ -196,8 +198,8 @@ export function MemberPurchaseTransactionList() {
       memberApi.getPurchaseTransactionMembers({
         page,
         query: searchQuery || undefined,
-        start_date: startDate || undefined,
-        end_date: endDate || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       }),
     staleTime: 1000 * 60 * 5,
     retry: 1,
@@ -247,7 +249,7 @@ export function MemberPurchaseTransactionList() {
     <View style={styles.container}>
       <Subnav
         searchValue={searchInput}
-        searchPlaceholder="Cari invoice"
+        searchPlaceholder="Cari pembelian emas"
         onSearchChange={setSearchInput}
         onSearchClear={handleClearSearch}
         onFilterPress={handleOpenFilter}
@@ -282,40 +284,40 @@ export function MemberPurchaseTransactionList() {
         ) : data ? (
           <View style={styles.section}>
             <View style={styles.listSection}>
-            {invoices.length > 0 ? (
-              invoices.map((item) => (
-                <PurchaseTransactionCard
-                  key={item.id}
-                  item={item}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/(app)/purchase-member/[id]',
-                      params: { id: String(item.id) },
-                    })
-                  }
-                />
-              ))
-            ) : (
-              <Card>
-                <Text tone="muted">Belum ada riwayat pembelian emas.</Text>
-              </Card>
-            )}
+              {invoices.length > 0 ? (
+                invoices.map((item) => (
+                  <PurchaseTransactionCard
+                    key={item.id}
+                    item={item}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(app)/purchase-member/[id]',
+                        params: { id: String(item.id) },
+                      })
+                    }
+                  />
+                ))
+              ) : (
+                <Card>
+                  <Text tone="muted">Belum ada riwayat pembelian emas.</Text>
+                </Card>
+              )}
+            </View>
           </View>
-        </View>
-      ) : (
-        <Card>
-          <Text tone="muted">Data tidak tersedia.</Text>
-        </Card>
-      )}
-    </Screen>
+        ) : (
+          <Card>
+            <Text tone="muted">Data tidak tersedia.</Text>
+          </Card>
+        )}
+      </Screen>
 
-    <PurchaseTransactionFilterModal
-      visible={isFilterVisible}
-      draft={filterDraft}
-      onChangeDraft={setFilterDraft}
-      onClose={() => setIsFilterVisible(false)}
-      onSubmit={handleSubmitFilter}
-    />
+      <PurchaseTransactionFilterModal
+        visible={isFilterVisible}
+        draft={filterDraft}
+        onChangeDraft={setFilterDraft}
+        onClose={() => setIsFilterVisible(false)}
+        onSubmit={handleSubmitFilter}
+      />
     </View>
   );
 }
@@ -332,6 +334,12 @@ const styles = StyleSheet.create({
   },
   listSection: {
     gap: spacing.sm,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
   },
   retryButton: {
     marginTop: spacing.sm,

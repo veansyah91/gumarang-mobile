@@ -153,7 +153,11 @@ function ProductCard({
   const unit = normalizeUnit(product.unit);
   const productPrice = toNumber(product.price);
   const qty = toNumber(product.qty);
-  const weight = toNumber(product.weight);
+  let weight = toNumber(product.weight);
+
+  if (unit === 'miligram') {
+    weight = weight / 1000;
+  }
 
   const buybackPercentage =
     unit && productPrice > 0

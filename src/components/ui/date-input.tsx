@@ -12,6 +12,7 @@ type Props = {
   placeholder?: string;
   value: string;
   onChangeDate: (value: string) => void;
+  error?: boolean;
 };
 
 const WEEKDAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -57,7 +58,7 @@ function DateGrid({
   const selectedValue = value;
   const todayValue = formatDateValue(new Date());
 
-  const cells = [
+  const cells: Array<{ key: string; day?: number; cellValue?: string }> = [
     ...Array.from({ length: leadingBlanks }, (_, index) => ({
       key: `blank-${index}`,
     })),
@@ -85,13 +86,14 @@ function DateGrid({
           return <View key={cell.key} style={styles.dayCell} />;
         }
 
-        const isSelected = cell.cellValue === selectedValue;
-        const isToday = cell.cellValue === todayValue;
+        const cellValue = cell.cellValue!;
+        const isSelected = cellValue === selectedValue;
+        const isToday = cellValue === todayValue;
 
         return (
           <Pressable
             key={cell.key}
-            onPress={() => onSelect(cell.cellValue)}
+            onPress={() => onSelect(cellValue)}
             style={({ pressed }) => [
               styles.dayCell,
               {
@@ -122,13 +124,17 @@ export function DateInput({
   placeholder = 'Pilih tanggal',
   value,
   onChangeDate,
+  error,
 }: Props) {
   const theme = useResolvedTheme();
   const colors = palette[theme];
   const [visible, setVisible] = useState(false);
   const [cursor, setCursor] = useState(() => toMonthCursor(value));
 
-  const displayValue = useMemo(() => value || placeholder, [placeholder, value]);
+  const displayValue = useMemo(
+    () => value || placeholder,
+    [placeholder, value],
+  );
 
   const open = () => {
     setCursor(toMonthCursor(value));
@@ -155,7 +161,7 @@ export function DateInput({
             styles.inputRow,
             {
               backgroundColor: colors.surface,
-              borderColor: colors.border,
+              borderColor: error ? colors.danger : colors.border,
             },
           ]}
         >

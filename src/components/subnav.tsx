@@ -18,6 +18,7 @@ type SubnavProps = {
   total: number | null | undefined;
   onPrev: () => void;
   onNext: () => void;
+  onCatalogPress?: () => void;
   prevLabel?: string;
   nextLabel?: string;
 };
@@ -86,6 +87,7 @@ export function Subnav({
   total,
   onPrev,
   onNext,
+  onCatalogPress,
   prevLabel = 'Prev',
   nextLabel = 'Next',
 }: SubnavProps) {
@@ -114,6 +116,23 @@ export function Subnav({
             onClear={onSearchClear}
           />
         </View>
+
+        {onCatalogPress ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={onCatalogPress}
+            style={({ pressed }) => [
+              styles.iconButton,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Ionicons name="grid-outline" size={18} color={colors.text} />
+          </Pressable>
+        ) : null}
 
         {onFilterPress ? (
           <Pressable

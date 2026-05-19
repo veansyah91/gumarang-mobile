@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Tabs } from 'expo-router';
 
 import { Header } from '@/src/components/ui/header';
@@ -9,10 +10,15 @@ import { palette } from '@/src/theme/tokens';
 function TabIcon({
   name,
   color,
+  type = 'ionicons',
 }: {
-  name: React.ComponentProps<typeof Ionicons>['name'];
+  name: any;
   color: string;
+  type?: 'ionicons' | 'material';
 }) {
+  if (type === 'material') {
+    return <MaterialCommunityIcons name={name} size={22} color={color} />;
+  }
   return <Ionicons name={name} size={22} color={color} />;
 }
 
@@ -59,6 +65,15 @@ export default function TabsLayout() {
           title: 'Tabunganku',
           tabBarIcon: ({ color }) => (
             <TabIcon name="book-outline" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="catalog"
+        options={{
+          title: 'Katalog',
+          tabBarIcon: ({ color }) => (
+            <TabIcon name="ring" color={color} type="material" />
           ),
         }}
       />

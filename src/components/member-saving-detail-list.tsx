@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    Modal,
-    Pressable,
-    RefreshControl,
-    StyleSheet,
-    View,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -14,11 +15,12 @@ import { Button } from '@/src/components/ui/button';
 import { Card } from '@/src/components/ui/card';
 import { DateInput } from '@/src/components/ui/date-input';
 import { Screen } from '@/src/components/ui/screen';
+import { SelectInput } from '@/src/components/ui/select-input';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { memberApi } from '@/src/services/api/member';
-import { palette, spacing } from '@/src/theme/tokens';
+import { palette, radius, spacing } from '@/src/theme/tokens';
 import type { SavingDetailItem, SavingMember } from '@/src/types/member';
 import { formatDateID, isDateAfter, isValidDateInput } from '@/src/utils/date';
 import { toAppError } from '@/src/utils/errors';
@@ -76,8 +78,8 @@ function SavingDetailCard({ item }: { item: SavingDetailItem }) {
   const isDebit = item.type === 'debit';
   const badgeColor = isDebit ? '#EF4444' : '#10B981';
 
-  const dateTime = new Date(item.date);
-  const formattedDate = formatDateID(item.date);
+  const dateTime = new Date(item.created_at);
+  const formattedDate = formatDateID(item.created_at);
   const formattedTime = dateTime.toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit',
@@ -85,20 +87,25 @@ function SavingDetailCard({ item }: { item: SavingDetailItem }) {
   });
 
   return (
-    <Card>
-      <View style={styles.cardHeader}>
-        <Text tone="muted" style={styles.cardDate}>
-          {formattedDate}, {formattedTime}
-        </Text>
-        <Text style={styles.cardAmount}>{item.amount} gram</Text>
+    <View
+      style={[
+        styles.detailCard,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
+      <View style={styles.cardBody}>
+        <View style={styles.cardHeader}>
+          <Text tone="muted" style={styles.cardDate}>
+            {formattedDate}, {formattedTime}
+          </Text>
+          <Text style={styles.cardAmount}>{item.amount} gram</Text>
+        </View>
+        <Text tone="muted">{item.no_ref}</Text>
       </View>
-      <Text tone="muted">{item.no_ref}</Text>
-      <View
-        style={[styles.typeBadge, { backgroundColor: badgeColor }]}
-      >
+      <View style={[styles.typeBadge, { backgroundColor: badgeColor }]}>
         <Text style={styles.typeBadgeText}>{item.type.toUpperCase()}</Text>
       </View>
-    </Card>
+    </View>
   );
 }
 
@@ -121,16 +128,70 @@ function SavingDetailFilterModal({
 }) {
   const theme = useResolvedTheme();
   const colors = palette[theme];
+  const [errors, setErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
 
-  const isStartValid =
-    draft.startDate === '' || isValidDateInput(draft.startDate);
-  const isEndValid = draft.endDate === '' || isValidDateInput(draft.endDate);
-  const submitDisabled =
-    !draft.startDate ||
-    !draft.endDate ||
-    !isStartValid ||
-    !isEndValid ||
-    isDateAfter(draft.startDate, draft.endDate);
+  useEffect(() => {
+    if (visible) {
+      setErrors({});
+    }
+  }, [visible]);
+
+  const handleValidateAndSubmit = () => {
+    const startEmpty = !draft.startDate;
+    const endEmpty = !draft.endDate;
+    const newErrors: { startDate?: string; endDate?: string } = {};
+
+    if (startEmpty && endEmpty) {
+      setErrors({});
+      onSubmit();
+      return;
+    }
+
+    if (!startEmpty && endEmpty) {
+      newErrors.endDate = 'tanggal akhir tidak boleh kosong';
+      setErrors(newErrors);
+      return;
+    }
+
+    if (startEmpty && !endEmpty) {
+      newErrors.startDate = 'tanggal awal tidak boleh kosong';
+      setErrors(newErrors);
+      return;
+    }
+
+    if (
+      !startEmpty &&
+      !endEmpty &&
+      (!isValidDateInput(draft.startDate) || !isValidDateInput(draft.endDate))
+    ) {
+      if (!isValidDateInput(draft.startDate))
+        newErrors.startDate = 'format tanggal tidak valid';
+      if (!isValidDateInput(draft.endDate))
+        newErrors.endDate = 'format tanggal tidak valid';
+      setErrors(newErrors);
+      return;
+    }
+
+    if (isDateAfter(draft.startDate, draft.endDate)) {
+      const dateStart = new Date(`${draft.startDate}T00:00:00`).getTime();
+      const dateEnd = new Date(`${draft.endDate}T00:00:00`).getTime();
+      const maxDate = dateStart > dateEnd ? draft.startDate : draft.endDate;
+
+      onChangeDraft({
+        ...draft,
+        startDate: maxDate,
+        endDate: maxDate,
+      });
+      setErrors({});
+      return;
+    }
+
+    setErrors({});
+    onSubmit();
+  };
 
   return (
     <Modal
@@ -144,84 +205,87 @@ function SavingDetailFilterModal({
         <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
           <Text variant="subtitle">Filter</Text>
 
-          <DateInput
-            label="Tanggal Awal"
-            placeholder="2026-05-01"
-            value={draft.startDate}
-            onChangeDate={(value) =>
-              onChangeDraft({ ...draft, startDate: value.trim() })
-            }
-          />
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.modalScroll}
+          >
+            <View style={styles.modalScrollContent}>
+              <View>
+                <DateInput
+                  label="Tanggal Awal"
+                  placeholder="2026-05-01"
+                  value={draft.startDate}
+                  onChangeDate={(value) =>
+                    onChangeDraft({ ...draft, startDate: value.trim() })
+                  }
+                  error={!!errors.startDate}
+                />
+                {!!errors.startDate && (
+                  <Text tone="danger" style={styles.errorText}>
+                    {errors.startDate}
+                  </Text>
+                )}
+              </View>
 
-          <DateInput
-            label="Tanggal Akhir"
-            placeholder="2026-05-31"
-            value={draft.endDate}
-            onChangeDate={(value) =>
-              onChangeDraft({ ...draft, endDate: value.trim() })
-            }
-          />
+              <View>
+                <DateInput
+                  label="Tanggal Akhir"
+                  placeholder="2026-05-31"
+                  value={draft.endDate}
+                  onChangeDate={(value) =>
+                    onChangeDraft({ ...draft, endDate: value.trim() })
+                  }
+                  error={!!errors.endDate}
+                />
+                {!!errors.endDate && (
+                  <Text tone="danger" style={styles.errorText}>
+                    {errors.endDate}
+                  </Text>
+                )}
+              </View>
 
-          <View>
-            <Text style={styles.label}>Tipe Transaksi</Text>
-            <View style={styles.typeButtonsContainer}>
-              <View style={styles.typeButton}>
-                <Button
-                  label="Semua"
-                  onPress={() => onChangeDraft({ ...draft, type: '' })}
-                  variant={draft.type === '' ? 'primary' : 'secondary'}
+              <SelectInput
+                label="Tipe Transaksi"
+                value={draft.type}
+                options={[
+                  { label: 'Semua', value: '' },
+                  { label: 'Debit', value: 'debit' },
+                  { label: 'Kredit', value: 'credit' },
+                ]}
+                onChange={(val) =>
+                  onChangeDraft({
+                    ...draft,
+                    type: val as 'debit' | 'credit' | '',
+                  })
+                }
+              />
+
+              {isLoadingSavings ? (
+                <Text tone="muted" style={styles.loadingText}>
+                  Memuat...
+                </Text>
+              ) : (
+                <SelectInput
+                  label="Akun Simpanan"
+                  value={draft.userSavingId}
+                  options={[
+                    { label: 'Semua', value: '' },
+                    ...savingsList.map((s) => ({
+                      label: `${s.no_ref} - ${s.product_category.name}`,
+                      value: s.id,
+                    })),
+                  ]}
+                  onChange={(val) =>
+                    onChangeDraft({ ...draft, userSavingId: val })
+                  }
                 />
-              </View>
-              <View style={styles.typeButton}>
-                <Button
-                  label="Debit"
-                  onPress={() => onChangeDraft({ ...draft, type: 'debit' })}
-                  variant={draft.type === 'debit' ? 'primary' : 'secondary'}
-                />
-              </View>
-              <View style={styles.typeButton}>
-                <Button
-                  label="Kredit"
-                  onPress={() => onChangeDraft({ ...draft, type: 'credit' })}
-                  variant={draft.type === 'credit' ? 'primary' : 'secondary'}
-                />
-              </View>
+              )}
             </View>
-          </View>
-
-          <View>
-            <Text style={styles.label}>Akun Simpanan</Text>
-            {isLoadingSavings ? (
-              <Text tone="muted" style={styles.loadingText}>Memuat...</Text>
-            ) : (
-              <View style={styles.savingsContainer}>
-                <View style={styles.savingButton}>
-                  <Button
-                    label="Semua"
-                    onPress={() => onChangeDraft({ ...draft, userSavingId: '' })}
-                    variant={draft.userSavingId === '' ? 'primary' : 'secondary'}
-                  />
-                </View>
-                {savingsList.map((saving) => (
-                  <View key={saving.id} style={styles.savingButton}>
-                    <Button
-                      label={`${saving.no_ref} - ${saving.product_category.name}`}
-                      onPress={() => onChangeDraft({ ...draft, userSavingId: saving.id })}
-                      variant={draft.userSavingId === saving.id ? 'primary' : 'secondary'}
-                    />
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
+          </ScrollView>
 
           <View style={styles.modalActions}>
             <Button label="Batal" onPress={onClose} variant="secondary" />
-            <Button
-              label="Terapkan"
-              onPress={onSubmit}
-              disabled={submitDisabled}
-            />
+            <Button label="Terapkan" onPress={handleValidateAndSubmit} />
           </View>
         </View>
       </View>
@@ -230,7 +294,9 @@ function SavingDetailFilterModal({
 }
 
 export function MemberSavingDetailList() {
-  const { user_saving_id } = useLocalSearchParams<{ user_saving_id?: string }>();
+  const { user_saving_id } = useLocalSearchParams<{
+    user_saving_id?: string;
+  }>();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
@@ -279,8 +345,8 @@ export function MemberSavingDetailList() {
       memberApi.getSavingDetails({
         page,
         query: searchQuery || undefined,
-        start_date: startDate || undefined,
-        end_date: endDate || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         type: type || undefined,
         userSaving: userSavingId || undefined,
       }),
@@ -339,7 +405,7 @@ export function MemberSavingDetailList() {
     <View style={styles.container}>
       <Subnav
         searchValue={searchInput}
-        searchPlaceholder="Cari mutasi"
+        searchPlaceholder="Cari mutasi tabungan"
         onSearchChange={setSearchInput}
         onSearchClear={handleClearSearch}
         onFilterPress={handleOpenFilter}
@@ -418,11 +484,19 @@ const styles = StyleSheet.create({
   listSection: {
     gap: spacing.sm,
   },
+  detailCard: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  cardBody: {
+    gap: spacing.xs,
+    padding: spacing.md,
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
   },
   cardDate: {
     flex: 1,
@@ -432,15 +506,12 @@ const styles = StyleSheet.create({
   },
   typeBadge: {
     paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 4,
-    alignSelf: 'center',
-    marginTop: spacing.sm,
+    alignItems: 'center',
   },
   typeBadgeText: {
-    color: 'white',
+    color: '#ffffff',
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: 13,
   },
   retryButton: {
     marginTop: spacing.sm,
@@ -458,31 +529,22 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     maxHeight: '80%',
   },
+  modalScroll: {
+    flexGrow: 0,
+  },
+  modalScrollContent: {
+    gap: spacing.md,
+  },
   modalActions: {
     gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: spacing.sm,
-  },
-  typeButtonsContainer: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  typeButton: {
-    flex: 1,
-  },
-  savingsContainer: {
-    gap: spacing.sm,
-  },
-  savingButton: {
-    width: '100%',
+    marginTop: spacing.xs,
   },
   loadingText: {
     textAlign: 'center',
     paddingVertical: spacing.md,
+  },
+  errorText: {
+    fontSize: 12,
+    marginTop: 2,
   },
 });

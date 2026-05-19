@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    Modal,
-    Pressable,
-    RefreshControl,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Modal,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -84,8 +84,13 @@ function GoldConvertionCard({
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
       <Card>
-        <Text variant="subtitle">{item.no_ref}</Text>
-        <Text tone="muted">{formatDateID(item.date)}</Text>
+        <View style={styles.cardHeader}>
+          <Text variant="subtitle">{item.no_ref}</Text>
+          <Text tone="muted">{formatDateID(item.date)}</Text>
+        </View>
+        <Text tone="muted">
+          Berat: {item.weight} {item.unit}
+        </Text>
       </Card>
     </TouchableOpacity>
   );
@@ -194,8 +199,8 @@ export function MemberGoldConvertionList() {
       memberApi.getGoldConvertions({
         page,
         query: searchQuery || undefined,
-        start_date: startDate || undefined,
-        end_date: endDate || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       }),
     staleTime: 1000 * 60 * 5,
     retry: 1,
@@ -330,6 +335,12 @@ const styles = StyleSheet.create({
   },
   listSection: {
     gap: spacing.sm,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
   },
   retryButton: {
     marginTop: spacing.sm,

@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    RefreshControl,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { Button } from '@/src/components/ui/button';
@@ -89,7 +89,7 @@ function SavingCard({
           ]}
         >
           <Text style={styles.statusText}>
-            {isActive ? 'aktif' : 'tidak aktif'}
+            {isActive ? 'Aktif' : 'Tidak Aktif'}
           </Text>
         </View>
       </View>

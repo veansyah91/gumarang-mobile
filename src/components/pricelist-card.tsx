@@ -6,9 +6,15 @@ import { Card } from '@/src/components/ui/card';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { homeApi } from '@/src/services/api/home';
 import { memberApi } from '@/src/services/api/member';
+import { useAuthStore } from '@/src/state/auth-store';
+
 import { palette, spacing } from '@/src/theme/tokens';
-import type { TransactionDashboardTrend } from '@/src/types/home';
+import type {
+  PriceListsDashboardTrend,
+  TransactionDashboardTrend,
+} from '@/src/types/home';
 
 function formatTodayID() {
   return new Date().toLocaleDateString('id-ID', {
@@ -70,16 +76,31 @@ type PriceItem = {
 };
 
 export function PricelistCard() {
+  const user = useAuthStore((state) => state.user);
+
   const summaryQuery = useQuery({
     queryKey: ['member-dashboard-summary'],
-    queryFn: memberApi.getDashboardSummary,
+    queryFn: () => memberApi.getDashboardSummary(),
     staleTime: 1000 * 60 * 5,
     retry: 1,
+    enabled: !!user,
+  });
+
+  const homeQuery = useQuery({
+    queryKey: ['home-data'],
+    queryFn: homeApi.getHomeData,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    enabled: !user,
   });
 
   const theme = useResolvedTheme();
   const colors = palette[theme];
-  const priceData = summaryQuery.data?.price_list_trend;
+  const priceData: PriceListsDashboardTrend | undefined = user
+    ? summaryQuery.data?.price_list_trend
+    : homeQuery.data?.priceListTrend;
+
+  const isLoading = user ? summaryQuery.isLoading : homeQuery.isLoading;
 
   const buildTenGram = (): TransactionDashboardTrend | null => {
     if (!priceData) return null;
@@ -130,7 +151,7 @@ export function PricelistCard() {
         Harga Emas
       </Text>
 
-      {summaryQuery.isLoading && !priceData ? (
+      {isLoading && !priceData ? (
         <View style={{ gap: spacing.sm }}>
           <Skeleton height={56} />
           <Skeleton height={56} />

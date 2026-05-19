@@ -2,8 +2,8 @@ export interface CertificateListFilters {
   page?: number;
   limit?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface CertificateListItem {

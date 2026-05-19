@@ -20,8 +20,8 @@ export interface PurchaseInvoicesData {
 export interface PurchaseTransactionMemberListFilters {
   page?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface PurchaseTransactionMemberInvoice {
@@ -158,8 +158,8 @@ export interface GoldListData {
 export interface SaleTransactionMemberListFilters {
   page?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface SaleTransactionMemberInvoice {
@@ -248,8 +248,8 @@ export interface SavingMemberListData {
 export interface SavingDetailMemberListFilters {
   page?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
   user_saving_id?: number | string;
 }
 
@@ -292,8 +292,8 @@ export interface SavingDetailMemberListData {
 export interface SavingDetailListFilters {
   page?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
   type?: 'debit' | 'credit' | '';
   userSaving?: number | string;
 }
@@ -307,6 +307,7 @@ export interface SavingDetailItem {
   balance: string;
   description: string;
   qty: number;
+  created_at: string;
   user_saving: {
     id: number;
     no_ref: string;
@@ -349,8 +350,8 @@ export interface SavingDetailListResponse {
 export interface GoldConvertionListFilters {
   page?: number;
   query?: string;
-  start_date?: string;
-  end_date?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface GoldConvertionItem {

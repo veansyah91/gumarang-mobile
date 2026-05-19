@@ -1,130 +1,54 @@
 buat issue.md untuk planning:
 
-Task: buat fitur saving member detail
+Task: modifikasi halaman home
 
-- jadikan purchase invoice member sebagai template UI dalam penggunaan Subnav dan komponen-komponen lainnya secara umum
-- endpoint: GET /api/v1/member/saving-details?startDate=2026-01-01&endDate=2026-05-31&type=debit&query=John&userSaving=5
-
-- response dari backend:
-    {
-        "data": [
-            {
-                "id": 3,
-                "no_ref": "D-20260500001",
-                "date": "2026-05-18",
-                "type": "debit",
-                "amount": "0.20",
-                "balance": "10.80",
-                "description": "FERDI YANSYAH (S-202605001) telah mengambil Simpanan",
-                "qty": 2,
-                "user_saving": {
-                    "id": 1,
-                    "no_ref": "S-202605001",
-                    "weight": "10.80",
-                    "value": 27788400,
-                    "value_per_unit": 2573000,
-                    "product_category": {
-                        "id": 1,
-                        "name": "Logam Mulia"
-                    }
-                }
-            },
-            {
-                "id": 2,
-                "no_ref": "C-20260500002",
-                "date": "2026-05-18",
-                "type": "credit",
-                "amount": "10.00",
-                "balance": "11.00",
-                "description": "FERDI YANSYAH (S-202605001) telah menambahkan Simpanan",
-                "qty": 10,
-                "user_saving": {
-                    "id": 1,
-                    "no_ref": "S-202605001",
-                    "weight": "10.80",
-                    "value": 27788400,
-                    "value_per_unit": 2573000,
-                    "product_category": {
-                        "id": 1,
-                        "name": "Logam Mulia"
-                    }
-                }
-            },
-            {
-                "id": 1,
-                "no_ref": "C-20260500001",
-                "date": "2026-05-18",
-                "type": "credit",
-                "amount": "1.00",
-                "balance": "1.00",
-                "description": "FERDI YANSYAH (S-202605001) telah menambahkan Simpanan",
-                "qty": 1,
-                "user_saving": {
-                    "id": 1,
-                    "no_ref": "S-202605001",
-                    "weight": "10.80",
-                    "value": 27788400,
-                    "value_per_unit": 2573000,
-                    "product_category": {
-                        "id": 1,
-                        "name": "Logam Mulia"
-                    }
-                }
-            }
-        ],
-        "links": {
-            "first": "http://127.0.0.1:8000/api/v1/member/saving-details?page=1",
-            "last": "http://127.0.0.1:8000/api/v1/member/saving-details?page=1",
-            "prev": null,
-            "next": null
-        },
-        "meta": {
-            "current_page": 1,
-            "from": 1,
-            "last_page": 1,
-            "links": [
-                {
-                    "url": null,
-                    "label": "pagination.previous",
-                    "page": null,
-                    "active": false
-                },
-                {
-                    "url": "http://127.0.0.1:8000/api/v1/member/saving-details?page=1",
-                    "label": "1",
-                    "page": 1,
-                    "active": true
-                },
-                {
-                    "url": null,
-                    "label": "pagination.next",
-                    "page": null,
-                    "active": false
-                }
-            ],
-            "path": "http://127.0.0.1:8000/api/v1/member/saving-details",
-            "per_page": 50,
-            "to": 3,
-            "total": 3
-        }
-    }
-
-- modal dialog filter:
-    - memiliki komponen input start date dan end date untuk filter tanggal (seperti pada purchase invoice member)
-    - memiliki komponen select input yang berisi list saving, list diambil dari endpoint: /api/v1/member/savings
-    - memiliki komponen select input dengan list: debit dan credit
-
-- gambaran komponen:
-    --------------------------------------------
-    | 18 Mei 2026, 13:12:58           0,2 gram |
-    | D-20260500001                            |
-    --------------------------------------------
-    |              DEBIT                       |
-    --------------------------------------------
-
-    tulisan tipe (debit/credit) berwarna putih. jika tipe = credit, maka background berwarna hijau, jika tipe = debit maka background berwarna merah
-
-- lakukan testing
+- saat aplikasi diakses, dan belum login, data price list tidak ada, harusnya data bisa diakses tanpa harus login
+- endpoint home:/api/v1/home
+- response dari postman:
+	{
+			"success": true,
+			"message": "OK",
+			"data": {
+					"priceListTrend": {
+							"gram": {
+									"current": {
+											"date": "2026-05-12",
+											"price": {
+													"purchaseValue": 2573000,
+													"saleValue": 2704000
+											}
+									},
+									"previous": {
+											"date": "2026-04-30",
+											"price": {
+													"purchaseValue": 2449000,
+													"saleValue": 2573000
+											}
+									},
+									"difference": 131000,
+									"trend": "up"
+							},
+							"miligram": {
+									"current": {
+											"date": "2026-05-12",
+											"price": {
+													"purchaseValue": 277000,
+													"saleValue": 314000
+											}
+									},
+									"previous": {
+											"date": "2026-04-30",
+											"price": {
+													"purchaseValue": 244000,
+													"saleValue": 276000
+											}
+									},
+									"difference": 38000,
+									"trend": "up"
+							}
+					}
+			}
+	}
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
