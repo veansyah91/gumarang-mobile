@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Modal,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  View,
+    Modal,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -425,7 +425,8 @@ export function MemberSavingDetailList() {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
-        contentContainerStyle={styles.content}
+        safeAreaEdges={['bottom']}
+        contentContainerStyle={[styles.content, { paddingTop: spacing.md }]}
       >
         {query.isLoading && !data ? (
           <SavingDetailListSkeleton />

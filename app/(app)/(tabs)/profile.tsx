@@ -52,6 +52,11 @@ export default function ProfileScreen() {
 
       <Card>
         <View style={styles.stack}>
+          <Button
+            label="Ubah Password"
+            variant="secondary"
+            onPress={() => router.push('/change-password')}
+          />
           <Button label="Keluar" variant="danger" onPress={handleLogout} />
         </View>
       </Card>

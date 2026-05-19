@@ -1,54 +1,21 @@
 buat issue.md untuk planning:
 
-Task: modifikasi halaman home
+Task: modifikasi komponen yang memiliki subnav
 
-- saat aplikasi diakses, dan belum login, data price list tidak ada, harusnya data bisa diakses tanpa harus login
-- endpoint home:/api/v1/home
-- response dari postman:
-	{
-			"success": true,
-			"message": "OK",
-			"data": {
-					"priceListTrend": {
-							"gram": {
-									"current": {
-											"date": "2026-05-12",
-											"price": {
-													"purchaseValue": 2573000,
-													"saleValue": 2704000
-											}
-									},
-									"previous": {
-											"date": "2026-04-30",
-											"price": {
-													"purchaseValue": 2449000,
-													"saleValue": 2573000
-											}
-									},
-									"difference": 131000,
-									"trend": "up"
-							},
-							"miligram": {
-									"current": {
-											"date": "2026-05-12",
-											"price": {
-													"purchaseValue": 277000,
-													"saleValue": 314000
-											}
-									},
-									"previous": {
-											"date": "2026-04-30",
-											"price": {
-													"purchaseValue": 244000,
-													"saleValue": 276000
-											}
-									},
-									"difference": 38000,
-									"trend": "up"
-							}
-					}
-			}
-	}
+komponen saat ini:
+                --------------------------
+                | ---------------------- |
+                | |       SUBNAV       | |
+                | |                    | |
+                | ---------------------- |
+                |                        | }----> ada jarak
+                | ---------------------- |
+                | |                    | |
+                | |     CONTENT        | |
+                | ---------------------- |
+
+ada jarak antara subnav dan content, ketika komponen content discroll keatas, jarak masih ada. harusnya konten tertimpa subnav tanpa ada jarak ketika konten discroll keatas.
+jarak tetap dibutuhkan antara subnav dan data pertama dari konten.
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

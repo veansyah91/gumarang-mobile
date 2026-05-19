@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Modal,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Modal,
+    Pressable,
+    RefreshControl,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -272,7 +272,8 @@ export function MemberCertificateList() {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
-        contentContainerStyle={styles.content}
+        safeAreaEdges={['bottom']}
+        contentContainerStyle={[styles.content, { paddingTop: spacing.md }]}
       >
         {isListLoading && !data ? (
           <CertificateListSkeleton />

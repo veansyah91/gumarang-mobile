@@ -1,10 +1,11 @@
 import type {
-    ForgotPasswordPayload,
-    LoginCredentials,
-    RegisterCredentials,
-    ResetPasswordPayload,
-    Session,
-    VerifyPhonePayload,
+  ForgotPasswordPayload,
+  LoginCredentials,
+  RegisterCredentials,
+  ResetPasswordPayload,
+  Session,
+  UpdatePasswordPayload,
+  VerifyPhonePayload,
 } from '@/src/types/auth';
 import type { User } from '@/src/types/user';
 import { AppError } from '@/src/utils/errors';
@@ -70,6 +71,10 @@ export const authApi = {
 
   async resetPassword(payload: ResetPasswordPayload): Promise<void> {
     await apiClient.post('/api/v1/auth/reset-password', payload);
+  },
+
+  async updatePassword(payload: UpdatePasswordPayload): Promise<void> {
+    await apiClient.post('/api/v1/auth/update-password', payload);
   },
 
   async logout(): Promise<void> {

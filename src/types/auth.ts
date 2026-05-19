@@ -29,6 +29,12 @@ export type ResetPasswordPayload = {
   password_confirmation: string;
 };
 
+export type UpdatePasswordPayload = {
+  old_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+};
+
 export type Session = {
   token: string;
   user: User;

@@ -269,7 +269,8 @@ export function MemberPurchaseTransactionList() {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
-        contentContainerStyle={styles.content}
+        safeAreaEdges={['bottom']}
+        contentContainerStyle={[styles.content, { paddingTop: spacing.md }]}
       >
         {query.isLoading && !data ? (
           <PurchaseTransactionListSkeleton />

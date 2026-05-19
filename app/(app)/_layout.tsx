@@ -49,6 +49,10 @@ export default function AppLayout() {
         name="saving-detail-member"
         options={{ title: 'Buku Tabungan' }}
       />
+      <Stack.Screen
+        name="change-password"
+        options={{ title: 'Ubah Password' }}
+      />
     </Stack>
   );
 }
