@@ -1,8 +1,10 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const appEnv = process.env.APP_ENV ?? 'development';
+const isProduction = appEnv === 'production';
 const apiBaseUrl =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api';
+  process.env.EXPO_PUBLIC_API_BASE_URL ??
+  (isProduction ? 'https://tokomasgumarang.com' : 'http://localhost:8000');
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -21,9 +23,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#F8FAFC',
   },
   ios: {
+    bundleIdentifier: 'com.gumarang.mobile',
     supportsTablet: true,
   },
   android: {
+    package: 'com.gumarang.mobile',
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#F8FAFC',

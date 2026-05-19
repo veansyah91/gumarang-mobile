@@ -14,8 +14,27 @@
       "channel": "preview"
     },
     "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_API_BASE_URL": "https://tokomasgumarang.com/api"
+      }
+    },
+    "production-apk": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "autoIncrement": true,
+      "channel": "production",
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_API_BASE_URL": "https://tokomasgumarang.com/api"
+      }
     }
   },
   "submit": {

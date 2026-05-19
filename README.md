@@ -18,11 +18,19 @@ Modern React Native Expo foundation for the Gumarang Laravel API.
 3. Install dependencies with `npm install`.
 4. Start the app with `npm run start` or `npm run web`.
 
+## Production APK testing
+
+1. Use `.env.production.example` as the reference for production values.
+2. Build the internal APK with `eas build -p android --profile production-apk`.
+3. Use the `production` profile for Play Store AAB submission.
+
 ## Available scripts
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build:web`
+- `npm run build:android:apk`
+- `npm run build:android:aab`
 
 ## Project structure
 
@@ -44,3 +52,4 @@ Modern React Native Expo foundation for the Gumarang Laravel API.
 - Draft transactions are saved locally first and can sync when the user is back online.
 - Route groups cleanly separate authentication, main application, and settings/profile flows.
 - OTA updates are currently disabled. If you later use EAS Update, add a proper `runtimeVersion` and `updates.url` before enabling it again.
+- Production builds point to `https://tokomasgumarang.com`.

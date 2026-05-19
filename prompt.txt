@@ -1,21 +1,8 @@
 buat issue.md untuk planning:
 
-Task: modifikasi komponen yang memiliki subnav
-
-komponen saat ini:
-                --------------------------
-                | ---------------------- |
-                | |       SUBNAV       | |
-                | |                    | |
-                | ---------------------- |
-                |                        | }----> ada jarak
-                | ---------------------- |
-                | |                    | |
-                | |     CONTENT        | |
-                | ---------------------- |
-
-ada jarak antara subnav dan content, ketika komponen content discroll keatas, jarak masih ada. harusnya konten tertimpa subnav tanpa ada jarak ketika konten discroll keatas.
-jarak tetap dibutuhkan antara subnav dan data pertama dari konten.
+buatkan setup konfigurasi untuk proses pembuatan .apk untuk pengujian production sebelum upload ke playstore.
+siapkan file-file yang dibutuhkan untuk standar production.
+endpoint production: https://tokomasgumarang.com/
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
