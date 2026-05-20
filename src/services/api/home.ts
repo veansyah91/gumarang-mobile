@@ -10,7 +10,7 @@ type ApiResponse<T = unknown> = {
 
 export const homeApi = {
   async getHomeData(): Promise<HomeData> {
-    const response = await apiClient.get<ApiResponse<HomeData>>('/api/v1/home');
+    const response = await apiClient.get<ApiResponse<HomeData>>('/v1/home');
     const data = response.data.data;
     if (!data) throw new Error('Invalid home response');
     return data;

@@ -1,8 +1,43 @@
 buat issue.md untuk planning:
 
-buatkan setup konfigurasi untuk proses pembuatan .apk untuk pengujian production sebelum upload ke playstore.
-siapkan file-file yang dibutuhkan untuk standar production.
-endpoint production: https://tokomasgumarang.com/
+Task: Buat fitur push notification
+
+- berikut dokumentasi dari backend:
+  
+### POST /api/v1/member/device-token
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+```
+
+**Request Body:**
+| Field | Type | Required | Keterangan |
+|-------|------|----------|-----------|
+| `token` | string | Ya | Expo push token atau FCM token |
+| `token_type` | string | Ya | `expo` atau `fcm` |
+| `platform` | string | Ya | `ios`, `android`, atau `web` |
+
+**Response 200:**
+```json
+{
+  "message": "Device token registered successfully"
+}
+```
+
+**Response 422:**
+```json
+{
+  "message": "The token field is required.",
+  "errors": {
+    "token": ["The token field is required."]
+  }
+}
+```
+
+---
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

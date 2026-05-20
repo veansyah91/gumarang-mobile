@@ -155,6 +155,35 @@ export interface GoldListData {
   price_list: GoldListPriceList;
 }
 
+export interface GoldListDetailProduct {
+  id: number;
+  name: string;
+  code: string;
+  unit: string;
+  weight: number | string;
+  price: number | string;
+  qty: number | string;
+  amount: number | string;
+}
+
+export interface GoldListDetailPriceList {
+  unit: string;
+  purchaseValue: number;
+  saleValue: number;
+}
+
+export interface GoldListDetailSummary {
+  current_value: number;
+  profit_loss: number;
+  status: 'profit' | 'loss';
+}
+
+export interface GoldListDetailData {
+  product: GoldListDetailProduct;
+  price_list: GoldListDetailPriceList;
+  summary: GoldListDetailSummary;
+}
+
 export interface SaleTransactionMemberListFilters {
   page?: number;
   query?: string;

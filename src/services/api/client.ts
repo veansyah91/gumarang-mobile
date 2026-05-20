@@ -41,7 +41,7 @@ apiClient.interceptors.response.use(
     const appError = toAppError(error);
 
     // Bypass unauthorized check for home API
-    const isHomeApi = error.config?.url?.includes('/api/v1/home');
+    const isHomeApi = error.config?.url?.includes('/v1/home');
 
     if (appError.code === 'unauthorized' && !isHomeApi) {
       unauthorizedHandler?.();

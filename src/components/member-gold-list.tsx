@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { RefreshControl, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/src/components/ui/button';
 import { Card } from '@/src/components/ui/card';
@@ -143,12 +144,15 @@ function GoldListErrorState({
   );
 }
 
+
 function ProductCard({
   product,
   priceList,
+  onPress,
 }: {
   product: GoldListProduct;
   priceList: GoldListPriceList;
+  onPress: () => void;
 }) {
   const unit = normalizeUnit(product.unit);
   const productPrice = toNumber(product.price);
@@ -167,24 +171,30 @@ function ProductCard({
     buybackPercentage == null ? 'muted' : getBuybackTone(buybackPercentage);
 
   return (
-    <Card>
-      <Text variant="subtitle" style={styles.productTitle}>
-        {product.name}
-      </Text>
-      <View style={styles.productRow}>
-        <Text tone="muted">Qty: {qty.toLocaleString('id-ID')}</Text>
-        <Text tone={analysisTone} style={styles.productAnalysis}>
-          {buybackPercentage == null
-            ? '-'
-            : formatPercentage(buybackPercentage)}
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [pressed && styles.pressed]}
+    >
+      <Card>
+        <Text variant="subtitle" style={styles.productTitle}>
+          {product.name}
         </Text>
-      </View>
-      <Text tone="muted">Total Berat: {formatWeight(weight)}</Text>
-    </Card>
+        <View style={styles.productRow}>
+          <Text tone="muted">Qty: {qty.toLocaleString('id-ID')}</Text>
+          <Text tone={analysisTone} style={styles.productAnalysis}>
+            {buybackPercentage == null
+              ? '-'
+              : formatPercentage(buybackPercentage)}
+          </Text>
+        </View>
+        <Text tone="muted">Total Berat: {formatWeight(weight)}</Text>
+      </Card>
+    </Pressable>
   );
 }
 
 export function MemberGoldList() {
+  const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const query = useQuery({
     queryKey: ['member-gold-list'],
@@ -282,6 +292,12 @@ export function MemberGoldList() {
                   key={product.id}
                   product={product}
                   priceList={data.price_list}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/(app)/gold-list/[id]',
+                      params: { id: String(product.id) },
+                    });
+                  }}
                 />
               ))
             )}
@@ -371,5 +387,8 @@ const styles = StyleSheet.create({
   productAnalysis: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

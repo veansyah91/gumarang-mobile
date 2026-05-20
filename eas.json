@@ -26,7 +26,8 @@
     },
     "production-apk": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.workers.max=2"
       },
       "distribution": "internal",
       "autoIncrement": true,

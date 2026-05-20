@@ -1,10 +1,18 @@
 import { Stack } from 'expo-router';
 
+import { usePushNotification } from '@/src/hooks/use-push-notification';
+
 export default function AppLayout() {
+  usePushNotification();
+
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="gold-list" options={{ title: 'Data Emasku' }} />
+      <Stack.Screen
+        name="gold-list/[id]"
+        options={{ title: 'Detail Emasku' }}
+      />
       <Stack.Screen
         name="certificate"
         options={{ title: 'Data Sertifikatku' }}

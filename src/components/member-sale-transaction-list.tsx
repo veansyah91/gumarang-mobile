@@ -272,9 +272,11 @@ export function MemberSaleTransactionList() {
         safeAreaEdges={['bottom']}
         contentContainerStyle={[styles.content, { paddingTop: spacing.md }]}
       >
+        {query.isLoading ? (
+          <SaleTransactionListSkeleton />
         ) : errorMessage && !data ? (
           <SaleTransactionListErrorState
-            message={errorMessage}
+            message={errorMessage ?? 'Terjadi kesalahan'}
             onRetry={async () => {
               await query.refetch();
             }}

@@ -11,6 +11,7 @@ import type {
     GoldConvertionListFilters,
     GoldConvertionListResponse,
     GoldListData,
+    GoldListDetailData,
     Pagination,
     ProductWeightData,
     ProfitData,
@@ -62,7 +63,7 @@ export const memberApi = {
     year?: string;
   }): Promise<DashboardSummary> {
     const res = await apiClient.get<WrappedResponse<DashboardSummary>>(
-      '/api/v1/member/summary',
+      '/v1/member/summary',
       { params },
     );
     return res.data.data;
@@ -70,7 +71,7 @@ export const memberApi = {
 
   async getSaleInvoices(): Promise<SaleInvoicesData> {
     const res = await apiClient.get<PaginatedResponse<unknown>>(
-      '/api/v1/member/sale-invoices',
+      '/v1/member/sale-invoices',
       { params: { limit: 1 } },
     );
     return { data: res.data.data, pagination: res.data.pagination };
@@ -78,7 +79,7 @@ export const memberApi = {
 
   async getPurchaseInvoices(): Promise<PurchaseInvoicesData> {
     const res = await apiClient.get<PaginatedResponse<unknown>>(
-      '/api/v1/member/purchase-invoices',
+      '/v1/member/purchase-invoices',
       { params: { limit: 1 } },
     );
     return { data: res.data.data, pagination: res.data.pagination };
@@ -89,7 +90,7 @@ export const memberApi = {
   ): Promise<PurchaseTransactionMemberListData> {
     const res = await apiClient.get<
       WrappedResponse<PurchaseTransactionMemberListData>
-    >('/api/v1/member/purchase-transaction-member', { params });
+    >('/v1/member/purchase-transaction-member', { params });
 
     return res.data.data;
   },
@@ -99,7 +100,7 @@ export const memberApi = {
   ): Promise<PurchaseTransactionMemberInvoiceDetail> {
     const res = await apiClient.get<
       WrappedResponse<PurchaseTransactionMemberDetailData>
-    >(`/api/v1/member/purchase-transaction-member/${id}`);
+    >(`/v1/member/purchase-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
@@ -109,7 +110,7 @@ export const memberApi = {
   ): Promise<SaleTransactionMemberListData> {
     const res = await apiClient.get<
       WrappedResponse<SaleTransactionMemberListData>
-    >('/api/v1/member/sale-transaction-member', { params });
+    >('/v1/member/sale-transaction-member', { params });
 
     return res.data.data;
   },
@@ -119,28 +120,28 @@ export const memberApi = {
   ): Promise<SaleTransactionMemberInvoiceDetail> {
     const res = await apiClient.get<
       WrappedResponse<SaleTransactionMemberDetailData>
-    >(`/api/v1/member/sale-transaction-member/${id}`);
+    >(`/v1/member/sale-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
 
   async getProductWeight(): Promise<ProductWeightData> {
     const res = await apiClient.get<WrappedResponse<ProductWeightData>>(
-      '/api/v1/member/product-weight',
+      '/v1/member/product-weight',
     );
     return res.data.data;
   },
 
   async getSavingWeight(): Promise<SavingWeightData> {
     const res = await apiClient.get<WrappedResponse<SavingWeightData>>(
-      '/api/v1/member/saving-weight',
+      '/v1/member/saving-weight',
     );
     return res.data.data;
   },
 
   async getDeposits(): Promise<DepositsData> {
     const res = await apiClient.get<PaginatedResponse<unknown>>(
-      '/api/v1/member/deposits',
+      '/v1/member/deposits',
       { params: { limit: 1 } },
     );
     return { data: res.data.data, pagination: res.data.pagination };
@@ -148,22 +149,29 @@ export const memberApi = {
 
   async getWithdraws(): Promise<WithdrawsData> {
     const res = await apiClient.get<PaginatedResponse<unknown>>(
-      '/api/v1/member/withdraws',
+      '/v1/member/withdraws',
       { params: { limit: 1 } },
     );
     return { data: res.data.data, pagination: res.data.pagination };
   },
 
   async getProfit(): Promise<ProfitData> {
-    const res = await apiClient.get<WrappedResponse<ProfitData>>(
-      '/api/v1/member/profit',
-    );
+    const res =
+      await apiClient.get<WrappedResponse<ProfitData>>('/v1/member/profit');
     return res.data.data;
   },
 
   async getGoldList(): Promise<GoldListData> {
-    const res = await apiClient.get<WrappedResponse<GoldListData>>(
-      '/api/v1/member/lists',
+    const res =
+      await apiClient.get<WrappedResponse<GoldListData>>('/v1/member/lists');
+    return res.data.data;
+  },
+
+  async getGoldListDetail(
+    productId: number | string,
+  ): Promise<GoldListDetailData> {
+    const res = await apiClient.get<WrappedResponse<GoldListDetailData>>(
+      `/v1/member/lists/${productId}`,
     );
     return res.data.data;
   },
@@ -172,7 +180,7 @@ export const memberApi = {
     params?: CertificateListFilters,
   ): Promise<CertificateListData> {
     const res = await apiClient.get<CertificateResponse<CertificateListData>>(
-      '/api/v1/member/certificates',
+      '/v1/member/certificates',
       { params },
     );
 
@@ -181,7 +189,7 @@ export const memberApi = {
 
   async getCertificate(id: number | string): Promise<CertificateDetail> {
     const res = await apiClient.get<CertificateResponse<CertificateDetailData>>(
-      `/api/v1/member/certificates/${id}`,
+      `/v1/member/certificates/${id}`,
     );
 
     return res.data.data.certificate;
@@ -191,7 +199,7 @@ export const memberApi = {
     params?: GoldConvertionListFilters,
   ): Promise<GoldConvertionListResponse> {
     const res = await apiClient.get<GoldConvertionListResponse>(
-      '/api/v1/member/gold-convertion',
+      '/v1/member/gold-convertion',
       { params },
     );
 
@@ -200,7 +208,7 @@ export const memberApi = {
 
   async getGoldConvertion(id: number | string): Promise<GoldConvertionDetail> {
     const res = await apiClient.get<WrappedResponse<GoldConvertionDetail>>(
-      `/api/v1/member/gold-convertion/${id}`,
+      `/v1/member/gold-convertion/${id}`,
     );
 
     return res.data.data;
@@ -210,7 +218,7 @@ export const memberApi = {
     params?: SavingMemberListFilters,
   ): Promise<SavingMember[]> {
     const res = await apiClient.get<SavingMemberListData>(
-      '/api/v1/member/savings',
+      '/v1/member/savings',
       { params },
     );
 
@@ -222,7 +230,7 @@ export const memberApi = {
   ): Promise<SavingDetailMemberListData> {
     const res = await apiClient.get<
       WrappedResponse<SavingDetailMemberListData>
-    >('/api/v1/member/saving-details', { params });
+    >('/v1/member/saving-details', { params });
 
     return res.data.data;
   },
@@ -231,10 +239,18 @@ export const memberApi = {
     params?: SavingDetailListFilters,
   ): Promise<SavingDetailListResponse> {
     const res = await apiClient.get<SavingDetailListResponse>(
-      '/api/v1/member/saving-details',
+      '/v1/member/saving-details',
       { params },
     );
 
     return res.data;
+  },
+
+  async registerDeviceToken(payload: {
+    token: string;
+    token_type: 'expo' | 'fcm';
+    platform: 'ios' | 'android' | 'web';
+  }): Promise<void> {
+    await apiClient.post('/v1/member/device-token', payload);
   },
 };

@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -33,9 +34,21 @@ export default function RegisterScreen() {
     password_confirmation: '',
     agree: false,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
 
   const handleSubmit = async () => {
-    const success = await register(form);
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      password: form.password,
+      password_confirmation: form.password_confirmation,
+      agree: Boolean(form.agree),
+    };
+
+    console.log('[register] submit payload', payload);
+
+    const success = await register(payload);
     if (success) {
       router.push('/(auth)/verify-phone');
     }
@@ -80,32 +93,70 @@ export default function RegisterScreen() {
             <Input
               label="Password"
               placeholder="••••••••"
-              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPassword}
               value={form.password}
               onChangeText={(password) => setForm((f) => ({ ...f, password }))}
+              rightElement={
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showPassword ? 'Sembunyikan password' : 'Tampilkan password'
+                  }
+                  hitSlop={8}
+                  onPress={() => setShowPassword((value) => !value)}
+                  style={styles.visibilityButton}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={18}
+                    color={colors.muted}
+                  />
+                </Pressable>
+              }
             />
             <Input
               label="Konfirmasi Password"
               placeholder="••••••••"
-              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry={!showPasswordConfirmation}
               value={form.password_confirmation}
               onChangeText={(password_confirmation) =>
                 setForm((f) => ({ ...f, password_confirmation }))
               }
+              rightElement={
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showPasswordConfirmation
+                      ? 'Sembunyikan konfirmasi password'
+                      : 'Tampilkan konfirmasi password'
+                  }
+                  hitSlop={8}
+                  onPress={() => setShowPasswordConfirmation((value) => !value)}
+                  style={styles.visibilityButton}
+                >
+                  <Ionicons
+                    name={showPasswordConfirmation ? 'eye-off-outline' : 'eye-outline'}
+                    size={18}
+                    color={colors.muted}
+                  />
+                </Pressable>
+              }
             />
 
-            <Pressable
-              onPress={() => setForm((f) => ({ ...f, agree: !f.agree }))}
-              style={styles.checkboxRow}
-            >
-              <View
+            <View style={styles.checkboxRow}>
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: form.agree }}
+                onPress={() => setForm((f) => ({ ...f, agree: !f.agree }))}
                 style={[
                   styles.checkbox,
                   {
                     borderColor: colors.border,
-                    backgroundColor: form.agree
-                      ? colors.primary
-                      : 'transparent',
+                    backgroundColor: form.agree ? colors.primary : 'transparent',
                   },
                 ]}
               >
@@ -114,11 +165,23 @@ export default function RegisterScreen() {
                     ✓
                   </Text>
                 )}
+              </Pressable>
+
+              <View style={styles.agreementCopy}>
+                <Text tone="muted">Saya setuju dengan </Text>
+                <Pressable onPress={() => router.push('/(auth)/terms')}>
+                  <Text style={{ color: colors.primary, fontWeight: '700' }}>
+                    Syarat & Ketentuan
+                  </Text>
+                </Pressable>
+                <Text tone="muted"> dan </Text>
+                <Pressable onPress={() => router.push('/(auth)/privacy')}>
+                  <Text style={{ color: colors.primary, fontWeight: '700' }}>
+                    Kebijakan Privasi
+                  </Text>
+                </Pressable>
               </View>
-              <Text tone="muted" style={styles.checkboxLabel}>
-                Saya setuju dengan syarat & ketentuan
-              </Text>
-            </Pressable>
+            </View>
 
             {error ? <Text tone="danger">{error}</Text> : null}
 
@@ -133,9 +196,7 @@ export default function RegisterScreen() {
         <View style={styles.footer}>
           <Text tone="muted">Sudah punya akun? </Text>
           <Pressable onPress={() => router.back()}>
-            <Text style={{ color: colors.primary, fontWeight: '700' }}>
-              Masuk
-            </Text>
+            <Text style={{ color: colors.primary, fontWeight: '700' }}>Masuk</Text>
           </Pressable>
         </View>
 
@@ -162,7 +223,7 @@ const styles = StyleSheet.create({
   logo: { width: 80, height: 80, marginBottom: spacing.sm },
   centered: { textAlign: 'center' },
   form: { gap: spacing.md },
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   checkbox: {
     width: 20,
     height: 20,
@@ -170,8 +231,17 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 3,
   },
-  checkboxLabel: { flex: 1 },
+  agreementCopy: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  visibilityButton: {
+    paddingVertical: spacing.xs,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
