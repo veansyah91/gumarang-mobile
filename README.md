@@ -18,6 +18,15 @@ Modern React Native Expo foundation for the Gumarang Laravel API.
 3. Install dependencies with `npm install`.
 4. Start the app with `npm run start` or `npm run web`.
 
+## Android push notifications
+
+Android remote push notifications need Firebase configured in the native app.
+
+1. Download `google-services.json` from your Firebase project.
+2. Place it in the project root, or point `EXPO_ANDROID_GOOGLE_SERVICES_FILE` to its path.
+3. Build the app again so `expo.android.googleServicesFile` is applied.
+4. Upload an FCM V1 service account key in EAS credentials for sending notifications.
+
 ## Production APK testing
 
 1. Use `.env.production.example` as the reference for production values.

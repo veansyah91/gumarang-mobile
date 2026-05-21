@@ -8,6 +8,7 @@ export default function AppLayout() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="notifications" options={{ title: 'Notifikasi' }} />
       <Stack.Screen name="gold-list" options={{ title: 'Data Emasku' }} />
       <Stack.Screen
         name="gold-list/[id]"

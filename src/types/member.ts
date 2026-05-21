@@ -7,6 +7,30 @@ export interface Pagination {
   last_page: number;
 }
 
+export interface NotificationItem {
+  id: string;
+  type: string;
+  data: {
+    title: string;
+    body: string;
+    transactionType?: string;
+    referenceNumber?: string;
+  };
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface NotificationResponse {
+  success: boolean;
+  data: {
+    data: NotificationItem[];
+    current_page: number;
+    last_page: number;
+    total: number;
+    per_page: number;
+  };
+}
+
 export interface SaleInvoicesData {
   data: unknown[];
   pagination: Pagination;

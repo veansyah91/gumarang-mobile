@@ -20,8 +20,15 @@ function toNumber(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function formatWeight(value: number | string | null | undefined) {
-  return `${toNumber(value).toFixed(2)} gram`;
+function formatWeight(
+  value: number | string | null | undefined,
+  unit?: string,
+) {
+  if (unit == 'miligram' || unit === 'milligram' || unit === 'mg') {
+    const weightInGrams = toNumber(value) / 1000;
+    return `${weightInGrams.toFixed(2)} gram`;
+  }
+  return `${toNumber(value).toFixed(2)}${unit ? ` ${unit}` : ''}`;
 }
 
 function formatRupiah(value: number | string | null | undefined) {
@@ -123,7 +130,9 @@ export function MemberGoldDetail({
 
           <Card>
             <Text variant="eyebrow">Total Berat</Text>
-            <Text variant="subtitle">{formatWeight(data.product.weight)}</Text>
+            <Text variant="subtitle">
+              {formatWeight(data.product.weight, data.product.unit)}
+            </Text>
           </Card>
 
           <Card>

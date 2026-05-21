@@ -144,7 +144,6 @@ function GoldListErrorState({
   );
 }
 
-
 function ProductCard({
   product,
   priceList,
@@ -246,8 +245,11 @@ export function MemberGoldList() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await query.refetch();
-    setIsRefreshing(false);
+    try {
+      await query.refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (

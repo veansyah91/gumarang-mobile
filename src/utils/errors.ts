@@ -26,12 +26,44 @@ export function toAppError(error: unknown) {
 
   if (isAxiosError(error)) {
     const status = error.response?.status;
+    const validationErrors =
+      typeof error.response?.data === 'object' &&
+      error.response?.data &&
+      'errors' in error.response.data &&
+      typeof (error.response.data as { errors?: unknown }).errors === 'object' &&
+      (error.response.data as { errors?: Record<string, unknown> }).errors
+        ? (error.response.data as { errors: Record<string, unknown> }).errors
+        : undefined;
+    const validationMessage = validationErrors
+      ? Object.values(validationErrors).reduce<string | undefined>(
+          (firstMessage, messages) => {
+            if (firstMessage) {
+              return firstMessage;
+            }
+
+            if (
+              Array.isArray(messages) &&
+              messages.length > 0 &&
+              typeof messages[0] === 'string'
+            ) {
+              return messages[0];
+            }
+
+            return undefined;
+          },
+          undefined,
+        )
+      : undefined;
     const responseMessage =
       typeof error.response?.data === 'object' &&
       error.response?.data &&
       'message' in error.response.data
         ? String(error.response.data.message)
         : undefined;
+
+    if (status === 422) {
+      console.warn('[API 422 validation]', JSON.stringify(error.response?.data));
+    }
 
     if (status === 401 && !responseMessage) {
       return new AppError('Unauthorized', {
@@ -42,14 +74,18 @@ export function toAppError(error: unknown) {
     }
 
     return new AppError(
-      responseMessage ?? error.message ?? DEFAULT_ERROR_MESSAGE,
+      validationMessage ??
+        responseMessage ??
+        error.message ??
+        DEFAULT_ERROR_MESSAGE,
       {
         code: 'api_error',
         status,
         userMessage:
           status && status >= 500
             ? 'The server is unavailable right now. Please try again in a moment.'
-            : (responseMessage ??
+            : (validationMessage ??
+              responseMessage ??
               'Unable to complete the request. Check your connection and try again.'),
       },
     );

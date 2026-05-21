@@ -1,43 +1,10 @@
 buat issue.md untuk planning:
 
-Task: Buat fitur push notification
+Task: analisa error berikut
+error message:
+> Configure project :app                                                                                                                Γä╣∩╕Å  Applying gradle plugin 'expo-max-sdk-override-plugin'                                                                           [expo-max-sdk-override-plugin] This plugin will find all permissions declared with `android:maxSdkVersion`. If there exists a declaration with the `android:maxSdkVersion` annotation and another one without, the plugin will remove the annotation from the final merged manifest. In order to see a log with the changes run a clean build of the app.                                                           Γä╣∩╕Å  Applying gradle plugin 'expo-dev-launcher-gradle-plugin'                                                                       Γä╣∩╕Å  Applying gradle plugin 'expo-updates-gradle-plugin'                                                                                                                                                                                                                  [Incubating] Problems report is available at: file:///C:/External/Projects/laragon/www/gumarang-mobile/android/build/reports/problems/problems-report.html                                                                                                                                                                                                                                                           FAILURE: Build failed with an exception.                                                                                                                                                                                                                                      * Where:                                                                                                                               Build file 'C:\External\Projects\laragon\www\gumarang-mobile\android\build.gradle' line: 24                                                                                                                                                                                   * What went wrong:                                                                                                                     A problem occurred evaluating root project 'Toko Mas Gumarang'.                                                                        > Failed to apply plugin 'com.facebook.react.rootproject'.                                                                                > A problem occurred configuring project ':app'.                                                                                          > [CXX1101] NDK at C:\Users\User\AppData\Local\Android\Sdk\ndk\27.1.12297006 did not have a source.properties file                                                                                                                                                      * Try:                                                                                                                                 > Run with --stacktrace option to get the stack trace.                                                                                 > Run with --info or --debug option to get more log output.                                                                            > Run with --scan to generate a Build Scan (Powered by Develocity).                                                                    > Get more help at https://help.gradle.org.                                                                                                                                                                                                                                   Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.                                                                                                                                                                                    You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.                                                                                                                                                                                                                                                                            For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.                                                                                                                                                                                                                                                         BUILD FAILED in 36s                                                                                                                    36 actionable tasks: 36 up-to-date                                                                                                     Error: C:\External\Projects\laragon\www\gumarang-mobile\android\gradlew.bat app:assembleDebug -x lint -x test --configure-on-demand --build-cache -PreactNativeDevServerPort=8081 -PreactNativeArchitectures=arm64-v8a,armeabi-v7a exited with non-zero code: 1
 
-- berikut dokumentasi dari backend:
-  
-### POST /api/v1/member/device-token
-
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-Accept: application/json
-```
-
-**Request Body:**
-| Field | Type | Required | Keterangan |
-|-------|------|----------|-----------|
-| `token` | string | Ya | Expo push token atau FCM token |
-| `token_type` | string | Ya | `expo` atau `fcm` |
-| `platform` | string | Ya | `ios`, `android`, atau `web` |
-
-**Response 200:**
-```json
-{
-  "message": "Device token registered successfully"
-}
-```
-
-**Response 422:**
-```json
-{
-  "message": "The token field is required.",
-  "errors": {
-    "token": ["The token field is required."]
-  }
-}
-```
-
----
+Pelajari Resource lebih dalam agar akurat
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

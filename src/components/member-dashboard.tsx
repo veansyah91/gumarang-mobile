@@ -92,8 +92,11 @@ export function MemberDashboard() {
 
   const handleRefresh = async () => {
     setIsRefetching(true);
-    await summaryQuery.refetch();
-    setIsRefetching(false);
+    try {
+      await summaryQuery.refetch();
+    } finally {
+      setIsRefetching(false);
+    }
   };
 
   const totalDepositos = d?.depositos?.reduce(

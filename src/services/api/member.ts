@@ -1,39 +1,40 @@
 import type {
-    CertificateDetail,
-    CertificateDetailData,
-    CertificateListData,
-    CertificateListFilters,
+  CertificateDetail,
+  CertificateDetailData,
+  CertificateListData,
+  CertificateListFilters,
 } from '@/src/types/certificate';
 import type {
-    DashboardSummary,
-    DepositsData,
-    GoldConvertionDetail,
-    GoldConvertionListFilters,
-    GoldConvertionListResponse,
-    GoldListData,
-    GoldListDetailData,
-    Pagination,
-    ProductWeightData,
-    ProfitData,
-    PurchaseInvoicesData,
-    PurchaseTransactionMemberDetailData,
-    PurchaseTransactionMemberInvoiceDetail,
-    PurchaseTransactionMemberListData,
-    PurchaseTransactionMemberListFilters,
-    SaleInvoicesData,
-    SaleTransactionMemberDetailData,
-    SaleTransactionMemberInvoiceDetail,
-    SaleTransactionMemberListData,
-    SaleTransactionMemberListFilters,
-    SavingDetailListFilters,
-    SavingDetailListResponse,
-    SavingDetailMemberListData,
-    SavingDetailMemberListFilters,
-    SavingMember,
-    SavingMemberListData,
-    SavingMemberListFilters,
-    SavingWeightData,
-    WithdrawsData,
+  DashboardSummary,
+  DepositsData,
+  GoldConvertionDetail,
+  GoldConvertionListFilters,
+  GoldConvertionListResponse,
+  GoldListData,
+  GoldListDetailData,
+  NotificationResponse,
+  Pagination,
+  ProductWeightData,
+  ProfitData,
+  PurchaseInvoicesData,
+  PurchaseTransactionMemberDetailData,
+  PurchaseTransactionMemberInvoiceDetail,
+  PurchaseTransactionMemberListData,
+  PurchaseTransactionMemberListFilters,
+  SaleInvoicesData,
+  SaleTransactionMemberDetailData,
+  SaleTransactionMemberInvoiceDetail,
+  SaleTransactionMemberListData,
+  SaleTransactionMemberListFilters,
+  SavingDetailListFilters,
+  SavingDetailListResponse,
+  SavingDetailMemberListData,
+  SavingDetailMemberListFilters,
+  SavingMember,
+  SavingMemberListData,
+  SavingMemberListFilters,
+  SavingWeightData,
+  WithdrawsData
 } from '@/src/types/member';
 
 import { apiClient } from './client';
@@ -248,9 +249,27 @@ export const memberApi = {
 
   async registerDeviceToken(payload: {
     token: string;
-    token_type: 'expo' | 'fcm';
-    platform: 'ios' | 'android' | 'web';
+    platform: 'expo' | 'fcm';
+    device_type: 'android' | 'ios' | 'web';
   }): Promise<void> {
     await apiClient.post('/v1/member/device-token', payload);
+  },
+
+  async getNotifications(params?: {
+    page?: number;
+  }): Promise<NotificationResponse['data']> {
+    const res = await apiClient.get<NotificationResponse>(
+      '/v1/member/notifications',
+      { params },
+    );
+    return res.data.data;
+  },
+
+  async markNotificationAsRead(id: string): Promise<void> {
+    await apiClient.post(`/v1/member/notifications/${id}/mark-as-read`);
+  },
+
+  async markAllNotificationsAsRead(): Promise<void> {
+    await apiClient.post('/v1/member/notifications/mark-all-as-read');
   },
 };

@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const appEnv = process.env.APP_ENV ?? 'development';
@@ -6,6 +9,10 @@ const isProduction = appEnv === 'production';
 const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   (isProduction ? 'https://tokomasgumarang.com/api' : 'http://localhost:8000');
+
+const androidGoogleServicesFile =
+  process.env.EXPO_ANDROID_GOOGLE_SERVICES_FILE ?? './google-services.json';
+const hasAndroidFcmConfig = existsSync(resolve(androidGoogleServicesFile));
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -40,6 +47,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
     associatedDomains: ['applinks:tokomasgumarang.com'],
 
+    entitlements: {
+      'aps-environment': isProduction ? 'production' : 'development',
+    },
+
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -47,6 +58,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   android: {
     package: 'com.gumarang.mobile',
+
+    ...(hasAndroidFcmConfig
+      ? {
+          googleServicesFile: androidGoogleServicesFile,
+        }
+      : {}),
 
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
@@ -118,6 +135,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appEnv,
 
     apiBaseUrl,
+
+    hasAndroidFcmConfig,
 
     eas: {
       projectId: '296271a2-3fa9-408e-b9ec-f2e953847d44',

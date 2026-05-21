@@ -1,9 +1,14 @@
-import { Image, StyleSheet, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { memberApi } from '@/src/services/api/member';
 import { useAuthStore } from '@/src/state/auth-store';
 import { palette, spacing } from '@/src/theme/tokens';
+import type { NotificationItem } from '@/src/types/member';
 
 const logo = require('@/assets/images/logo.png');
 
@@ -11,10 +16,24 @@ export function Header() {
   const theme = useResolvedTheme();
   const colors = palette[theme];
   const { status, user } = useAuthStore();
+  const router = useRouter();
 
   const isAuthenticated = status === 'authenticated' && !!user;
   const displayName = isAuthenticated ? user!.name : 'TOKO MAS GUMARANG';
   const displayPhone = isAuthenticated ? (user!.phone ?? '-') : null;
+
+  const { data: notificationList } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => memberApi.getNotifications(),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const unreadCount = notificationList?.data?.filter((n: NotificationItem) => !n.read_at).length ?? 0;
+
+  const handleNotificationPress = () => {
+    router.push('/notifications');
+  };
 
   return (
     <View
@@ -46,6 +65,26 @@ export function Header() {
           </Text>
         ) : null}
       </View>
+      {isAuthenticated && (
+        <Pressable
+          onPress={handleNotificationPress}
+          style={styles.notificationButton}
+          hitSlop={8}
+        >
+          <Ionicons
+            name="notifications-outline"
+            size={24}
+            color={colors.primary}
+          />
+          {unreadCount > 0 && (
+            <View style={[styles.badge, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.badgeText, { color: colors.background }]}>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </Text>
+            </View>
+          )}
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -92,5 +131,26 @@ const styles = StyleSheet.create({
   },
   phone: {
     fontSize: 12,
+  },
+  notificationButton: {
+    position: 'relative',
+    padding: spacing.sm,
+    marginRight: -spacing.sm,
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    lineHeight: 20,
+    textAlignVertical: 'center',
   },
 });

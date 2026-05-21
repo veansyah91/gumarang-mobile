@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    Modal,
-    Pressable,
-    RefreshControl,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Modal,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -242,8 +242,11 @@ export function MemberGoldConvertionList() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await query.refetch();
-    setIsRefreshing(false);
+    try {
+      await query.refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (

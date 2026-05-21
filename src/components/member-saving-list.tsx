@@ -113,8 +113,11 @@ export function MemberSavingList() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await query.refetch();
-    setIsRefreshing(false);
+    try {
+      await query.refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (

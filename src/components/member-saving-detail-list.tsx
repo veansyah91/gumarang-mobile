@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    Modal,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    View,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
 } from 'react-native';
 
 import { Subnav } from '@/src/components/subnav';
@@ -397,8 +397,11 @@ export function MemberSavingDetailList() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await query.refetch();
-    setIsRefreshing(false);
+    try {
+      await query.refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (

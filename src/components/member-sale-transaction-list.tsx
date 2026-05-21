@@ -241,8 +241,11 @@ export function MemberSaleTransactionList() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await query.refetch();
-    setIsRefreshing(false);
+    try {
+      await query.refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (
