@@ -8,7 +8,7 @@
     "start": "expo start",
     "android": "expo run:android",
     "preandroid": "npm run sync:google-services",
-    "prebuild": "node ./scripts/validate-google-services.js",
+    "prebuild": "node ./scripts/cleanup-dead-routes.js && node ./scripts/validate-google-services.js",
     "validate:google-services": "node ./scripts/validate-google-services.js",
     "sync:google-services": "node ./scripts/sync-google-services.js",
     "ios": "expo run:ios",
