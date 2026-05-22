@@ -10,9 +10,16 @@ const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   (isProduction ? 'https://tokomasgumarang.com/api' : 'http://localhost:8000');
 
+const envPath = process.env.EXPO_ANDROID_GOOGLE_SERVICES_FILE;
+const candidatePaths = [
+  envPath,
+  './google-services.json',
+  './android/app/google-services.json',
+].filter((p): p is string => Boolean(p));
+const foundPath = candidatePaths.find((p) => existsSync(resolve(p)));
 const androidGoogleServicesFile =
-  process.env.EXPO_ANDROID_GOOGLE_SERVICES_FILE ?? './google-services.json';
-const hasAndroidFcmConfig = existsSync(resolve(androidGoogleServicesFile));
+  foundPath ?? envPath ?? './google-services.json';
+const hasAndroidFcmConfig = Boolean(foundPath);
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,

@@ -1,138 +1,51 @@
-# Issue: Push Notification - Evaluasi & Perbaikan
+# Issue: Investigate Android build warnings and Android NDK failure
 
----
+## Background
 
-## Temuan Masalah
+- Android debug build currently fails on Windows host during `app:assembleDebug`.
+- Expo CLI reports that Firebase/FCM configuration is skipped (`expo.android.googleServicesFile` not detected) even though `google-services.json` exists in the repository root.
+- Gradle aborts while applying `com.facebook.react.rootproject` because the installed Android NDK (`C:\Users\User\AppData\Local\Android\Sdk\ndk\27.1.12297006`) is incomplete and lacks `source.properties`.
 
-### 3.1 - Device Token Tidak Didaftarkan Saat Login
+## Objectives
 
-**Lokasi hook:** `src/hooks/use-push-notification.ts`
-**Dipanggil di:** `app/(app)/_layout.tsx`
+1. Restore a clean Android debug build without blocking warnings.
+2. Ensure Firebase Cloud Messaging is correctly configured and recognized by Expo during native build steps.
+3. Provide environment setup guidance so future builds on Windows succeed consistently.
 
-**Analisis:**
-Hook `usePushNotification` sudah terpasang di layout `(app)` dan bereaksi terhadap perubahan `isAuthenticated`. Secara arsitektur alurnya sudah benar:
+## High-level Investigation & Action Plan
 
-> Login -> `setSession` -> `isAuthenticated = true` -> `(app)/_layout` mount -> `useEffect` jalan -> daftar token
+### A. Validate FCM configuration detection
 
-**Root cause yang paling mungkin:** Hook memiliki early exit di `use-push-notification.ts` baris 57:
+- Review `app.config.ts` logic for `android.googleServicesFile` and confirm `hasAndroidFcmConfig` resolves to `true` when running locally.
+- Verify that the path exposed through `EXPO_ANDROID_GOOGLE_SERVICES_FILE` (or the default `./google-services.json`) matches the location used during native builds and is available when Gradle runs.
+- Confirm that the committed `google-services.json` matches the Firebase project used in production and that the package name (`com.gumarang.mobile`) is aligned.
 
-```ts
-if (Constants.appOwnership === 'expo') {
-  return; // SKIP total saat testing di Expo Go
-}
-```
+### B. Align Expo and native Android project settings
 
-Sejak Expo SDK 53, **Expo Go tidak mendukung remote push notification Android**. Jika pengujian dilakukan via Expo Go, seluruh alur pendaftaran token dilewati tanpa error — sehingga API `POST /api/v1/member/device-token` tidak pernah dipanggil.
+- Use Expo config introspection to confirm the generated Android manifest includes Firebase services and notification permissions defined in `app.config.ts`.
+- If `expo prebuild` artifacts are tracked, ensure `android/app/google-services.json` is synchronized with the root file or adjust build scripts to copy it during native builds.
+- Document the expected environment variables so CI or other developers do not miss the FCM configuration step.
 
-**Kemungkinan lain (perlu dikonfirmasi):**
+### C. Resolve Android NDK tooling error
 
-- `hasAndroidFcmConfig === false` — meskipun `google-services.json` ada, perlu pastikan valid
-- Token sudah di-cache sebelumnya di AsyncStorage (key: `push:device-token`) dan nilainya sama
+- Audit the local Android SDK installation: confirm the NDK version installed through Android Studio or `sdkmanager` is complete and includes `source.properties`.
+- Decide whether to reinstall the same NDK version or pin to an Expo-supported version (e.g., 26.x) and update any local environment variables (`ANDROID_NDK_HOME`, `ANDROID_HOME`) accordingly.
+- After fixing the NDK installation, clear Gradle caches for the project to ensure the corrected toolchain is used.
 
----
+### D. Regression checks & documentation
 
-## Rencana Perbaikan
+- Re-run the Android debug build (`app:assembleDebug`) after addressing FCM recognition and NDK installation to ensure the warning and failure are resolved.
+- Capture updated setup notes in project documentation (e.g., `README.md` or `ANDROID_BUILD_FIX.md`) to guide other developers through the required Android tooling and Firebase configuration.
 
-### Langkah 1 - Konfirmasi Root Cause
+## Deliverables
 
-Tambahkan log sementara di setiap titik early exit di `use-push-notification.ts` agar jelas guard mana yang aktif:
+- Summary of findings for each investigation area (FCM detection, Expo config alignment, NDK setup).
+- Updated project documentation covering Android prerequisites and Firebase configuration expectations.
+- Confirmation that the Android debug build succeeds without the reported warning and NDK error.
 
-```
-[push] SKIP: Expo Go
-[push] SKIP: FCM not configured
-[push] SKIP: token already cached
-[push] Registering token...
-```
+## Resources & References
 
-Jalankan ulang login dan periksa console output.
-
----
-
-### Langkah 2 - Gunakan Development Build
-
-Untuk menguji push notification Android, **wajib development build** (bukan Expo Go):
-
-```bash
-npx expo run:android
-# atau via EAS
-eas build --profile development --platform android
-```
-
-Development build melewati guard `appOwnership === 'expo'` sehingga flow registrasi token berjalan normal.
-
----
-
-### Langkah 3 - Paksa Re-registrasi Token (jika perlu debug)
-
-Jika token pernah di-cache sebelumnya:
-
-- Hapus key `push:device-token` dari AsyncStorage (via expo-dev-client DevMenu atau clear app data)
-- Token baru akan dipaksa didaftarkan ulang ke backend
-
----
-
-### Langkah 4 - Verifikasi FCM Setup
-
-- Pastikan `google-services.json` valid (Firebase project aktif)
-- Rebuild app setelah perubahan `google-services.json` (perubahan native, hot reload tidak cukup)
-
----
-
-## Status Lanjutan (3.2 & 3.3)
-
-### 3.2 - Listener Notifikasi
-
-**Status: Sudah terimplementasi** di `use-push-notification.ts`:
-
-- `addNotificationReceivedListener` — handle notifikasi saat app foreground
-- `addNotificationResponseReceivedListener` — handle tap notifikasi
-
-**Yang masih perlu dikerjakan (setelah 3.1 terverifikasi berjalan):**
-
-- Hubungkan response listener ke navigasi menggunakan data payload notifikasi (`transactionType`, `referenceNumber`)
-- Contoh: tap notifikasi transaksi buka halaman detail transaksi terkait
-
----
-
-### 3.3 - Halaman Notifikasi & Mark-as-Read
-
-**Status: API sudah tersedia** di `src/services/api/member.ts`:
-
-- `memberApi.getNotifications()`
-- `memberApi.markNotificationAsRead(id)`
-- `memberApi.markAllNotificationsAsRead()`
-
-Type `NotificationItem` sudah ada di `src/types/member.ts`.
-
-**Yang perlu dibangun:**
-
-1. Buat screen notifikasi: `app/(app)/notifications.tsx`
-   - Fetch list dari `getNotifications()`
-   - Tampilkan badge/indikator untuk item dengan `read_at === null`
-   - Panggil `markAllNotificationsAsRead()` otomatis saat screen dibuka
-2. Tambahkan ikon notifikasi di Header (`src/components/ui/header.tsx`) yang navigasi ke screen notifikasi
-3. Hubungkan `addNotificationResponseReceivedListener` ke navigasi screen/transaksi terkait
-
----
-
-## Urutan Pengerjaan yang Disarankan
-
-```
-[1] Tambah log konfirmasi -> jalankan dengan development build -> verifikasi device-token API terpanggil
-[2] Buat screen notifikasi + integrasikan mark-as-read (3.3)
-[3] Hubungkan tap notifikasi ke navigasi transaksi (3.2)
-```
-
----
-
-## Referensi File
-
-| File                                 | Keterangan                                                         |
-| ------------------------------------ | ------------------------------------------------------------------ |
-| `src/hooks/use-push-notification.ts` | Logic pendaftaran token & listener (edit di sini)                  |
-| `app/(app)/_layout.tsx`              | Tempat hook dipanggil                                              |
-| `src/services/api/member.ts`         | API: registerDeviceToken, getNotifications, markNotificationAsRead |
-| `src/types/member.ts`                | Type: NotificationItem, NotificationResponse                       |
-| `src/state/auth-store.ts`            | Login flow, setSession                                             |
-| `app.config.ts`                      | Konfigurasi FCM (hasAndroidFcmConfig)                              |
-| `src/components/ui/header.tsx`       | Header - tambah ikon notifikasi di sini                            |
+- Expo Notifications & FCM configuration guide: https://docs.expo.dev/push-notifications/using-fcm/
+- Expo Android build troubleshooting: https://docs.expo.dev/build-reference/android-builds/
+- Android NDK setup instructions: https://developer.android.com/ndk/guides
+- React Native Android build environment setup (Expo): https://docs.expo.dev/workflow/android-studio-emulator/

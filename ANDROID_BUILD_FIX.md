@@ -154,6 +154,18 @@ Lalu download ulang semua NDK melalui Android Studio SDK Manager.
 
 ---
 
+## Syncing Firebase config for local builds
+
+If you keep `google-services.json` in the project root, run the helper script before building locally to ensure the native Android project sees it:
+
+```cmd
+npm run sync:google-services
+# or just
+npm run android
+```
+
+---
+
 ## Informasi Versi Project
 
 - **Expo Version:** 55.0.24

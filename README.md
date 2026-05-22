@@ -24,8 +24,8 @@ Android remote push notifications need Firebase configured in the native app.
 
 1. Download `google-services.json` from your Firebase project.
 2. Place it in the project root, or point `EXPO_ANDROID_GOOGLE_SERVICES_FILE` to its path.
-3. Build the app again so `expo.android.googleServicesFile` is applied.
-4. Upload an FCM V1 service account key in EAS credentials for sending notifications.
+
+Note: This repo includes a helper script to copy `google-services.json` into the native Android project before running a local build. Run `npm run sync:google-services` or simply `npm run android` (which runs the sync automatically) to ensure the file is present under `android/app/google-services.json`. 3. Build the app again so `expo.android.googleServicesFile` is applied. 4. Upload an FCM V1 service account key in EAS credentials for sending notifications.
 
 ## Production APK testing
 
