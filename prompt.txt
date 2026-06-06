@@ -1,8 +1,15 @@
 buat issue.md untuk planning:
 
+tambahkan konfigurasi berikut:
+<intent-filter android:autoVerify="true">
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
 
-
-Pelajari Resource lebih dalam agar akurat
+    <data android:scheme="http" />
+    <data android:scheme="https" />
+    <data android:host="tokomasgumarang.com" />
+</intent-filter>
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
