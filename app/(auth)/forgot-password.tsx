@@ -69,7 +69,7 @@ export default function ForgotPasswordScreen() {
             {success ? (
               <>
                 <Text tone="success">
-                  Link reset password telah dikirim ke nomor handphone Anda via
+                  Token Reset Sandi telah dikirim ke nomor handphone Anda via
                   WhatsApp.
                 </Text>
                 <Text tone="muted">
@@ -77,9 +77,14 @@ export default function ForgotPasswordScreen() {
                   dimasukkan benar dan cek kembali WhatsApp Anda. Jika masih
                   mengalami masalah, silakan hubungi layanan pelanggan kami.
                 </Text>
-                <Button
+                                <Button
                   label="Masukkan Token Reset"
-                  onPress={() => router.push('/(auth)/new-password')}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(auth)/new-password',
+                      params: { phone: payload.phone },
+                    })
+                  }
                   variant="secondary"
                 />
               </>

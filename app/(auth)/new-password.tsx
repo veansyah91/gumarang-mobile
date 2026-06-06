@@ -1,4 +1,5 @@
-import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   Image,
@@ -23,11 +24,12 @@ const logo = require('@/assets/images/logo.png');
 
 export default function NewPasswordScreen() {
   const router = useRouter();
+  const { phone } = useLocalSearchParams<{ phone?: string }>();
   const theme = useResolvedTheme();
   const colors = palette[theme];
 
   const [form, setForm] = useState({
-    phone: '',
+    phone: phone || '',
     password: '',
     password_confirmation: '',
     token: '',
@@ -35,6 +37,7 @@ export default function NewPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -92,22 +95,40 @@ export default function NewPasswordScreen() {
                   value={form.phone}
                   onChangeText={(phone) => setForm((f) => ({ ...f, phone }))}
                 />
-                <Input
+                                <Input
                   label="Sandi"
                   placeholder="••••••••"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   value={form.password}
                   onChangeText={(password) =>
                     setForm((f) => ({ ...f, password }))
+                  }
+                  rightElement={
+                    <Pressable onPress={() => setShowPassword(!showPassword)}>
+                      <Ionicons
+                        name={showPassword ? 'eye-off' : 'eye'}
+                        size={20}
+                        color={colors.muted}
+                      />
+                    </Pressable>
                   }
                 />
                 <Input
                   label="Konfirmasi Sandi"
                   placeholder="••••••••"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   value={form.password_confirmation}
                   onChangeText={(password_confirmation) =>
                     setForm((f) => ({ ...f, password_confirmation }))
+                  }
+                  rightElement={
+                    <Pressable onPress={() => setShowPassword(!showPassword)}>
+                      <Ionicons
+                        name={showPassword ? 'eye-off' : 'eye'}
+                        size={20}
+                        color={colors.muted}
+                      />
+                    </Pressable>
                   }
                 />
                 <Input
