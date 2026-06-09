@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { LogBox } from 'react-native';
 
 import { AppProviders, useAppBootstrap } from '@/src/providers/app-providers';
+import { NotificationProvider } from '@/src/providers/notification-provider';
 
 LogBox.ignoreLogs(['props.pointerEvents is deprecated']);
 
@@ -52,7 +53,9 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AppProviders>
-      <RootNavigator />
+      <NotificationProvider>
+        <RootNavigator />
+      </NotificationProvider>
     </AppProviders>
   );
 }

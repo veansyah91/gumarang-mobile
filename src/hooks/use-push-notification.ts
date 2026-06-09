@@ -1,8 +1,8 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
-import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { memberApi } from '@/src/services/api/member';
 import { getJsonStorage, setJsonStorage } from '@/src/storage/local-storage';
@@ -22,16 +22,24 @@ function getExpoProjectId() {
 export function usePushNotification() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const isMountedRef = React.useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     const notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
-        console.log('[push] Notification received in foreground:', notification);
+        console.log(
+          '[push] Notification received in foreground:',
+          notification,
+        );
       },
     );
 
     const responseListener =
       Notifications.addNotificationResponseReceivedListener((response) => {
+        if (!isMountedRef.current) return;
+
         console.log('[push] Notification tapped:', response);
         const data = response.notification.request.content.data;
 
@@ -40,7 +48,9 @@ export function usePushNotification() {
           const referenceNumber = (data as Record<string, any>).referenceNumber;
 
           if (transactionType && referenceNumber) {
-            console.log(`[push] Navigating to ${transactionType} detail: ${referenceNumber}`);
+            console.log(
+              `[push] Navigating to ${transactionType} detail: ${referenceNumber}`,
+            );
 
             switch (transactionType) {
               case 'purchase':
@@ -62,7 +72,9 @@ export function usePushNotification() {
                 });
                 break;
               default:
-                console.log(`[push] Unknown transaction type: ${transactionType}`);
+                console.log(
+                  `[push] Unknown transaction type: ${transactionType}`,
+                );
                 router.push('/notifications');
                 break;
             }
@@ -75,6 +87,7 @@ export function usePushNotification() {
       });
 
     return () => {
+      isMountedRef.current = false;
       notificationListener.remove();
       responseListener.remove();
     };

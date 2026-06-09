@@ -1,23 +1,20 @@
-# Planning: Konfigurasi App Links
+# Planning Resolusi Error
 
-**Tujuan:**
-Menambahkan dukungan deep linking/App Links agar aplikasi dapat langsung membuka tautan dari domain `tokomasgumarang.com`.
+Terdapat dua error utama yang perlu diperbaiki. Berikut adalah panduan *high-level* untuk menyelesaikan masing-masing error:
 
-**Langkah Implementasi:**
-1. Temukan file manifest aplikasi Android (`AndroidManifest.xml`).
-2. Identifikasi Activity utama yang akan bertugas menangani tautan dari luar.
-3. Tambahkan konfigurasi `<intent-filter>` berikut ke dalam tag `<activity>` tersebut untuk mendaftarkan domain `tokomasgumarang.com` dengan skema `http` dan `https`.
+## 1. React State Update Error
+**Error:** Can't perform a React state update on a component that hasn't mounted yet...
 
-```xml
-<intent-filter android:autoVerify="true">
-    <action android:name="android.intent.action.VIEW" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
+**Instruksi:**
+- Lakukan inspeksi pada komponen-komponen React, terutama yang melakukan *fetching* data atau operasi asinkron saat inisialisasi (misalnya terkait notifikasi atau autentikasi).
+- Pastikan semua operasi asinkron (pemanggilan API, *timeout*, dsb) yang memicu perubahan *state* secara eksplisit dipanggil melalui *hook* useEffect, bukan diletakkan langsung pada *render function* komponen.
+- Terapkan mekanisme *cleanup* atau pengecekan status *mount* komponen untuk mencegah *state update* yang tidak perlu.
 
-    <data android:scheme="http" />
-    <data android:scheme="https" />
-    <data android:host="tokomasgumarang.com" />
-</intent-filter>
-```
+## 2. Notification Device Token Error
+**Error:** [notifications] Failed to register device token: [AppError: Request failed with status code 404]
 
-Pastikan tag XML tertutup dengan benar dan tidak merusak konfigurasi yang sudah ada.
+**Instruksi:**
+- Periksa modul, *hook*, atau fungsi di dalam aplikasi yang bertugas mendaftarkan *push notification device token* ke server.
+- Kode error 404 menandakan bahwa URL *endpoint* API yang dituju tidak tersedia di *backend*.
+- Lakukan verifikasi URL *endpoint*, *path API*, dan *HTTP method* yang digunakan pada *request*. Pastikan formatnya sudah persis sesuai dengan *route* yang terdaftar di *backend*.
+- Pastikan juga konfigurasi *base URL* API untuk *environment* saat ini sudah mengarah ke server yang benar.

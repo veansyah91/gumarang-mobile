@@ -1,10 +1,15 @@
 import NetInfo from '@react-native-community/netinfo';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { registerUnauthorizedHandler } from '@/src/services/api/client';
+import { notificationService } from '@/src/services/notifications';
 import { useAppStore } from '@/src/state/app-store';
 import { useAuthStore } from '@/src/state/auth-store';
 import { palette } from '@/src/theme/tokens';
@@ -63,7 +68,9 @@ export function useAppBootstrap() {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      setNetworkOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+      setNetworkOnline(
+        Boolean(state.isConnected && state.isInternetReachable !== false),
+      );
     });
 
     return unsubscribe;
@@ -74,6 +81,15 @@ export function useAppBootstrap() {
 
     const bootstrap = async () => {
       await Promise.all([bootstrapApp(), restoreSession()]);
+
+      // Register device token for push notifications after session is restored
+      if (mounted) {
+        try {
+          await notificationService.registerDeviceToken();
+        } catch (error) {
+          console.error('[bootstrap] Failed to register device token:', error);
+        }
+      }
 
       if (mounted) {
         setIsReady(true);
