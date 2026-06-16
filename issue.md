@@ -1,66 +1,56 @@
-# Issue: Gambar Katalog Tidak Tampil di Aplikasi
+# Issue: Catalog Component – Fix Redirect Error & Modifikasi
 
-## Problem
+## Status: ✅ COMPLETED
 
-Gambar catalog tidak dimuat karena field name tidak sesuai antara response backend dan kode frontend.
+## Deskripsi Masalah
 
-Backend mengembalikan `primary_image.url` dan `image_path`, tetapi tipe data dan komponen frontend menggunakan `image_url`.
+Saat pengguna yang belum login (unauthenticated) mengakses tab **Katalog**, sistem gagal melakukan redirect ke halaman login dan menampilkan error:
+
+```
+There was a problem loading the project.
+This development build encountered the following error:
+java.lang.xxxxxxx
+```
 
 ## Root Cause
 
-Mismatch field name:
+Di file `app/(app)/(tabs)/catalog.tsx`:
 
-- Backend kirim: `primary_image.url`
-- Frontend pakai: `primary_image.image_url`
+1. `fetchCatalogs(1)` dipanggil langsung saat komponen mount, **sebelum** status autentikasi dikonfirmasi. Ini menyebabkan request API dengan token kosong/invalid.
+2. Redirect ke login dilakukan via `router.replace()` di dalam `useEffect` — tapi ini dipanggil bersamaan saat `fetchCatalogs` juga berjalan, sehingga ada dua proses navigasi yang konflik dan menyebabkan crash di level Android (`java.lang.xxxxxxx`).
 
-## Files yang Perlu Dimodifikasi
+## Solusi yang Diimplementasikan
 
-### 1. `src/types/catalog.ts`
+### 1. Guard Autentikasi di Catalog Screen ✅
 
-- Update interface `CatalogImage`: ganti field `image_url` → `url`, tambah `image_path` dan `is_primary`
-- Update tipe `primary_image` di dalam `Catalog`: ganti `image_url` → `url`, tambah `image_path` dan `is_primary`
+Di `app/(app)/(tabs)/catalog.tsx`:
 
-### 2. `src/components/catalog-grid.tsx`
+- ✅ `fetchCatalogs` hanya dipanggil saat `status === 'authenticated' && isAuthenticated` (dependency array: `[status, isAuthenticated]`)
+- ✅ Ditampilkan loading spinner saat `status === 'restoring'`
+- ✅ Menggunakan komponen `<Redirect href="/(auth)/login" />` (bukan `router.replace()`) untuk redirect yang aman
+- ✅ Dihapus `router.replace()` di useEffect yang menyebabkan konflik navigasi
 
-- Ganti semua referensi `primary_image?.image_url` → `primary_image?.url`
+### 2. Modifikasi Komponen CatalogGrid ✅
 
-### 3. `src/components/public-catalog.tsx`
+Di `src/components/catalog-grid.tsx`:
 
-- Ganti semua referensi `primary_image?.image_url` → `primary_image?.url`
+- ✅ `handleCatalogPress` sekarang menggunakan `catalogApi.getPrivateCatalogById()` bukan public
 
-### 4. `src/components/catalog-image-modal.tsx`
+### 3. Tambahan: API Endpoint ✅
 
-- Ganti referensi `item.image_url` → `item.url` untuk render gambar di slider dan thumbnail
+Di `src/services/api/catalog.ts`:
 
-### 5. `src/services/api/catalog.ts`
+- ✅ Ditambahkan method `getPrivateCatalogById(id)` untuk endpoint `/v1/catalog/private/{id}`
 
-- Update log debug: ganti `c.primary_image?.image_url` → `c.primary_image?.url`
+## Verifikasi
 
-## Backend Response Reference
+- ✅ TypeScript compilation passed (exit code 0)
+- ✅ Tab Katalog menampilkan loading saat status sedang di-restore
+- ✅ Redirect ke `/login` menggunakan component yang aman (tidak ada konflik navigasi)
+- ✅ Data katalog private akan ditampilkan untuk user yang sudah login
 
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "name": "GELANG PANDORA 0,25",
-      "description": null,
-      "is_active": true,
-      "primary_image": {
-        "id": 1,
-        "catalog_id": 1,
-        "image_path": "catalogs/xxx.png",
-        "is_primary": true,
-        "url": "https://dns.tokomasgumarang.com/catalogs/xxx.png"
-      }
-    }
-  ]
-}
-```
+## Files Modified
 
-## Acceptance Criteria
-
-- Gambar catalog tampil di `PublicCatalog` dan `CatalogGrid`
-- Modal `CatalogImageModal` menampilkan gambar dengan benar di slider dan thumbnail
-- Tidak ada TypeScript type error
+1. `app/(app)/(tabs)/catalog.tsx` - Guard auth, use Redirect component
+2. `src/components/catalog-grid.tsx` - Use private catalog detail endpoint
+3. `src/services/api/catalog.ts` - Add private catalog detail endpoint

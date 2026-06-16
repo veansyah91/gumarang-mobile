@@ -57,3 +57,9 @@ export interface CatalogResponse {
     has_more: boolean;
   };
 }
+
+export interface CatalogDetailResponse {
+  success: boolean;
+  message: string;
+  data: Catalog;
+}

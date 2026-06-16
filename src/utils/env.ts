@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 
 const productionApiBaseUrl = 'https://tokomasgumarang.com/api';
+// Use ngrok or localhost fallback for development
 const localApiBaseUrl = 'http://localhost:8000/api';
 
 export function getAppEnv() {

@@ -1,3 +1,5 @@
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,7 +8,6 @@ import {
   Pressable,
   StyleSheet,
   View,
-  useWindowDimensions,
 } from 'react-native';
 
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
@@ -17,15 +18,18 @@ import { CatalogImageModal } from './catalog-image-modal';
 import { Badge } from './ui/badge';
 import { Text } from './ui/text';
 
+type ListItem = Catalog | { type: 'navigate' };
+
 function PublicCatalogComponent() {
-  const { width } = useWindowDimensions();
   const theme = useResolvedTheme();
   const colors = palette[theme];
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
 
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<number | null>(null);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     catalog: Catalog | null;
@@ -35,52 +39,56 @@ function PublicCatalogComponent() {
   });
 
   useEffect(() => {
+    isMountedRef.current = true;
     abortControllerRef.current = new AbortController();
     fetchPublicCatalogs();
 
     return () => {
+      isMountedRef.current = false;
       abortControllerRef.current?.abort();
     };
   }, []);
 
   const fetchPublicCatalogs = async () => {
     try {
+      if (!isMountedRef.current) return;
       setIsLoading(true);
       setError(null);
-      console.log('[PublicCatalog] Fetching catalogs...');
       const response = await catalogApi.getPublicCatalogs();
 
-      if (abortControllerRef.current?.signal.aborted) {
-        console.log('[PublicCatalog] Request aborted, skipping state update');
-        return;
-      }
+      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current) return;
 
       if (response.success && response.data) {
-        console.log('[PublicCatalog] Catalogs fetched successfully:', {
-          count: response.data.length,
-          catalogs: response.data.map((c) => ({
-            id: c.id,
-            name: c.name,
-            hasPrimaryImage: !!c.primary_image,
-             imageUrl: c.primary_image?.url,
-          })),
-        });
-        setCatalogs(response.data);
+        if (isMountedRef.current) setCatalogs(response.data);
       } else {
-        console.warn('[PublicCatalog] Response not successful:', response);
-        setError('Gagal memuat katalog');
+        if (isMountedRef.current) setError('Gagal memuat katalog');
       }
     } catch (err) {
-      if (abortControllerRef.current?.signal.aborted) {
-        console.log('[PublicCatalog] Request aborted during error handling');
-        return;
+      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current) return;
+      if (isMountedRef.current) {
+        setError('Gagal memuat katalog');
       }
-      setError('Gagal memuat katalog');
       console.error('[PublicCatalog] Error fetching public catalogs:', err);
     } finally {
-      if (!abortControllerRef.current?.signal.aborted) {
+      if (!abortControllerRef.current?.signal.aborted && isMountedRef.current) {
         setIsLoading(false);
       }
+    }
+  };
+
+  const handleCatalogPress = async (catalog: Catalog) => {
+    try {
+      setLoadingId(catalog.id);
+      const response = await catalogApi.getPublicCatalogById(catalog.id);
+      if (response.success && response.data) {
+        setModalState({ isOpen: true, catalog: response.data });
+      } else {
+        setModalState({ isOpen: true, catalog });
+      }
+    } catch {
+      setModalState({ isOpen: true, catalog });
+    } finally {
+      setLoadingId(null);
     }
   };
 
@@ -98,48 +106,53 @@ function PublicCatalogComponent() {
     return total > 0 ? `${total.toFixed(2)} g` : '-';
   };
 
-  const renderCatalogItem = ({ item }: { item: Catalog }) => {
+  const renderItem = ({ item }: { item: ListItem }) => {
+    if ('type' in item && item.type === 'navigate') {
+      return (
+        <Pressable
+          onPress={() => router.push('/catalog')}
+          style={[
+            styles.card,
+            styles.navigateCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <View style={styles.navigateCircle}>
+            <Feather name="chevron-right" size={28} color="#FFF" />
+          </View>
+          <Text style={styles.navigateText} tone="muted">
+            Lihat Semua
+          </Text>
+        </Pressable>
+      );
+    }
+
+    const cat = item as Catalog;
+    const isItemLoading = loadingId === cat.id;
     const catalogCategories = Array.from(
       new Map(
-        (item.products ?? [])
+        (cat.products ?? [])
           .filter((p) => p.category)
           .map((p) => [p.category!.id, p.category!]),
       ).values(),
     );
 
-    const handleImageLoad = () => {
-      console.log('[PublicCatalog] Image loaded successfully:', {
-        catalogId: item.id,
-        catalogName: item.name,
-        imageUrl: item.primary_image?.url,
-      });
-    };
-
-    const handleImageError = (error: any) => {
-      console.error('[PublicCatalog] Image failed to load:', {
-        catalogId: item.id,
-        catalogName: item.name,
-        imageUrl: item.primary_image?.url,
-        error: error.nativeEvent?.error,
-      });
-    };
-
     return (
       <Pressable
-        onPress={() => setModalState({ isOpen: true, catalog: item })}
+        onPress={() => handleCatalogPress(cat)}
+        disabled={isItemLoading}
         style={[
           styles.card,
           { backgroundColor: colors.surface, borderColor: colors.border },
+          isItemLoading && styles.cardLoading,
         ]}
       >
         <View style={styles.imageContainer}>
-          {item.primary_image?.url ? (
+          {cat.primary_image?.url ? (
             <Image
-              source={{ uri: item.primary_image.url }}
+              source={{ uri: cat.primary_image.url }}
               style={styles.image}
               resizeMode="cover"
-              onLoad={handleImageLoad}
-              onError={handleImageError}
             />
           ) : (
             <View style={[styles.noImage, { backgroundColor: colors.border }]}>
@@ -148,34 +161,39 @@ function PublicCatalogComponent() {
               </Text>
             </View>
           )}
+          {isItemLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="small" color="#FFF" />
+            </View>
+          )}
         </View>
 
         <View style={styles.cardContent}>
           <Text variant="subtitle" numberOfLines={2} style={styles.title}>
-            {item.name}
+            {cat.name}
           </Text>
 
           {catalogCategories.length > 0 && (
             <View style={styles.badgeContainer}>
-              {catalogCategories.map((cat) => (
-                <Badge key={cat.id} label={cat.name} variant="secondary" />
+              {catalogCategories.map((c) => (
+                <Badge key={c.id} label={c.name} variant="secondary" />
               ))}
             </View>
           )}
 
           <View style={styles.weightContainer}>
             <Text style={styles.weightLabel}>Berat: </Text>
-            <Text style={styles.weightValue}>{getTotalWeight(item)}</Text>
+            <Text style={styles.weightValue}>{getTotalWeight(cat)}</Text>
           </View>
 
-          {item.description && (
+          {cat.description && (
             <Text
               variant="body"
               tone="muted"
               numberOfLines={2}
               style={styles.description}
             >
-              {item.description}
+              {cat.description}
             </Text>
           )}
         </View>
@@ -191,11 +209,31 @@ function PublicCatalogComponent() {
     );
   }
 
-  if (error || catalogs.length === 0) {
+  if (error) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+        <View style={styles.errorContainer}>
+          <Text tone="muted" style={styles.errorText}>
+            Gagal memuat katalog
+          </Text>
+          <Pressable
+            onPress={() => fetchPublicCatalogs()}
+            style={[styles.retryButton, { borderColor: colors.border }]}
+          >
+            <Text style={{ color: '#D97706', fontWeight: '600', fontSize: 13 }}>
+              Coba Lagi
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  if (catalogs.length === 0) {
     return null;
   }
 
-  const numColumns = width > 600 ? 2 : 1;
+  const listData: ListItem[] = [...catalogs.slice(0, 3), { type: 'navigate' }];
 
   return (
     <View style={styles.container}>
@@ -209,11 +247,12 @@ function PublicCatalogComponent() {
       </View>
 
       <FlatList
-        data={catalogs}
-        renderItem={renderCatalogItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={numColumns}
-        key={numColumns}
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={(item) =>
+          'type' in item ? 'navigate' : item.id.toString()
+        }
+        numColumns={2}
         scrollEnabled={false}
         contentContainerStyle={styles.gridContent}
       />
@@ -244,11 +283,15 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   card: {
+    flex: 1,
     borderRadius: radius.lg,
     borderWidth: 1,
     overflow: 'hidden',
     marginBottom: spacing.md,
     marginHorizontal: 2,
+  },
+  cardLoading: {
+    opacity: 0.7,
   },
   imageContainer: {
     width: '100%',
@@ -261,6 +304,12 @@ const styles = StyleSheet.create({
   noImage: {
     width: '100%',
     height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -293,6 +342,41 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     marginTop: spacing.xs,
+  },
+  navigateCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+    paddingVertical: spacing.xl,
+  },
+  navigateCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#D97706',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navigateText: {
+    marginTop: spacing.sm,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+  },
+  errorText: {
+    fontSize: 14,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  retryButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderRadius: 6,
   },
 });
 

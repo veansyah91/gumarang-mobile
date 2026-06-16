@@ -1,35 +1,12 @@
 buat issue.md untuk planning:
 
 task: modifikasi komponen catalog
-
-masalah: gambar dari backend tidak dimuat di aplikasi
-
-sesuaikan dengan response dari backend:
-{
-    "success": true,
-    "message": "Public catalogs retrieved successfully",
-    "data": [
-        {
-            "id": 1,
-            "name": "GELANG PANDORA 0,25",
-            "description": null,
-            "is_active": true,
-            "created_at": "2026-06-14T02:48:48.000000Z",
-            "updated_at": "2026-06-14T02:48:48.000000Z",
-            "primary_image": {
-                "id": 1,
-                "catalog_id": 1,
-                "image_path": "catalogs\/74k78BQ5LlgLmOB4rlyFOHAozmWFpCCN1AEKbCSN.png",
-                "is_primary": true,
-                "created_at": "2026-06-14T02:49:28.000000Z",
-                "updated_at": "2026-06-14T04:31:52.000000Z",
-                "url": "https:\/\/dns.tokomasgumarang.com\/catalogs\/74k78BQ5LlgLmOB4rlyFOHAozmWFpCCN1AEKbCSN.png"
-            }
-        }
-    ]
-}
-
-- perbaiki komponen-komponen yang relevan
+perbaiki error berikut:
+- saat user 
+  sistem gagal melakukan redirect ke halaman login, dan muncul pesan error:
+  There was a problem loading the project.
+  This development build encoutered the following error:
+  java.lang.xxxxxxx
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

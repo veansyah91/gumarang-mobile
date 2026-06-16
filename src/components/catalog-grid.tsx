@@ -1,14 +1,15 @@
 import { memo, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
   StyleSheet,
   View,
-  useWindowDimensions,
 } from 'react-native';
 
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { catalogApi } from '@/src/services/api/catalog';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import { Catalog, Category } from '@/src/types/catalog';
 import { CatalogImageModal } from './catalog-image-modal';
@@ -28,13 +29,13 @@ function CatalogGridComponent({
   hasMore,
   isLoadingMore,
 }: Props) {
-  const { width } = useWindowDimensions();
   const theme = useResolvedTheme();
   const colors = palette[theme];
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null,
   );
+  const [loadingId, setLoadingId] = useState<number | null>(null);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     catalog: Catalog | null;
@@ -76,7 +77,24 @@ function CatalogGridComponent({
     return total > 0 ? `${total.toFixed(2)} g` : '-';
   };
 
+  const handleCatalogPress = async (catalog: Catalog) => {
+    try {
+      setLoadingId(catalog.id);
+      const response = await catalogApi.getPrivateCatalogById(catalog.id);
+      if (response.success && response.data) {
+        setModalState({ isOpen: true, catalog: response.data });
+      } else {
+        setModalState({ isOpen: true, catalog });
+      }
+    } catch {
+      setModalState({ isOpen: true, catalog });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   const renderCatalogItem = ({ item }: { item: Catalog }) => {
+    const isItemLoading = loadingId === item.id;
     const catalogCategories = Array.from(
       new Map(
         item.products
@@ -85,29 +103,14 @@ function CatalogGridComponent({
       ).values(),
     );
 
-    const handleImageLoad = () => {
-      console.log('[CatalogGrid] Image loaded successfully:', {
-        catalogId: item.id,
-        catalogName: item.name,
-        imageUrl: item.primary_image?.url,
-      });
-    };
-
-    const handleImageError = (error: any) => {
-      console.error('[CatalogGrid] Image failed to load:', {
-        catalogId: item.id,
-        catalogName: item.name,
-        imageUrl: item.primary_image?.url,
-        error: error.nativeEvent?.error,
-      });
-    };
-
     return (
       <Pressable
-        onPress={() => setModalState({ isOpen: true, catalog: item })}
+        onPress={() => handleCatalogPress(item)}
+        disabled={isItemLoading}
         style={[
           styles.card,
           { backgroundColor: colors.surface, borderColor: colors.border },
+          isItemLoading && styles.cardLoading,
         ]}
       >
         <View style={styles.imageContainer}>
@@ -116,14 +119,17 @@ function CatalogGridComponent({
               source={{ uri: item.primary_image.url }}
               style={styles.image}
               resizeMode="cover"
-              onLoad={handleImageLoad}
-              onError={handleImageError}
             />
           ) : (
             <View style={[styles.noImage, { backgroundColor: colors.border }]}>
               <Text tone="muted" style={{ fontSize: 12 }}>
                 Tidak ada gambar
               </Text>
+            </View>
+          )}
+          {isItemLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="small" color="#FFF" />
             </View>
           )}
         </View>
@@ -161,7 +167,7 @@ function CatalogGridComponent({
     );
   };
 
-  const numColumns = width > 600 ? 2 : 1;
+  const numColumns = 2;
 
   return (
     <View style={styles.container}>
@@ -209,8 +215,7 @@ function CatalogGridComponent({
         renderItem={renderCatalogItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={numColumns}
-        key={numColumns} // Force re-render when column count changes
-        scrollEnabled={false} // Since this will be inside another scroll view usually
+        scrollEnabled={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text tone="muted">Tidak ada katalog yang tersedia</Text>
@@ -281,6 +286,9 @@ const styles = StyleSheet.create({
     // When 2 columns, we need margin between them
     marginHorizontal: 2,
   },
+  cardLoading: {
+    opacity: 0.7,
+  },
   imageContainer: {
     width: '100%',
     height: 180,
@@ -292,6 +300,12 @@ const styles = StyleSheet.create({
   noImage: {
     width: '100%',
     height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },

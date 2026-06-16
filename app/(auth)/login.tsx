@@ -46,7 +46,11 @@ export default function LoginScreen() {
   const handleSubmit = async () => {
     const result = await login(credentials);
     if (result === true) {
-      router.replace('/(app)/(tabs)');
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/(app)/(tabs)');
+      }
     } else if (result === 'unverified') {
       router.push('/(auth)/verify-phone');
     }

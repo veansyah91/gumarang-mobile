@@ -1,4 +1,4 @@
-import { CatalogResponse } from '@/src/types/catalog';
+import { CatalogDetailResponse, CatalogResponse } from '@/src/types/catalog';
 import { apiClient } from './client';
 
 export const catalogApi = {
@@ -21,6 +21,30 @@ export const catalogApi = {
       return response.data;
     } catch (err) {
       console.error('[Catalog API] getPublicCatalogs error:', err);
+      throw err;
+    }
+  },
+
+  getPrivateCatalogById: async (id: number): Promise<CatalogDetailResponse> => {
+    try {
+      const response = await apiClient.get<CatalogDetailResponse>(
+        `/v1/catalog/private/${id}`,
+      );
+      return response.data;
+    } catch (err) {
+      console.error('[Catalog API] getPrivateCatalogById error:', err);
+      throw err;
+    }
+  },
+
+  getPublicCatalogById: async (id: number): Promise<CatalogDetailResponse> => {
+    try {
+      const response = await apiClient.get<CatalogDetailResponse>(
+        `/v1/catalog/public/${id}`,
+      );
+      return response.data;
+    } catch (err) {
+      console.error('[Catalog API] getPublicCatalogById error:', err);
       throw err;
     }
   },

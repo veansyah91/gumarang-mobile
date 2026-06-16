@@ -1,3 +1,4 @@
+import { Redirect } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
@@ -13,7 +14,7 @@ import { Catalog } from '@/src/types/catalog';
 export default function CatalogScreen() {
   const theme = useResolvedTheme();
   const colors = palette[theme];
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, status } = useAuth();
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
@@ -25,13 +26,16 @@ export default function CatalogScreen() {
 
   useEffect(() => {
     abortControllerRef.current = new AbortController();
-    fetchCatalogs(1);
+
+    if (status === 'authenticated' && isAuthenticated) {
+      fetchCatalogs(1);
+    }
 
     return () => {
       abortControllerRef.current?.abort();
       console.log('[CatalogScreen] Component unmounted, aborting requests');
     };
-  }, []);
+  }, [status, isAuthenticated]);
 
   const fetchCatalogs = async (page: number) => {
     try {
@@ -98,15 +102,21 @@ export default function CatalogScreen() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (status === 'restoring') {
     return (
-      <Screen contentContainerStyle={styles.centerContainer}>
-        <Text variant="title">Katalog Perhiasan</Text>
-        <Text style={[styles.text, { color: colors.text }]}>
-          Silakan login untuk melihat katalog lengkap
-        </Text>
-      </Screen>
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#D97706" />
+      </View>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)/login" />;
   }
 
   if (isLoading) {
