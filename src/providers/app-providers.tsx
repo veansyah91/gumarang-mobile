@@ -82,12 +82,18 @@ export function useAppBootstrap() {
     const bootstrap = async () => {
       await Promise.all([bootstrapApp(), restoreSession()]);
 
-      // Register device token for push notifications after session is restored
+      // Register device token for push notifications only if user is authenticated
       if (mounted) {
-        try {
-          await notificationService.registerDeviceToken();
-        } catch (error) {
-          console.error('[bootstrap] Failed to register device token:', error);
+        const authStatus = useAuthStore.getState().status;
+        if (authStatus === 'authenticated') {
+          try {
+            await notificationService.registerDeviceToken();
+          } catch (error) {
+            console.error(
+              '[bootstrap] Failed to register device token:',
+              error,
+            );
+          }
         }
       }
 

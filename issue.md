@@ -1,20 +1,66 @@
-# Planning Resolusi Error
+# Issue: Gambar Katalog Tidak Tampil di Aplikasi
 
-Terdapat dua error utama yang perlu diperbaiki. Berikut adalah panduan *high-level* untuk menyelesaikan masing-masing error:
+## Problem
 
-## 1. React State Update Error
-**Error:** Can't perform a React state update on a component that hasn't mounted yet...
+Gambar catalog tidak dimuat karena field name tidak sesuai antara response backend dan kode frontend.
 
-**Instruksi:**
-- Lakukan inspeksi pada komponen-komponen React, terutama yang melakukan *fetching* data atau operasi asinkron saat inisialisasi (misalnya terkait notifikasi atau autentikasi).
-- Pastikan semua operasi asinkron (pemanggilan API, *timeout*, dsb) yang memicu perubahan *state* secara eksplisit dipanggil melalui *hook* useEffect, bukan diletakkan langsung pada *render function* komponen.
-- Terapkan mekanisme *cleanup* atau pengecekan status *mount* komponen untuk mencegah *state update* yang tidak perlu.
+Backend mengembalikan `primary_image.url` dan `image_path`, tetapi tipe data dan komponen frontend menggunakan `image_url`.
 
-## 2. Notification Device Token Error
-**Error:** [notifications] Failed to register device token: [AppError: Request failed with status code 404]
+## Root Cause
 
-**Instruksi:**
-- Periksa modul, *hook*, atau fungsi di dalam aplikasi yang bertugas mendaftarkan *push notification device token* ke server.
-- Kode error 404 menandakan bahwa URL *endpoint* API yang dituju tidak tersedia di *backend*.
-- Lakukan verifikasi URL *endpoint*, *path API*, dan *HTTP method* yang digunakan pada *request*. Pastikan formatnya sudah persis sesuai dengan *route* yang terdaftar di *backend*.
-- Pastikan juga konfigurasi *base URL* API untuk *environment* saat ini sudah mengarah ke server yang benar.
+Mismatch field name:
+
+- Backend kirim: `primary_image.url`
+- Frontend pakai: `primary_image.image_url`
+
+## Files yang Perlu Dimodifikasi
+
+### 1. `src/types/catalog.ts`
+
+- Update interface `CatalogImage`: ganti field `image_url` → `url`, tambah `image_path` dan `is_primary`
+- Update tipe `primary_image` di dalam `Catalog`: ganti `image_url` → `url`, tambah `image_path` dan `is_primary`
+
+### 2. `src/components/catalog-grid.tsx`
+
+- Ganti semua referensi `primary_image?.image_url` → `primary_image?.url`
+
+### 3. `src/components/public-catalog.tsx`
+
+- Ganti semua referensi `primary_image?.image_url` → `primary_image?.url`
+
+### 4. `src/components/catalog-image-modal.tsx`
+
+- Ganti referensi `item.image_url` → `item.url` untuk render gambar di slider dan thumbnail
+
+### 5. `src/services/api/catalog.ts`
+
+- Update log debug: ganti `c.primary_image?.image_url` → `c.primary_image?.url`
+
+## Backend Response Reference
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "GELANG PANDORA 0,25",
+      "description": null,
+      "is_active": true,
+      "primary_image": {
+        "id": 1,
+        "catalog_id": 1,
+        "image_path": "catalogs/xxx.png",
+        "is_primary": true,
+        "url": "https://dns.tokomasgumarang.com/catalogs/xxx.png"
+      }
+    }
+  ]
+}
+```
+
+## Acceptance Criteria
+
+- Gambar catalog tampil di `PublicCatalog` dan `CatalogGrid`
+- Modal `CatalogImageModal` menampilkan gambar dengan benar di slider dan thumbnail
+- Tidak ada TypeScript type error
