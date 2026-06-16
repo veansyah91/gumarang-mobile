@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
     Image,
@@ -22,6 +22,7 @@ const logo = require('@/assets/images/logo.png');
 
 export default function LoginScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ redirect?: string }>();
   const { login, isLoading, error } = useAuth();
   const theme = useResolvedTheme();
   const colors = palette[theme];
@@ -46,7 +47,9 @@ export default function LoginScreen() {
   const handleSubmit = async () => {
     const result = await login(credentials);
     if (result === true) {
-      if (router.canGoBack()) {
+      if (params.redirect) {
+        router.replace(params.redirect as any);
+      } else if (router.canGoBack()) {
         router.back();
       } else {
         router.replace('/(app)/(tabs)');

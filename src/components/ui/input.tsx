@@ -1,5 +1,11 @@
-import { type ReactNode } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { useRef, type ReactNode } from 'react';
+import {
+    Pressable,
+    StyleSheet,
+    TextInput,
+    View,
+    type TextInputProps,
+} from 'react-native';
 
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { palette, radius, spacing } from '@/src/theme/tokens';
@@ -14,11 +20,13 @@ type Props = TextInputProps & {
 export function Input({ label, style, rightElement, ...props }: Props) {
   const theme = useResolvedTheme();
   const colors = palette[theme];
+  const inputRef = useRef<TextInput>(null);
 
   return (
     <View style={styles.container}>
       {label ? <Text variant="eyebrow">{label}</Text> : null}
-      <View
+      <Pressable
+        onPress={() => inputRef.current?.focus()}
         style={[
           styles.inputRow,
           {
@@ -28,14 +36,17 @@ export function Input({ label, style, rightElement, ...props }: Props) {
         ]}
       >
         <TextInput
+          ref={inputRef}
           placeholderTextColor={colors.muted}
           {...props}
           style={[styles.input, { color: colors.text }, style]}
         />
         {rightElement ? (
-          <View style={styles.rightElement}>{rightElement}</View>
+          <View style={styles.rightElement} pointerEvents="box-none">
+            {rightElement}
+          </View>
         ) : null}
-      </View>
+      </Pressable>
     </View>
   );
 }

@@ -18,7 +18,12 @@ import { CatalogImageModal } from './catalog-image-modal';
 import { Badge } from './ui/badge';
 import { Text } from './ui/text';
 
-type ListItem = Catalog | { type: 'navigate' };
+type ViewAllItem = { type: 'viewAll' };
+type ListItem = Catalog | ViewAllItem;
+
+const isViewAllItem = (item: ListItem): item is ViewAllItem => {
+  return 'type' in item && item.type === 'viewAll';
+};
 
 function PublicCatalogComponent() {
   const theme = useResolvedTheme();
@@ -56,7 +61,8 @@ function PublicCatalogComponent() {
       setError(null);
       const response = await catalogApi.getPublicCatalogs();
 
-      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current) return;
+      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current)
+        return;
 
       if (response.success && response.data) {
         if (isMountedRef.current) setCatalogs(response.data);
@@ -64,7 +70,8 @@ function PublicCatalogComponent() {
         if (isMountedRef.current) setError('Gagal memuat katalog');
       }
     } catch (err) {
-      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current) return;
+      if (abortControllerRef.current?.signal.aborted || !isMountedRef.current)
+        return;
       if (isMountedRef.current) {
         setError('Gagal memuat katalog');
       }
@@ -107,23 +114,20 @@ function PublicCatalogComponent() {
   };
 
   const renderItem = ({ item }: { item: ListItem }) => {
-    if ('type' in item && item.type === 'navigate') {
+    if (isViewAllItem(item)) {
       return (
-        <Pressable
-          onPress={() => router.push('/catalog')}
-          style={[
-            styles.card,
-            styles.navigateCard,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
+        <View
+          style={[styles.viewAllGridItem, { flex: 1, marginHorizontal: 2 }]}
         >
-          <View style={styles.navigateCircle}>
-            <Feather name="chevron-right" size={28} color="#FFF" />
-          </View>
-          <Text style={styles.navigateText} tone="muted">
-            Lihat Semua
-          </Text>
-        </Pressable>
+          <Pressable onPress={handleViewAll} style={styles.viewAllContent}>
+            <View style={styles.viewAllCircle}>
+              <Feather name="chevron-right" size={28} color="#FFF" />
+            </View>
+            <Text style={styles.viewAllText} tone="muted">
+              Lihat Lainnya
+            </Text>
+          </Pressable>
+        </View>
       );
     }
 
@@ -233,7 +237,11 @@ function PublicCatalogComponent() {
     return null;
   }
 
-  const listData: ListItem[] = [...catalogs.slice(0, 3), { type: 'navigate' }];
+  const listData: ListItem[] = [...catalogs.slice(0, 3), { type: 'viewAll' }];
+
+  const handleViewAll = () => {
+    router.push('/(auth)/login?redirect=/(app)/(tabs)/catalog');
+  };
 
   return (
     <View style={styles.container}>
@@ -249,8 +257,8 @@ function PublicCatalogComponent() {
       <FlatList
         data={listData}
         renderItem={renderItem}
-        keyExtractor={(item) =>
-          'type' in item ? 'navigate' : item.id.toString()
+        keyExtractor={(item, index) =>
+          isViewAllItem(item) ? 'viewAll' : item.id.toString()
         }
         numColumns={2}
         scrollEnabled={false}
@@ -360,6 +368,29 @@ const styles = StyleSheet.create({
   navigateText: {
     marginTop: spacing.sm,
     fontSize: 13,
+    fontWeight: '600',
+  },
+  viewAllGridItem: {
+    marginHorizontal: 2,
+    marginBottom: spacing.md,
+  },
+  viewAllContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
+  },
+  viewAllCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#D97706',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  viewAllText: {
+    fontSize: 14,
     fontWeight: '600',
   },
   errorContainer: {

@@ -1,13 +1,8 @@
 buat issue.md untuk planning:
 
-task: modifikasi komponen catalog
-perbaiki error berikut:
-- saat user 
-  sistem gagal melakukan redirect ke halaman login, dan muncul pesan error:
-  There was a problem loading the project.
-  This development build encoutered the following error:
-  java.lang.xxxxxxx
+task: modifikasi input number pada login dan register
 
+- user tidak bisa menginput nomor hp ke komponen input, namun bisa pada komponen password input
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
 

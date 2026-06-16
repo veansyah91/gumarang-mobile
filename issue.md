@@ -1,56 +1,41 @@
-# Issue: Catalog Component – Fix Redirect Error & Modifikasi
+# Issue: Input Nomor HP Tidak Bisa Diketik di Login & Register
 
-## Status: ✅ COMPLETED
+## Deskripsi Bug
 
-## Deskripsi Masalah
+User tidak bisa mengetik nomor HP pada field input di halaman login dan register, namun field password bisa diketik dengan normal.
 
-Saat pengguna yang belum login (unauthenticated) mengakses tab **Katalog**, sistem gagal melakukan redirect ke halaman login dan menampilkan error:
+## Lokasi File
 
-```
-There was a problem loading the project.
-This development build encountered the following error:
-java.lang.xxxxxxx
-```
+- `app/(auth)/login.tsx` — field "No. Handphone"
+- `app/(auth)/register.tsx` — field "Nomor Telepon"
+- `src/components/ui/input.tsx` — komponen `Input` yang digunakan
 
-## Root Cause
+## Analisis Root Cause
 
-Di file `app/(app)/(tabs)/catalog.tsx`:
+Komponen `Input` membungkus `TextInput` di dalam `View` dengan `flexDirection: 'row'`. Perbedaan antara field phone dan password:
 
-1. `fetchCatalogs(1)` dipanggil langsung saat komponen mount, **sebelum** status autentikasi dikonfirmasi. Ini menyebabkan request API dengan token kosong/invalid.
-2. Redirect ke login dilakukan via `router.replace()` di dalam `useEffect` — tapi ini dipanggil bersamaan saat `fetchCatalogs` juga berjalan, sehingga ada dua proses navigasi yang konflik dan menyebabkan crash di level Android (`java.lang.xxxxxxx`).
+| Field    | `keyboardType` | `rightElement`     | `secureTextEntry` |
+| -------- | -------------- | ------------------ | ----------------- |
+| Phone    | `phone-pad`    | ❌ tidak ada       | ❌                |
+| Password | default        | ✅ ada (Pressable) | ✅                |
 
-## Solusi yang Diimplementasikan
+Kemungkinan penyebab: `TextInput` tidak mendapatkan area sentuh yang cukup atau event touch terinterupsi, terutama karena tidak ada `rightElement` sehingga layout-nya berbeda.
 
-### 1. Guard Autentikasi di Catalog Screen ✅
+## Tugas yang Perlu Diimplementasikan
 
-Di `app/(app)/(tabs)/catalog.tsx`:
+1. **Periksa dan perbaiki komponen `Input`** (`src/components/ui/input.tsx`):
+   - Pastikan `TextInput` bisa menerima sentuhan dan fokus dalam segala kondisi (ada/tidak ada `rightElement`)
+   - Tambahkan `pointerEvents` yang tepat pada wrapper `View` jika diperlukan
+   - Pertimbangkan membungkus `inputRow` dengan `Pressable` yang saat ditekan langsung mem-focus `TextInput` menggunakan `ref`
 
-- ✅ `fetchCatalogs` hanya dipanggil saat `status === 'authenticated' && isAuthenticated` (dependency array: `[status, isAuthenticated]`)
-- ✅ Ditampilkan loading spinner saat `status === 'restoring'`
-- ✅ Menggunakan komponen `<Redirect href="/(auth)/login" />` (bukan `router.replace()`) untuk redirect yang aman
-- ✅ Dihapus `router.replace()` di useEffect yang menyebabkan konflik navigasi
+2. **Verifikasi di halaman Login** (`app/(auth)/login.tsx`):
+   - Field "No. Handphone" harus bisa diketik angka dengan keyboard `phone-pad`
 
-### 2. Modifikasi Komponen CatalogGrid ✅
+3. **Verifikasi di halaman Register** (`app/(auth)/register.tsx`):
+   - Field "Nomor Telepon" harus bisa diketik angka dengan keyboard `phone-pad`
 
-Di `src/components/catalog-grid.tsx`:
+## Kriteria Selesai
 
-- ✅ `handleCatalogPress` sekarang menggunakan `catalogApi.getPrivateCatalogById()` bukan public
-
-### 3. Tambahan: API Endpoint ✅
-
-Di `src/services/api/catalog.ts`:
-
-- ✅ Ditambahkan method `getPrivateCatalogById(id)` untuk endpoint `/v1/catalog/private/{id}`
-
-## Verifikasi
-
-- ✅ TypeScript compilation passed (exit code 0)
-- ✅ Tab Katalog menampilkan loading saat status sedang di-restore
-- ✅ Redirect ke `/login` menggunakan component yang aman (tidak ada konflik navigasi)
-- ✅ Data katalog private akan ditampilkan untuk user yang sudah login
-
-## Files Modified
-
-1. `app/(app)/(tabs)/catalog.tsx` - Guard auth, use Redirect component
-2. `src/components/catalog-grid.tsx` - Use private catalog detail endpoint
-3. `src/services/api/catalog.ts` - Add private catalog detail endpoint
+- User bisa menekan field nomor HP dan langsung mengetik angka
+- Keyboard phone-pad muncul saat field nomor HP difokuskan
+- Behavior input nomor HP konsisten dengan input password
