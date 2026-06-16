@@ -9,7 +9,8 @@ export interface CatalogImage {
 export interface CatalogVideo {
   id: number;
   catalog_id: number;
-  video_url: string;
+  video_path: string;
+  url: string;
 }
 
 export interface Product {
@@ -41,8 +42,8 @@ export interface Catalog {
     url: string;
   };
   images: CatalogImage[];
-  videos: CatalogVideo[];
-  products: Product[];
+  video?: CatalogVideo;
+  products?: Product[];
 }
 
 export interface CatalogResponse {

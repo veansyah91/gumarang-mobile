@@ -134,6 +134,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         androidMode: 'default',
       },
     ],
+    'expo-video',
   ],
 
   experiments: {

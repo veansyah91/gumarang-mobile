@@ -1,41 +1,44 @@
-# Issue: Input Nomor HP Tidak Bisa Diketik di Login & Register
+# Issue Planning: Fix Warnings & Errors
 
-## Deskripsi Bug
+## Objective
 
-User tidak bisa mengetik nomor HP pada field input di halaman login dan register, namun field password bisa diketik dengan normal.
+Memperbaiki warning dan error yang ada di aplikasi untuk memastikan stabilitas dan penggunaan dependensi yang up-to-date.
 
-## Lokasi File
+## Tasks
 
-- `app/(auth)/login.tsx` — field "No. Handphone"
-- `app/(auth)/register.tsx` — field "Nomor Telepon"
-- `src/components/ui/input.tsx` — komponen `Input` yang digunakan
+### 1. Migrasi Video Component dari `expo-av` ke `expo-video`
 
-## Analisis Root Cause
+**Error/Warning:** `⚠️ [expo-av]: Video component from expo-av is deprecated in favor of expo-video.`
+**Instruksi High-Level:**
 
-Komponen `Input` membungkus `TextInput` di dalam `View` dengan `flexDirection: 'row'`. Perbedaan antara field phone dan password:
+- Identifikasi semua komponen yang saat ini menggunakan `Video` dari `expo-av`.
+- Ganti implementasi video dengan library terbaru yaitu `expo-video`.
+- Sesuaikan properti dan method pemutar video mengikuti dokumentasi resmi: https://docs.expo.dev/versions/latest/sdk/video/
+- Pastikan fitur video (seperti autoplay, control, styling) berjalan normal dengan API yang baru.
 
-| Field    | `keyboardType` | `rightElement`     | `secureTextEntry` |
-| -------- | -------------- | ------------------ | ----------------- |
-| Phone    | `phone-pad`    | ❌ tidak ada       | ❌                |
-| Password | default        | ✅ ada (Pressable) | ✅                |
+### 2. Memperbaiki State Update pada Unmounted Component
 
-Kemungkinan penyebab: `TextInput` tidak mendapatkan area sentuh yang cukup atau event touch terinterupsi, terutama karena tidak ada `rightElement` sehingga layout-nya berbeda.
+**Error/Warning:** `ERROR Can't perform a React state update on a component that hasn't mounted yet.`
+**Instruksi High-Level:**
 
-## Tugas yang Perlu Diimplementasikan
+- Lakukan penelusuran untuk menemukan komponen yang melakukan perubahan state (_state update_) secara _asynchronous_ langsung di dalam fungsi render.
+- Pindahkan logika yang memiliki _side-effect_ tersebut ke dalam _hook_ `useEffect`.
+- Pastikan ada mekanisme pengecekan _mounted state_ atau _cleanup_ untuk memastikan update hanya terjadi jika komponen sedang aktif (mounted).
 
-1. **Periksa dan perbaiki komponen `Input`** (`src/components/ui/input.tsx`):
-   - Pastikan `TextInput` bisa menerima sentuhan dan fokus dalam segala kondisi (ada/tidak ada `rightElement`)
-   - Tambahkan `pointerEvents` yang tepat pada wrapper `View` jika diperlukan
-   - Pertimbangkan membungkus `inputRow` dengan `Pressable` yang saat ditekan langsung mem-focus `TextInput` menggunakan `ref`
+## Acceptance Criteria
 
-2. **Verifikasi di halaman Login** (`app/(auth)/login.tsx`):
-   - Field "No. Handphone" harus bisa diketik angka dengan keyboard `phone-pad`
+- Warning depresiasi `expo-av` tidak lagi muncul di console.
+- Error "state update on an unmounted component" tidak lagi terjadi selama interaksi atau navigasi aplikasi.
+- Error TypeScript pada `VideoViewProps` (Task 3) telah diperbaiki di `src/components/catalog-image-modal.tsx`.
 
-3. **Verifikasi di halaman Register** (`app/(auth)/register.tsx`):
-   - Field "Nomor Telepon" harus bisa diketik angka dengan keyboard `phone-pad`
+### 3. Perbaiki Error TypeScript pada Komponen VideoView [DONE]
 
-## Kriteria Selesai
+**Target File:** `src/components/catalog-image-modal.tsx`
+**Error:** `TypeScript Error TS2769: Property 'allowsFullscreen' does not exist on type 'VideoViewProps'.`
 
-- User bisa menekan field nomor HP dan langsung mengetik angka
-- Keyboard phone-pad muncul saat field nomor HP difokuskan
-- Behavior input nomor HP konsisten dengan input password
+**Instruksi High-Level:**
+
+- Periksa penggunaan komponen `VideoView` di dalam `src/components/catalog-image-modal.tsx`.
+- Saat ini ada beberapa properti (`allowsFullscreen`, `allowsPictureInPicture`) yang di-pass ke komponen tersebut, namun ditolak oleh TypeScript karena tidak ada di dalam `VideoViewProps` (berkaitan dengan migrasi ke `expo-video`).
+- Sesuaikan pemanggilan komponen `VideoView`. Hapus atau sesuaikan properti yang sudah tidak valid/didukung berdasarkan dokumentasi API dari library video yang baru.
+- Pastikan bahwa error TypeScript hilang dan pemutar video tetap bisa ditampilkan dengan baik.

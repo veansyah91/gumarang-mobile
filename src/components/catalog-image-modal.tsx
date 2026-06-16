@@ -1,4 +1,5 @@
 import { Feather } from '@expo/vector-icons';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { memo, useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
@@ -25,13 +26,28 @@ interface Props {
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-function CatalogImageModalComponent({
+const VideoItem = memo(({ url }: { url: string }) => {
+  const player = useVideoPlayer(url, (player) => {
+    player.loop = true;
+    player.play();
+  });
+
+  return (
+    <View style={styles.mediaContainer}>
+      <VideoView player={player} style={styles.video} contentFit="contain" />
+    </View>
+  );
+});
+
+VideoItem.displayName = 'VideoItem';
+
+const CatalogImageModalComponent = ({
   isOpen,
   images,
   videos = [],
   catalogName,
   onClose,
-}: Props) {
+}: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const insets = useSafeAreaInsets();
 
@@ -59,15 +75,7 @@ function CatalogImageModalComponent({
       );
     }
 
-    return (
-      <View style={styles.mediaContainer}>
-        <View style={styles.videoPlaceholder}>
-          <Feather name="play" size={48} color="#FFF" />
-          <Text style={styles.videoText}>Video tidak dapat ditampilkan</Text>
-          <Text style={styles.videoUrl}>{item.video_url}</Text>
-        </View>
-      </View>
-    );
+    return <VideoItem url={item.url} />;
   }, []);
 
   const handleScroll = useCallback(
@@ -171,7 +179,7 @@ function CatalogImageModalComponent({
       </View>
     </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -212,25 +220,9 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: '100%',
   },
-  videoPlaceholder: {
-    width: '100%',
+  video: {
+    width: SCREEN_WIDTH,
     height: '100%',
-    backgroundColor: '#1a1a1a',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  videoText: {
-    color: '#FFF',
-    fontSize: 14,
-    marginTop: spacing.md,
-    fontWeight: '600',
-  },
-  videoUrl: {
-    color: '#999',
-    fontSize: 12,
-    marginTop: spacing.sm,
-    textAlign: 'center',
   },
   counterContainer: {
     position: 'absolute',
@@ -282,5 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+CatalogImageModalComponent.displayName = 'CatalogImageModalComponent';
 
 export const CatalogImageModal = memo(CatalogImageModalComponent);

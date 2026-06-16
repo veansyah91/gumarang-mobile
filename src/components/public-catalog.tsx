@@ -270,7 +270,7 @@ function PublicCatalogComponent() {
           isOpen={modalState.isOpen}
           catalogName={modalState.catalog.name}
           images={modalState.catalog.images || []}
-          videos={modalState.catalog.videos || []}
+          videos={modalState.catalog.video ? [modalState.catalog.video] : []}
           onClose={() => setModalState({ isOpen: false, catalog: null })}
         />
       )}

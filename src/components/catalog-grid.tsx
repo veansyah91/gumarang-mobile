@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -31,6 +31,14 @@ function CatalogGridComponent({
 }: Props) {
   const theme = useResolvedTheme();
   const colors = palette[theme];
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null,
@@ -47,7 +55,7 @@ function CatalogGridComponent({
   const categories = useMemo(() => {
     const catMap = new Map<number, Category>();
     catalogs.forEach((c) => {
-      c.products.forEach((p) => {
+      c.products?.forEach((p) => {
         if (p.category) {
           catMap.set(p.category.id, p.category);
         }
@@ -59,12 +67,12 @@ function CatalogGridComponent({
   const filteredCatalogs = useMemo(() => {
     if (!selectedCategoryId) return catalogs;
     return catalogs.filter((c) =>
-      c.products.some((p) => p.category?.id === selectedCategoryId),
+      c.products?.some((p) => p.category?.id === selectedCategoryId),
     );
   }, [catalogs, selectedCategoryId]);
 
   const getTotalWeight = (catalog: Catalog): string => {
-    const numericWeights = catalog.products
+    const numericWeights = (catalog.products ?? [])
       .map((p) => {
         const b = p.pivot.berat;
         if (b === null || b === undefined || b === '') return null;
@@ -81,15 +89,21 @@ function CatalogGridComponent({
     try {
       setLoadingId(catalog.id);
       const response = await catalogApi.getPrivateCatalogById(catalog.id);
+      if (!isMountedRef.current) return;
+
       if (response.success && response.data) {
         setModalState({ isOpen: true, catalog: response.data });
       } else {
         setModalState({ isOpen: true, catalog });
       }
     } catch {
-      setModalState({ isOpen: true, catalog });
+      if (isMountedRef.current) {
+        setModalState({ isOpen: true, catalog });
+      }
     } finally {
-      setLoadingId(null);
+      if (isMountedRef.current) {
+        setLoadingId(null);
+      }
     }
   };
 
@@ -97,7 +111,7 @@ function CatalogGridComponent({
     const isItemLoading = loadingId === item.id;
     const catalogCategories = Array.from(
       new Map(
-        item.products
+        (item.products ?? [])
           .filter((p) => p.category)
           .map((p) => [p.category!.id, p.category!]),
       ).values(),
@@ -241,7 +255,7 @@ function CatalogGridComponent({
           isOpen={modalState.isOpen}
           catalogName={modalState.catalog.name}
           images={modalState.catalog.images || []}
-          videos={modalState.catalog.videos || []}
+          videos={modalState.catalog.video ? [modalState.catalog.video] : []}
           onClose={() => setModalState({ isOpen: false, catalog: null })}
         />
       )}

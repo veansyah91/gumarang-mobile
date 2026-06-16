@@ -1,8 +1,22 @@
 buat issue.md untuk planning:
 
-task: modifikasi input number pada login dan register
+task: perbaiki error berikut:
 
-- user tidak bisa menginput nomor hp ke komponen input, namun bisa pada komponen password input
+1.  [{
+	"resource": "/c:/External/Projects/laragon/www/gumarang-mobile/src/components/catalog-image-modal.tsx",
+	"owner": "typescript",
+	"code": "2769",
+	"severity": 8,
+	"message": "No overload matches this call.\n  Overload 1 of 2, '(props: VideoViewProps): VideoView', gave the following error.\n    Type '{ player: VideoPlayer; style: { width: number; height: \"100%\"; }; contentFit: \"contain\"; allowsFullscreen: true; allowsPictureInPicture: true; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.\n      Property 'allowsFullscreen' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.\n  Overload 2 of 2, '(props: VideoViewProps, context: any): VideoView', gave the following error.\n    Type '{ player: VideoPlayer; style: { width: number; height: \"100%\"; }; contentFit: \"contain\"; allowsFullscreen: true; allowsPictureInPicture: true; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.\n      Property 'allowsFullscreen' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.",
+	"source": "ts",
+	"startLineNumber": 41,
+	"startColumn": 9,
+	"endLineNumber": 41,
+	"endColumn": 25,
+	"modelVersionId": 25,
+	"origin": "extHost1"
+}]
+
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 
 
