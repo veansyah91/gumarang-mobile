@@ -75,7 +75,6 @@ function PublicCatalogComponent() {
       if (isMountedRef.current) {
         setError('Gagal memuat katalog');
       }
-      console.error('[PublicCatalog] Error fetching public catalogs:', err);
     } finally {
       if (!abortControllerRef.current?.signal.aborted && isMountedRef.current) {
         setIsLoading(false);
