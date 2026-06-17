@@ -1,3 +1,22 @@
+export interface PriceDetail {
+  date: string | null;
+  price: {
+    purchaseValue: number;
+    saleValue: number;
+  };
+}
+
+export interface JewelryPriceTrend {
+  current: PriceDetail;
+  previous: PriceDetail | null;
+  difference: number;
+  trend: 'up' | 'down' | 'equal';
+}
+
+export interface JewelryPriceListResponse {
+  [key: string]: JewelryPriceTrend;
+}
+
 export interface CatalogImage {
   id: number;
   catalog_id: number;

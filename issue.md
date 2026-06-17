@@ -1,44 +1,48 @@
-# Issue Planning: Fix Warnings & Errors
+# Issue: Modifikasi Halaman /catalog
 
-## Objective
+## Deskripsi Task
 
-Memperbaiki warning dan error yang ada di aplikasi untuk memastikan stabilitas dan penggunaan dependensi yang up-to-date.
+Tambahkan komponen pricelist pada halaman `/catalog`. Komponen ini akan menampilkan daftar harga perhiasan beserta tren perubahan harganya.
 
-## Tasks
+Gunakan komponen **price card** yang sudah ada di project (atau struktur serupa) sebagai template UI utama untuk menampilkan masing-masing harga.
 
-### 1. Migrasi Video Component dari `expo-av` ke `expo-video`
+## High-Level Implementation Steps
 
-**Error/Warning:** `⚠️ [expo-av]: Video component from expo-av is deprecated in favor of expo-video.`
-**Instruksi High-Level:**
+1. **Fetch Data:** Ambil data pricelist dari endpoint API yang disediakan.
+2. **Buat Komponen Pricelist:** Buat komponen pembungkus (misal: `PricelistSection` atau `PricelistCard`) yang me-render struktur "price card".
+3. **Mapping Data:** Petakan data response API ke dalam price card. Pastikan untuk menampilkan:
+   - Harga jual (`saleValue`) dan harga beli (`purchaseValue`) dari data `current`.
+   - Informasi tren pergerakan harga (`trend`) dan selisihnya (`difference`).
+4. **Integrasi ke Halaman:** Pasang komponen pricelist tersebut pada halaman utama `/catalog`.
 
-- Identifikasi semua komponen yang saat ini menggunakan `Video` dari `expo-av`.
-- Ganti implementasi video dengan library terbaru yaitu `expo-video`.
-- Sesuaikan properti dan method pemutar video mengikuti dokumentasi resmi: https://docs.expo.dev/versions/latest/sdk/video/
-- Pastikan fitur video (seperti autoplay, control, styling) berjalan normal dengan API yang baru.
+## Data Source
 
-### 2. Memperbaiki State Update pada Unmounted Component
+**Endpoint:**
+`GET /api/v1/jewelry-price-list`
 
-**Error/Warning:** `ERROR Can't perform a React state update on a component that hasn't mounted yet.`
-**Instruksi High-Level:**
+**Contoh Response:**
 
-- Lakukan penelusuran untuk menemukan komponen yang melakukan perubahan state (_state update_) secara _asynchronous_ langsung di dalam fungsi render.
-- Pindahkan logika yang memiliki _side-effect_ tersebut ke dalam _hook_ `useEffect`.
-- Pastikan ada mekanisme pengecekan _mounted state_ atau _cleanup_ untuk memastikan update hanya terjadi jika komponen sedang aktif (mounted).
+```json
+{
+  "mayam": {
+    "current": {
+      "date": "2026-05-12",
+      "price": {
+        "purchaseValue": 7837000,
+        "saleValue": 8250000
+      }
+    },
+    "previous": {
+      "date": "2026-04-30",
+      "price": {
+        "purchaseValue": 779000,
+        "saleValue": 820000
+      }
+    },
+    "difference": 7430000,
+    "trend": "up"
+  }
+}
+```
 
-## Acceptance Criteria
-
-- Warning depresiasi `expo-av` tidak lagi muncul di console.
-- Error "state update on an unmounted component" tidak lagi terjadi selama interaksi atau navigasi aplikasi.
-- Error TypeScript pada `VideoViewProps` (Task 3) telah diperbaiki di `src/components/catalog-image-modal.tsx`.
-
-### 3. Perbaiki Error TypeScript pada Komponen VideoView [DONE]
-
-**Target File:** `src/components/catalog-image-modal.tsx`
-**Error:** `TypeScript Error TS2769: Property 'allowsFullscreen' does not exist on type 'VideoViewProps'.`
-
-**Instruksi High-Level:**
-
-- Periksa penggunaan komponen `VideoView` di dalam `src/components/catalog-image-modal.tsx`.
-- Saat ini ada beberapa properti (`allowsFullscreen`, `allowsPictureInPicture`) yang di-pass ke komponen tersebut, namun ditolak oleh TypeScript karena tidak ada di dalam `VideoViewProps` (berkaitan dengan migrasi ke `expo-video`).
-- Sesuaikan pemanggilan komponen `VideoView`. Hapus atau sesuaikan properti yang sudah tidak valid/didukung berdasarkan dokumentasi API dari library video yang baru.
-- Pastikan bahwa error TypeScript hilang dan pemutar video tetap bisa ditampilkan dengan baik.
+_Catatan Implementasi: Gunakan standar state management / data fetching yang ada di project, buat sekecil/sesimpel mungkin sesuai komponen UI card yang re-usable, lalu injek pada parent page._

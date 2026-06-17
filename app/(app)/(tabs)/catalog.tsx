@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { CatalogGrid } from '@/src/components/catalog-grid';
+import { JewelryPricelist } from '@/src/components/jewelry-pricelist';
 import { Screen } from '@/src/components/ui/screen';
+
 import { Text } from '@/src/components/ui/text';
 import { useAuth } from '@/src/hooks/use-auth';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
@@ -33,13 +35,11 @@ export default function CatalogScreen() {
 
     return () => {
       abortControllerRef.current?.abort();
-      console.log('[CatalogScreen] Component unmounted, aborting requests');
     };
   }, [status, isAuthenticated]);
 
   const fetchCatalogs = async (page: number) => {
     try {
-      console.log('[CatalogScreen] Fetching catalogs page:', page);
       if (page === 1) {
         setIsLoading(true);
       } else {
@@ -50,19 +50,10 @@ export default function CatalogScreen() {
       const response = await catalogApi.getPrivateCatalogs(page);
 
       if (abortControllerRef.current?.signal.aborted) {
-        console.log(
-          '[CatalogScreen] Request aborted, skipping state update for page:',
-          page,
-        );
         return;
       }
 
       if (response.success && response.data) {
-        console.log('[CatalogScreen] Catalogs fetched successfully for page:', {
-          page,
-          count: response.data.length,
-          hasMore: response.meta?.has_more,
-        });
         if (page === 1) {
           setCatalogs(response.data);
         } else {
@@ -75,16 +66,11 @@ export default function CatalogScreen() {
       }
     } catch (err) {
       if (abortControllerRef.current?.signal.aborted) {
-        console.log(
-          '[CatalogScreen] Request aborted during error handling for page:',
-          page,
-        );
         return;
       }
       if (page === 1) {
         setError('Gagal memuat katalog');
       }
-      console.error('[CatalogScreen] Error fetching private catalogs:', err);
     } finally {
       if (!abortControllerRef.current?.signal.aborted) {
         if (page === 1) {
@@ -160,6 +146,8 @@ export default function CatalogScreen() {
           Koleksi lengkap perhiasan kami
         </Text>
       </View>
+
+      <JewelryPricelist />
 
       <CatalogGrid
         catalogs={catalogs}

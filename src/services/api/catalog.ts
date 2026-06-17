@@ -1,4 +1,8 @@
-import { CatalogDetailResponse, CatalogResponse } from '@/src/types/catalog';
+import {
+  CatalogDetailResponse,
+  CatalogResponse,
+  JewelryPriceListResponse,
+} from '@/src/types/catalog';
 import { apiClient } from './client';
 
 export const catalogApi = {
@@ -6,18 +10,7 @@ export const catalogApi = {
     try {
       const response =
         await apiClient.get<CatalogResponse>('/v1/catalog/public');
-      console.log('[Catalog API] getPublicCatalogs response:', {
-        status: response.status,
-        success: response.data.success,
-        dataLength: response.data.data?.length,
-        primaryImages: response.data.data?.map((c) => ({
-          id: c.id,
-          name: c.name,
-          hasPrimaryImage: !!c.primary_image,
-          imageUrl: c.primary_image?.url,
-          imagesCount: c.images?.length,
-        })),
-      });
+
       return response.data;
     } catch (err) {
       console.error('[Catalog API] getPublicCatalogs error:', err);
@@ -57,22 +50,21 @@ export const catalogApi = {
           params: { page },
         },
       );
-      console.log('[Catalog API] getPrivateCatalogs response:', {
-        status: response.status,
-        page,
-        success: response.data.success,
-        dataLength: response.data.data?.length,
-        primaryImages: response.data.data?.map((c) => ({
-          id: c.id,
-          name: c.name,
-          hasPrimaryImage: !!c.primary_image,
-          imageUrl: c.primary_image?.url,
-          imagesCount: c.images?.length,
-        })),
-      });
       return response.data;
     } catch (err) {
       console.error('[Catalog API] getPrivateCatalogs error:', err);
+      throw err;
+    }
+  },
+
+  getJewelryPriceList: async (): Promise<JewelryPriceListResponse> => {
+    try {
+      const response = await apiClient.get<JewelryPriceListResponse>(
+        '/v1/jewelry-price-list',
+      );
+      return response.data;
+    } catch (err) {
+      console.error('[Catalog API] getJewelryPriceList error:', err);
       throw err;
     }
   },

@@ -161,11 +161,6 @@ function CatalogGridComponent({
             </View>
           )}
 
-          <View style={styles.weightContainer}>
-            <Text style={styles.weightLabel}>Berat: </Text>
-            <Text style={styles.weightValue}>{getTotalWeight(item)}</Text>
-          </View>
-
           {item.description && (
             <Text
               variant="body"
