@@ -71,20 +71,6 @@ function CatalogGridComponent({
     );
   }, [catalogs, selectedCategoryId]);
 
-  const getTotalWeight = (catalog: Catalog): string => {
-    const numericWeights = (catalog.products ?? [])
-      .map((p) => {
-        const b = p.pivot.berat;
-        if (b === null || b === undefined || b === '') return null;
-        return typeof b === 'string' ? parseFloat(b) : b;
-      })
-      .filter((n): n is number => n !== null && n !== undefined && !isNaN(n));
-
-    if (numericWeights.length === 0) return '-';
-    const total = numericWeights.reduce((sum, n) => sum + n, 0);
-    return total > 0 ? `${total.toFixed(2)} g` : '-';
-  };
-
   const handleCatalogPress = async (catalog: Catalog) => {
     try {
       setLoadingId(catalog.id);

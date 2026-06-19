@@ -184,11 +184,6 @@ function PublicCatalogComponent() {
             </View>
           )}
 
-          <View style={styles.weightContainer}>
-            <Text style={styles.weightLabel}>Berat: </Text>
-            <Text style={styles.weightValue}>{getTotalWeight(cat)}</Text>
-          </View>
-
           {cat.description && (
             <Text
               variant="body"
