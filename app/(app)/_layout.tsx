@@ -62,6 +62,7 @@ export default function AppLayout() {
         name="change-password"
         options={{ title: 'Ubah Password' }}
       />
+      <Stack.Screen name="personal-finance" options={{ headerShown: false }} />
     </Stack>
   );
 }

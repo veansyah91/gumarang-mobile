@@ -1,22 +1,30 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { Screen } from '@/src/components/ui/screen';
 import { Text } from '@/src/components/ui/text';
-import { memberApi } from '@/src/services/api/member';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { memberApi } from '@/src/services/api/member';
+import type { ThemeMode } from '@/src/theme/tokens';
 import { palette, spacing } from '@/src/theme/tokens';
 import type { NotificationItem } from '@/src/types/member';
-import type { ThemeMode } from '@/src/theme/tokens';
 
 function NotificationListItem({
   item,
   theme,
+  onPress,
 }: {
   item: NotificationItem;
   theme: ThemeMode;
+  onPress?: () => void;
 }) {
   const colors = palette[theme];
   const isUnread = !item.read_at;
@@ -30,34 +38,36 @@ function NotificationListItem({
   });
 
   return (
-    <View
-      style={[
-        styles.notificationItem,
-        {
-          backgroundColor: isUnread ? colors.border : colors.surface,
-          borderBottomColor: colors.border,
-        },
-      ]}
-    >
-      <View style={styles.notificationContent}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title} numberOfLines={2}>
-            {item.data.title}
-          </Text>
-          <Text style={styles.body} tone="muted" numberOfLines={2}>
-            {item.data.body}
-          </Text>
+    <Pressable onPress={onPress} accessibilityRole="button">
+      <View
+        style={[
+          styles.notificationItem,
+          {
+            backgroundColor: isUnread ? colors.border : colors.surface,
+            borderBottomColor: colors.border,
+          },
+        ]}
+      >
+        <View style={styles.notificationContent}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} numberOfLines={2}>
+              {item.data.title}
+            </Text>
+            <Text style={styles.body} tone="muted" numberOfLines={2}>
+              {item.data.body}
+            </Text>
+          </View>
+          {isUnread && (
+            <View
+              style={[styles.unreadBadge, { backgroundColor: colors.primary }]}
+            />
+          )}
         </View>
-        {isUnread && (
-          <View
-            style={[styles.unreadBadge, { backgroundColor: colors.primary }]}
-          />
-        )}
+        <Text style={styles.timestamp} tone="muted">
+          {timeStr}
+        </Text>
       </View>
-      <Text style={styles.timestamp} tone="muted">
-        {timeStr}
-      </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -65,33 +75,96 @@ export default function NotificationsScreen() {
   const theme = useResolvedTheme();
   const colors = palette[theme];
   const queryClient = useQueryClient();
+  const router = useRouter();
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use React Query to cache notifications for 30 seconds
+  const notificationsQuery = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => memberApi.getNotifications(),
+    staleTime: 1000 * 30,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
 
-  const loadNotifications = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const notifications = notificationsQuery.data?.data ?? [];
+  const isLoading = notificationsQuery.isLoading;
+  const error = notificationsQuery.error ? 'Gagal memuat notifikasi. Silakan coba lagi.' : null;
 
-      const data = await memberApi.getNotifications();
-      setNotifications(data.data);
+  // Ensure markAllNotificationsAsRead is performed once after first successful fetch,
+  // but update cache locally to avoid triggering a refetch.
+  const markedAllRef = useRef(false);
+  useEffect(() => {
+    if (!notificationsQuery.isSuccess) return;
 
-      await memberApi.markAllNotificationsAsRead();
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    } catch (err) {
-      console.error('[notifications] Failed to load:', err);
-      setError('Gagal memuat notifikasi. Silakan coba lagi.');
-    } finally {
-      setIsLoading(false);
+    const hasUnread = notifications.some((n) => !n.read_at);
+    if (hasUnread && !markedAllRef.current) {
+      markedAllRef.current = true;
+      void memberApi
+        .markAllNotificationsAsRead()
+        .then(() => {
+          // update cache optimistically: mark all as read
+          queryClient.setQueryData(['notifications'], (old: any) => {
+            if (!old || !old.data) return old;
+            const updated = {
+              ...old,
+              data: old.data.map((n: NotificationItem) => ({
+                ...n,
+                read_at: n.read_at ?? new Date().toISOString(),
+              })),
+            };
+            return updated;
+          });
+        })
+        .catch((err) => {
+          console.error('[notifications] markAllNotificationsAsRead failed:', err);
+        });
     }
-  }, [queryClient]);
+  }, [notificationsQuery.isSuccess, notifications, queryClient]);
 
-  useFocusEffect(
-    useCallback(() => {
-      void loadNotifications();
-    }, [loadNotifications]),
+  const handleNotificationPress = useCallback(
+    async (item: NotificationItem) => {
+      try {
+        // mark as read if not already
+        if (!item.read_at) {
+          try {
+            await memberApi.markNotificationAsRead(item.id);
+          } catch (err) {
+            // don't fail navigation if marking read fails
+            console.error('[notifications] markNotificationAsRead failed:', err);
+          }
+
+          // update cache optimistically for the single item
+          queryClient.setQueryData(['notifications'], (old: any) => {
+            if (!old || !old.data) return old;
+            return {
+              ...old,
+              data: old.data.map((n: NotificationItem) =>
+                n.id === item.id ? { ...n, read_at: new Date().toISOString() } : n,
+              ),
+            };
+          });
+        }
+
+        const txType = item.data.transactionType;
+        const ref = item.data.referenceNumber;
+
+        if (!txType) return;
+
+        // Routing rules per planning (follow mapping exactly)
+        if (txType === 'purchase') {
+          // purchase -> sale detail
+          if (ref) router.push(`/(app)/sale-member/${ref}`);
+        } else if (txType === 'sale') {
+          // sale -> purchase detail
+          if (ref) router.push(`/(app)/purchase-member/${ref}`);
+        } else if (txType === 'deposit' || txType === 'withdrawal') {
+          router.push(`/(app)/saving-member`);
+        }
+      } catch (err) {
+        console.error('[notifications] handle press failed:', err);
+      }
+    },
+    [queryClient, router],
   );
 
   if (isLoading) {
@@ -130,7 +203,11 @@ export default function NotificationsScreen() {
         data={notifications}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <NotificationListItem item={item} theme={theme} />
+          <NotificationListItem
+            item={item}
+            theme={theme}
+            onPress={() => void handleNotificationPress(item)}
+          />
         )}
         scrollEnabled={false}
         contentContainerStyle={{ gap: 0 }}

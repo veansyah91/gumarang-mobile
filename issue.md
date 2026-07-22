@@ -1,63 +1,62 @@
-# Issue: Klik List Pembelian Emas Salah Arah ke "Data Emasku"
+# Perbarui Template Personal Finance
 
 ## Latar Belakang
 
-Pada fitur member purchase, ketika pengguna menekan salah satu item di daftar
-riwayat pembelian emas (`/(app)/purchase-member`), alur navigasi yang terjadi
-saat ini salah:
+Halaman Personal Finance (`app/(app)/personal-finance/`) saat ini menampilkan
+dua header sekaligus saat dibuka:
 
-- **Alur saat ini:** klik item → masuk ke halaman "Data Emasku" (`gold-list`).
-- **Alur seharusnya:** klik item → masuk ke halaman "Detail Pembelian Emas"
-  (`purchase-member/[id]`).
-
-Penyebabnya diduga ada route dinamis ganda yang saling bentrok di folder
-`app/(app)/purchase-member/`, yaitu `[id].tsx` (route yang benar, menuju detail
-pembelian) dan `[gold-id].tsx` (route asing/duplikat yang justru me-redirect
-ke `/(app)/gold-list`, halaman "Data Emasku"). Dua segment dinamis berbeda
-nama dalam satu folder yang sama dapat membuat expo-router salah mencocokkan
-route saat navigasi, sehingga user diarahkan ke tujuan yang salah.
+1. Header default dari root stack (`app/(app)/_layout.tsx`) yang menampilkan
+   tombol back beserta judul otomatis dari nama route, contohnya
+   `<- personal-finance`. Header ini tidak diinginkan.
+2. Header custom (`src/components/ui/header.tsx`) yang dipakai oleh
+   `app/(app)/personal-finance/_layout.tsx` untuk seluruh screen di folder
+   Personal Finance.
 
 ## Tujuan
 
-Pastikan menekan item apa pun di daftar riwayat pembelian emas selalu
-mengarahkan pengguna ke halaman detail pembelian emas yang benar, tanpa ada
-route yang bentrok atau ambigu di folder `purchase-member`.
+Sederhanakan tampilan header khusus untuk area Personal Finance.
 
-## Instruksi Tingkat Tinggi
+## Task
 
-- Telusuri seluruh folder route `app/(app)/purchase-member/` dan pastikan
-  hanya ada satu route dinamis (`[id].tsx`) yang menjadi tujuan navigasi
-  detail pembelian emas.
-- Hilangkan/rapikan route dinamis lain yang tidak seharusnya ada di folder
-  tersebut (seperti file yang justru mengarah ke fitur "Data Emasku"), agar
-  tidak terjadi konflik penamaan route dinamis dalam satu folder yang sama.
-- Cek juga folder route serupa lain (misalnya `gold-list`, `sale-member`,
-  `gold-convertion-member`, dll) untuk memastikan tidak ada pola route
-  duplikat/ambigu yang sama, sebagai pencegahan bug serupa di kemudian hari.
-- Pastikan komponen daftar transaksi pembelian
-  (`src/components/member-purchase-transaction-list.tsx`) tetap melakukan
-  navigasi ke path detail pembelian yang benar dan konsisten dengan struktur
-  routing expo-router yang ada.
-- Jangan mengubah tampilan/UI halaman daftar maupun halaman detail pembelian,
-  fokus hanya pada perbaikan alur navigasinya.
+### 1. Hapus header default paling atas
 
-## Yang Tidak Perlu Dilakukan
+Hilangkan header bawaan `<- personal-finance` yang muncul di atas halaman
+Personal Finance. Cari konfigurasi route Personal Finance di root stack
+(`app/(app)/_layout.tsx`) dan pastikan header default tersebut tidak lagi
+tampil untuk route ini (misalnya dengan mematikan header bawaan khusus untuk
+route Personal Finance, mengikuti pola yang sudah dipakai route lain seperti
+`(tabs)`).
 
-- Tidak perlu mengubah logic fitur "Data Emasku" (`gold-list`) itu sendiri,
-  fitur tersebut tetap harus berfungsi normal saat diakses dari menunya
-  sendiri.
-- Tidak perlu menambahkan fitur baru pada halaman detail pembelian emas.
-- Tidak perlu mengubah desain/komponen UI, cukup perbaiki routing yang salah.
+### 2. Buat header baru khusus Personal Finance
 
-## Definisi Selesai (Acceptance Criteria)
+Ganti/sesuaikan header yang dipakai di `app/(app)/personal-finance/_layout.tsx`
+sehingga menampilkan susunan komponen berikut dalam satu baris:
 
-- Saat pengguna menekan item mana pun di daftar riwayat pembelian emas,
-  pengguna diarahkan ke halaman "Detail Pembelian Emas" yang menampilkan data
-  transaksi pembelian sesuai item yang diklik.
-- Tidak ada lagi kasus klik item pembelian yang malah menampilkan halaman
-  "Data Emasku".
-- Tidak ada route dinamis yang saling bentrok/ambigu di folder
-  `app/(app)/purchase-member/`.
-- Fitur "Data Emasku" tetap berfungsi normal saat diakses melalui menunya
-  sendiri (tidak ada regresi).
-- Lint & type-check tetap bersih setelah perubahan.
+```
+[Ikon]  Label                              (Tombol Home)
+```
+
+Detail komponen:
+
+- **Ikon**: ikon yang merepresentasikan Personal Finance/keuangan (boleh pilih
+  ikon dari library ikon yang sudah dipakai di proyek, mis. Ionicons).
+- **Label**: teks statis `"Atur Uang"`, ditempatkan di sebelah kanan ikon.
+- **Tombol Home**: tombol di ujung kanan header. Saat ditekan, navigasikan
+  pengguna ke halaman utama aplikasi (dashboard/tab utama, bukan halaman
+  Personal Finance).
+
+Header ini bisa dibuat sebagai komponen baru (mis. di
+`src/components/ui/`) atau menjadi header khusus yang didefinisikan langsung
+di `app/(app)/personal-finance/_layout.tsx`. Sesuaikan gaya (warna, spacing,
+font) agar konsisten dengan tema aplikasi yang sudah ada (lihat
+`src/theme/tokens.ts` dan komponen `Header` yang sudah ada sebagai referensi
+gaya).
+
+## Catatan
+
+- Fokus hanya pada perubahan header di area Personal Finance. Jangan mengubah
+  header di halaman lain.
+- Pastikan navigasi "Tombol Home" menuju halaman utama aplikasi (dashboard)
+  yang sudah ada, gunakan mekanisme navigasi (expo-router) yang sudah dipakai
+  di proyek.
+- Tidak perlu menambahkan fitur baru selain yang dijelaskan di atas.

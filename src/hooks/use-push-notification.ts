@@ -53,13 +53,16 @@ export function usePushNotification() {
             );
 
             switch (transactionType) {
-              case 'purchase':
+              // NOTE: app is customer POV, so mapping is reversed from backend/shop POV
+              case 'sale':
+                // shop sold to customer -> customer should see purchase detail
                 router.push({
                   pathname: '/(app)/purchase-member/[id]',
                   params: { id: String(referenceNumber) },
                 });
                 break;
-              case 'sale':
+              case 'purchase':
+                // shop purchased from customer -> customer should see sale detail
                 router.push({
                   pathname: '/(app)/sale-member/[id]',
                   params: { id: String(referenceNumber) },

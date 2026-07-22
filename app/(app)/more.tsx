@@ -22,14 +22,9 @@ export default function MoreScreen() {
   const navigation: any = useNavigation();
 
   useLayoutEffect(() => {
-    if (user) {
-      // set the back button title and header title to the user's full name
-      navigation.setOptions({ headerBackTitle: user.name, title: user.name });
-    } else {
-      // fallback title when user not available
-      navigation.setOptions({ title: 'More' });
-    }
-  }, [navigation, user]);
+    // Set a static localized header title for the More screen
+    navigation.setOptions({ title: 'Menu' });
+  }, [navigation]);
 
   useEffect(() => {
     // If the user is not authenticated, redirect to login

@@ -1,10 +1,17 @@
 buat issue.md untuk planning:
 
-task: modifikasi fitur member purchase
+task: perbarui template personal finance
 
-terjadi kesalahan ketika user meng-klik komponen list data pembelian,
-alur seharusnya: data -> detail pembelian emas
-alur saat ini: data -> data emasku
+hapus header paling atas:
+<- personal-finance
+
+buat header baru, dengan gambarang komponen:
+[Ikon] Label             (Tombol Home)
+
+catatan:
+Label = Atur Uang
+Tombol Home -> halaman utama aplikasi (dashboard)
+
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

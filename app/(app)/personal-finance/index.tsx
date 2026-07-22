@@ -68,7 +68,7 @@ function MenuCard({ item }: { item: MenuItem }) {
   );
 }
 
-export default function PersonalFinance() {
+export default function PersonalFinanceIndex() {
   return (
     <Screen scrollable safeAreaEdges={['top', 'left', 'right']}>
       <View style={styles.grid}>
