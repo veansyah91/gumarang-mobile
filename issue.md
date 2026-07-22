@@ -1,48 +1,63 @@
-# Issue: Modifikasi Halaman /catalog
+# Issue: Klik List Pembelian Emas Salah Arah ke "Data Emasku"
 
-## Deskripsi Task
+## Latar Belakang
 
-Tambahkan komponen pricelist pada halaman `/catalog`. Komponen ini akan menampilkan daftar harga perhiasan beserta tren perubahan harganya.
+Pada fitur member purchase, ketika pengguna menekan salah satu item di daftar
+riwayat pembelian emas (`/(app)/purchase-member`), alur navigasi yang terjadi
+saat ini salah:
 
-Gunakan komponen **price card** yang sudah ada di project (atau struktur serupa) sebagai template UI utama untuk menampilkan masing-masing harga.
+- **Alur saat ini:** klik item → masuk ke halaman "Data Emasku" (`gold-list`).
+- **Alur seharusnya:** klik item → masuk ke halaman "Detail Pembelian Emas"
+  (`purchase-member/[id]`).
 
-## High-Level Implementation Steps
+Penyebabnya diduga ada route dinamis ganda yang saling bentrok di folder
+`app/(app)/purchase-member/`, yaitu `[id].tsx` (route yang benar, menuju detail
+pembelian) dan `[gold-id].tsx` (route asing/duplikat yang justru me-redirect
+ke `/(app)/gold-list`, halaman "Data Emasku"). Dua segment dinamis berbeda
+nama dalam satu folder yang sama dapat membuat expo-router salah mencocokkan
+route saat navigasi, sehingga user diarahkan ke tujuan yang salah.
 
-1. **Fetch Data:** Ambil data pricelist dari endpoint API yang disediakan.
-2. **Buat Komponen Pricelist:** Buat komponen pembungkus (misal: `PricelistSection` atau `PricelistCard`) yang me-render struktur "price card".
-3. **Mapping Data:** Petakan data response API ke dalam price card. Pastikan untuk menampilkan:
-   - Harga jual (`saleValue`) dan harga beli (`purchaseValue`) dari data `current`.
-   - Informasi tren pergerakan harga (`trend`) dan selisihnya (`difference`).
-4. **Integrasi ke Halaman:** Pasang komponen pricelist tersebut pada halaman utama `/catalog`.
+## Tujuan
 
-## Data Source
+Pastikan menekan item apa pun di daftar riwayat pembelian emas selalu
+mengarahkan pengguna ke halaman detail pembelian emas yang benar, tanpa ada
+route yang bentrok atau ambigu di folder `purchase-member`.
 
-**Endpoint:**
-`GET /api/v1/jewelry-price-list`
+## Instruksi Tingkat Tinggi
 
-**Contoh Response:**
+- Telusuri seluruh folder route `app/(app)/purchase-member/` dan pastikan
+  hanya ada satu route dinamis (`[id].tsx`) yang menjadi tujuan navigasi
+  detail pembelian emas.
+- Hilangkan/rapikan route dinamis lain yang tidak seharusnya ada di folder
+  tersebut (seperti file yang justru mengarah ke fitur "Data Emasku"), agar
+  tidak terjadi konflik penamaan route dinamis dalam satu folder yang sama.
+- Cek juga folder route serupa lain (misalnya `gold-list`, `sale-member`,
+  `gold-convertion-member`, dll) untuk memastikan tidak ada pola route
+  duplikat/ambigu yang sama, sebagai pencegahan bug serupa di kemudian hari.
+- Pastikan komponen daftar transaksi pembelian
+  (`src/components/member-purchase-transaction-list.tsx`) tetap melakukan
+  navigasi ke path detail pembelian yang benar dan konsisten dengan struktur
+  routing expo-router yang ada.
+- Jangan mengubah tampilan/UI halaman daftar maupun halaman detail pembelian,
+  fokus hanya pada perbaikan alur navigasinya.
 
-```json
-{
-  "mayam": {
-    "current": {
-      "date": "2026-05-12",
-      "price": {
-        "purchaseValue": 7837000,
-        "saleValue": 8250000
-      }
-    },
-    "previous": {
-      "date": "2026-04-30",
-      "price": {
-        "purchaseValue": 779000,
-        "saleValue": 820000
-      }
-    },
-    "difference": 7430000,
-    "trend": "up"
-  }
-}
-```
+## Yang Tidak Perlu Dilakukan
 
-_Catatan Implementasi: Gunakan standar state management / data fetching yang ada di project, buat sekecil/sesimpel mungkin sesuai komponen UI card yang re-usable, lalu injek pada parent page._
+- Tidak perlu mengubah logic fitur "Data Emasku" (`gold-list`) itu sendiri,
+  fitur tersebut tetap harus berfungsi normal saat diakses dari menunya
+  sendiri.
+- Tidak perlu menambahkan fitur baru pada halaman detail pembelian emas.
+- Tidak perlu mengubah desain/komponen UI, cukup perbaiki routing yang salah.
+
+## Definisi Selesai (Acceptance Criteria)
+
+- Saat pengguna menekan item mana pun di daftar riwayat pembelian emas,
+  pengguna diarahkan ke halaman "Detail Pembelian Emas" yang menampilkan data
+  transaksi pembelian sesuai item yang diklik.
+- Tidak ada lagi kasus klik item pembelian yang malah menampilkan halaman
+  "Data Emasku".
+- Tidak ada route dinamis yang saling bentrok/ambigu di folder
+  `app/(app)/purchase-member/`.
+- Fitur "Data Emasku" tetap berfungsi normal saat diakses melalui menunya
+  sendiri (tidak ada regresi).
+- Lint & type-check tetap bersih setelah perubahan.

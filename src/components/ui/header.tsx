@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
@@ -11,6 +10,32 @@ import { palette, spacing } from '@/src/theme/tokens';
 import type { NotificationItem } from '@/src/types/member';
 
 const logo = require('@/assets/images/logo.png');
+
+function getInitials(name: string) {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+function getColorForUser(name: string) {
+  const colors = [
+    '#f97316',
+    '#ef4444',
+    '#f59e0b',
+    '#10b981',
+    '#3b82f6',
+    '#8b5cf6',
+    '#06b6d4',
+  ];
+  if (!name) return colors[0];
+  const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+}
 
 export function Header() {
   const theme = useResolvedTheme();
@@ -29,7 +54,11 @@ export function Header() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const unreadCount = notificationList?.data?.filter((n: NotificationItem) => !n.read_at).length ?? 0;
+  const notificationsArray: NotificationItem[] = Array.isArray(notificationList)
+    ? (notificationList as unknown as NotificationItem[])
+    : ((notificationList?.data as NotificationItem[]) ?? []);
+
+  const unreadCount = notificationsArray.filter((n) => !n.read_at).length ?? 0;
 
   const handleNotificationPress = () => {
     router.push('/notifications');
@@ -44,45 +73,20 @@ export function Header() {
       ]}
     >
       <Image source={logo} style={styles.logo} resizeMode="contain" />
-      <View
-        style={[
-          styles.userInfo,
-          isAuthenticated ? styles.userInfoAuthenticated : styles.userInfoGuest,
-        ]}
-      >
-        <Text
-          style={
-            isAuthenticated
-              ? styles.userNameAuthenticated
-              : styles.userNameGuest
-          }
-        >
-          {displayName}
-        </Text>
-        {displayPhone ? (
-          <Text style={styles.phone} tone="muted">
-            {displayPhone}
-          </Text>
-        ) : null}
-      </View>
       {isAuthenticated && (
         <Pressable
-          onPress={handleNotificationPress}
-          style={styles.notificationButton}
+          onPress={() => router.push('/more')}
+          style={({ pressed }) => [
+            styles.avatarButton,
+            { backgroundColor: getColorForUser(user!.name) },
+            {
+              opacity: pressed ? 0.9 : 1,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            },
+          ]}
           hitSlop={8}
         >
-          <Ionicons
-            name="notifications-outline"
-            size={24}
-            color={colors.primary}
-          />
-          {unreadCount > 0 && (
-            <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.badgeText, { color: colors.background }]}>
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </Text>
-            </View>
-          )}
+          <Text style={styles.avatarText}>{getInitials(user!.name)}</Text>
         </Pressable>
       )}
     </View>
@@ -152,5 +156,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 20,
     textAlignVertical: 'center',
+  },
+  avatarButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: -spacing.sm,
+  },
+  avatarText: {
+    color: '#fff',
+    fontWeight: '700',
   },
 });

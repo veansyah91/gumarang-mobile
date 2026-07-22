@@ -1,34 +1,10 @@
 buat issue.md untuk planning:
 
-task: modifikasi halaman /catalog
+task: modifikasi fitur member purchase
 
-tambahkan komponen pricelist, gunakan price card sebagai template ui
-
-response:
-{
-    "mayam": {
-        "current": {
-            "date": "2026-05-12",
-            "price": {
-                "purchaseValue": 7837000,
-                "saleValue": 8250000
-            }
-        },
-        "previous": {
-            "date": "2026-04-30",
-            "price": {
-                "purchaseValue": 779000,
-                "saleValue": 820000
-            }
-        },
-        "difference": 7430000,
-        "trend": "up"
-    }
-}
-
-endpoint: [
-	https://5fef-2402-5680-8110-addc-6173-3c7-756d-c1b0.ngrok-free.app/api/v1/jewelry-price-list
-]
+terjadi kesalahan ketika user meng-klik komponen list data pembelian,
+alur seharusnya: data -> detail pembelian emas
+alur saat ini: data -> data emasku
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

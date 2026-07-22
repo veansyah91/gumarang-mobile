@@ -45,9 +45,13 @@ export default function MoreScreen() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const unreadCount =
-    notificationList?.data?.filter((n: NotificationItem) => !n.read_at)
-      .length ?? 0;
+  // Normalize notification response: some endpoints return { data: NotificationItem[] } or
+  // the paginated object { data: NotificationItem[], current_page, ... }
+  const notificationsArray: NotificationItem[] = Array.isArray(notificationList)
+    ? (notificationList as unknown as NotificationItem[])
+    : ((notificationList?.data as NotificationItem[]) ?? []);
+
+  const unreadCount = notificationsArray.filter((n) => !n.read_at).length ?? 0;
 
   const items = [
     {
@@ -85,15 +89,9 @@ export default function MoreScreen() {
                 <Ionicons name={it.icon} size={22} color={colors.primary} />
                 <Text style={styles.itemText}>{it.title}</Text>
                 {it.badge ? (
-                  <View
-                    style={[styles.badge, { backgroundColor: colors.primary }]}
-                  >
-                    <Text
-                      style={[styles.badgeText, { color: colors.background }]}
-                    >
-                      {it.badge > 9 ? '9+' : it.badge}
-                    </Text>
-                  </View>
+                  <Text style={[styles.unreadText, { color: colors.primary }]}>
+                    {it.badge}
+                  </Text>
                 ) : null}
               </View>
             </Pressable>
@@ -137,5 +135,9 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     fontWeight: '700',
+  },
+  unreadText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
