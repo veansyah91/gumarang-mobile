@@ -34,7 +34,7 @@ import type {
   SavingMemberListData,
   SavingMemberListFilters,
   SavingWeightData,
-  WithdrawsData
+  WithdrawsData,
 } from '@/src/types/member';
 
 import { apiClient } from './client';
@@ -91,7 +91,7 @@ export const memberApi = {
   ): Promise<PurchaseTransactionMemberListData> {
     const res = await apiClient.get<
       WrappedResponse<PurchaseTransactionMemberListData>
-    >('/v1/member/purchase-transaction-member', { params });
+    >('/v1/member/sale-transaction-member', { params });
 
     return res.data.data;
   },
@@ -101,7 +101,7 @@ export const memberApi = {
   ): Promise<PurchaseTransactionMemberInvoiceDetail> {
     const res = await apiClient.get<
       WrappedResponse<PurchaseTransactionMemberDetailData>
-    >(`/v1/member/purchase-transaction-member/${id}`);
+    >(`/v1/member/sale-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
@@ -111,7 +111,7 @@ export const memberApi = {
   ): Promise<SaleTransactionMemberListData> {
     const res = await apiClient.get<
       WrappedResponse<SaleTransactionMemberListData>
-    >('/v1/member/sale-transaction-member', { params });
+    >('/v1/member/purchase-transaction-member', { params });
 
     return res.data.data;
   },
@@ -121,7 +121,7 @@ export const memberApi = {
   ): Promise<SaleTransactionMemberInvoiceDetail> {
     const res = await apiClient.get<
       WrappedResponse<SaleTransactionMemberDetailData>
-    >(`/v1/member/sale-transaction-member/${id}`);
+    >(`/v1/member/purchase-transaction-member/${id}`);
 
     return res.data.data.invoice;
   },
