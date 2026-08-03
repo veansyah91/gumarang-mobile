@@ -62,8 +62,8 @@ export default function MoreScreen() {
     },
     {
       title: 'Atur Uang',
-      icon: 'cash-outline' as const,
-      onPress: () => router.push('/personal-finance'),
+      icon: 'wallet-outline' as const,
+      onPress: () => router.push('/personal-finance' as any),
     },
   ];
 

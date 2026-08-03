@@ -40,53 +40,60 @@ export function usePushNotification() {
       Notifications.addNotificationResponseReceivedListener((response) => {
         if (!isMountedRef.current) return;
 
-        console.log('[push] Notification tapped:', response);
-        const data = response.notification.request.content.data;
+        // Defer navigation to avoid state updates during initial mount
+        setTimeout(() => {
+          if (!isMountedRef.current) return;
 
-        if (data && typeof data === 'object') {
-          const transactionType = (data as Record<string, any>).transactionType;
-          const referenceNumber = (data as Record<string, any>).referenceNumber;
+          console.log('[push] Notification tapped:', response);
+          const data = response.notification.request.content.data;
 
-          if (transactionType && referenceNumber) {
-            console.log(
-              `[push] Navigating to ${transactionType} detail: ${referenceNumber}`,
-            );
+          if (data && typeof data === 'object') {
+            const transactionType =
+              (data as Record<string, any>).transactionType;
+            const referenceNumber =
+              (data as Record<string, any>).referenceNumber;
 
-            switch (transactionType) {
-              // NOTE: app is customer POV, so mapping is reversed from backend/shop POV
-              case 'sale':
-                // shop sold to customer -> customer should see purchase detail
-                router.push({
-                  pathname: '/(app)/purchase-member/[id]',
-                  params: { id: String(referenceNumber) },
-                });
-                break;
-              case 'purchase':
-                // shop purchased from customer -> customer should see sale detail
-                router.push({
-                  pathname: '/(app)/sale-member/[id]',
-                  params: { id: String(referenceNumber) },
-                });
-                break;
-              case 'gold_convertion':
-                router.push({
-                  pathname: '/(app)/gold-convertion-member/[id]',
-                  params: { id: String(referenceNumber) },
-                });
-                break;
-              default:
-                console.log(
-                  `[push] Unknown transaction type: ${transactionType}`,
-                );
-                router.push('/notifications');
-                break;
+            if (transactionType && referenceNumber) {
+              console.log(
+                `[push] Navigating to ${transactionType} detail: ${referenceNumber}`,
+              );
+
+              switch (transactionType) {
+                // NOTE: app is customer POV, so mapping is reversed from backend/shop POV
+                case 'sale':
+                  // shop sold to customer -> customer should see purchase detail
+                  router.push({
+                    pathname: '/(app)/purchase-member/[id]',
+                    params: { id: String(referenceNumber) },
+                  });
+                  break;
+                case 'purchase':
+                  // shop purchased from customer -> customer should see sale detail
+                  router.push({
+                    pathname: '/(app)/sale-member/[id]',
+                    params: { id: String(referenceNumber) },
+                  });
+                  break;
+                case 'gold_convertion':
+                  router.push({
+                    pathname: '/(app)/gold-convertion-member/[id]',
+                    params: { id: String(referenceNumber) },
+                  });
+                  break;
+                default:
+                  console.log(
+                    `[push] Unknown transaction type: ${transactionType}`,
+                  );
+                  router.push('/notifications');
+                  break;
+              }
+            } else {
+              router.push('/notifications');
             }
           } else {
             router.push('/notifications');
           }
-        } else {
-          router.push('/notifications');
-        }
+        }, 0);
       });
 
     return () => {

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/src/components/ui/text';
@@ -42,6 +43,11 @@ export function Header() {
   const colors = palette[theme];
   const { status, user } = useAuthStore();
   const router = useRouter();
+  const [canFetch, setCanFetch] = useState(false);
+
+  useEffect(() => {
+    setCanFetch(true);
+  }, []);
 
   const isAuthenticated = status === 'authenticated' && !!user;
   const displayName = isAuthenticated ? user!.name : 'TOKO MAS GUMARANG';
@@ -50,7 +56,7 @@ export function Header() {
   const { data: notificationList } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => memberApi.getNotifications(),
-    enabled: isAuthenticated,
+    enabled: canFetch && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 

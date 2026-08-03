@@ -15,3 +15,7 @@ export function formatIDR(value: number | string | null | undefined) {
     minimumFractionDigits: 0,
   }).format(toNumber(value));
 }
+
+export function formatNumber(value: number | string | null | undefined) {
+  return new Intl.NumberFormat('id-ID').format(toNumber(value));
+}

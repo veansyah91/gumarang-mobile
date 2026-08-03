@@ -6,6 +6,8 @@ import { LogBox } from 'react-native';
 
 import { AppProviders, useAppBootstrap } from '@/src/providers/app-providers';
 import { NotificationProvider } from '@/src/providers/notification-provider';
+import { useAuthStore } from '@/src/state/auth-store';
+import { ToastContainer } from '@/src/components/ui/toast';
 
 LogBox.ignoreLogs(['props.pointerEvents is deprecated']);
 
@@ -25,14 +27,15 @@ Notifications.setNotificationHandler({
 
 function RootNavigator() {
   const isReady = useAppBootstrap();
+  const status = useAuthStore((state) => state.status);
 
   useEffect(() => {
-    if (isReady) {
+    if (isReady && status !== 'restoring') {
       SplashScreen.hideAsync();
     }
-  }, [isReady]);
+  }, [isReady, status]);
 
-  if (!isReady) {
+  if (!isReady || status === 'restoring') {
     return null;
   }
 
@@ -55,6 +58,7 @@ export default function RootLayout() {
     <AppProviders>
       <NotificationProvider>
         <RootNavigator />
+        <ToastContainer />
       </NotificationProvider>
     </AppProviders>
   );

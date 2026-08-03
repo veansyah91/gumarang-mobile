@@ -10,7 +10,7 @@ const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   (isProduction
     ? 'https://tokomasgumarang.com/api'
-    : 'http://localhost:8000/api');
+    : 'http://127.0.0.1:8000/api');
 
 const envPath = process.env.EXPO_ANDROID_GOOGLE_SERVICES_FILE;
 const candidatePaths = [

@@ -1,17 +1,11 @@
 buat issue.md untuk planning:
 
-task: perbarui template personal finance
-
-hapus header paling atas:
-<- personal-finance
-
-buat header baru, dengan gambarang komponen:
-[Ikon] Label             (Tombol Home)
-
-catatan:
-Label = Atur Uang
-Tombol Home -> halaman utama aplikasi (dashboard)
-
+- modifikasi komponen pencarian akun (kas/non-kas) pada komponen form fitur Aset Tetap, investasi, Kas masuk, kas keluar, budget, daftar utang, pembayaran utang, daftar piutang, pembayaran piutang.
+  - jika input dari user tidak ditemukan akun yang relevan, maka pada list akun buat link "Tambah akun baru" yang mengarah ke komponen create akun.
+  contoh:
+  [xxx     ]
+  ----------
+  | Buat Tambah baru |
 
 Jangan terlalu low level atau detail
 Cukup instruksikan high level 

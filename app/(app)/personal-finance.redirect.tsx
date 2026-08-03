@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 export default function PersonalFinanceRedirect() {
   const router = useRouter();
   useEffect(() => {
-    router.replace('/personal-finance/coa');
+    router.replace('/personal-finance/account' as any);
   }, [router]);
   return null;
 }

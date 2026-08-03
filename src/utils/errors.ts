@@ -65,11 +65,12 @@ export function toAppError(error: unknown) {
       console.warn('[API 422 validation]', JSON.stringify(error.response?.data));
     }
 
-    if (status === 401 && !responseMessage) {
-      return new AppError('Unauthorized', {
+    if (status === 401) {
+      return new AppError(responseMessage ?? 'Unauthorized', {
         code: 'unauthorized',
         status,
-        userMessage: 'Your session has expired. Please sign in again.',
+        userMessage:
+          responseMessage ?? 'Your session has expired. Please sign in again.',
       });
     }
 

@@ -7,6 +7,8 @@ import { palette, radius, spacing } from '@/src/theme/tokens';
 
 import { Text } from './text';
 
+type Mode = 'year' | 'month' | 'day';
+
 type Props = {
   label?: string;
   placeholder?: string;
@@ -16,6 +18,10 @@ type Props = {
 };
 
 const WEEKDAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const MONTHS_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+  'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des',
+];
 
 function parseDateValue(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -58,7 +64,7 @@ function DateGrid({
   const selectedValue = value;
   const todayValue = formatDateValue(new Date());
 
-  const cells: Array<{ key: string; day?: number; cellValue?: string }> = [
+  const cells: { key: string; day?: number; cellValue?: string }[] = [
     ...Array.from({ length: leadingBlanks }, (_, index) => ({
       key: `blank-${index}`,
     })),
@@ -106,11 +112,99 @@ function DateGrid({
           >
             <Text
               style={[
-                styles.dayText,
+                styles.cellText,
                 { color: isSelected ? colors.background : colors.text },
               ]}
             >
               {cell.day}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function YearGrid({
+  cursor,
+  onSelect,
+}: {
+  cursor: Date;
+  onSelect: (year: number) => void;
+}) {
+  const theme = useResolvedTheme();
+  const colors = palette[theme];
+  const cursorYear = cursor.getFullYear();
+
+  const years = Array.from({ length: 12 }, (_, i) => cursorYear - 5 + i);
+
+  return (
+    <View style={styles.grid4Col}>
+      {years.map((year) => {
+        const isActive = year === cursorYear;
+        return (
+          <Pressable
+            key={year}
+            onPress={() => onSelect(year)}
+            style={({ pressed }) => [
+              styles.grid4ColCell,
+              {
+                borderColor: isActive ? colors.primary : colors.border,
+                backgroundColor: isActive ? colors.primary : colors.surface,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.cellText,
+                { color: isActive ? colors.background : colors.text },
+              ]}
+            >
+              {year}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function MonthGrid({
+  cursor,
+  onSelect,
+}: {
+  cursor: Date;
+  onSelect: (month: number) => void;
+}) {
+  const theme = useResolvedTheme();
+  const colors = palette[theme];
+  const cursorMonth = cursor.getMonth();
+
+  return (
+    <View style={styles.grid4Col}>
+      {MONTHS_SHORT.map((name, index) => {
+        const isActive = index === cursorMonth;
+        return (
+          <Pressable
+            key={name}
+            onPress={() => onSelect(index)}
+            style={({ pressed }) => [
+              styles.grid4ColCell,
+              {
+                borderColor: isActive ? colors.primary : colors.border,
+                backgroundColor: isActive ? colors.primary : colors.surface,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.cellText,
+                { color: isActive ? colors.background : colors.text },
+              ]}
+            >
+              {name}
             </Text>
           </Pressable>
         );
@@ -130,6 +224,7 @@ export function DateInput({
   const colors = palette[theme];
   const [visible, setVisible] = useState(false);
   const [cursor, setCursor] = useState(() => toMonthCursor(value));
+  const [mode, setMode] = useState<Mode>('day');
 
   const displayValue = useMemo(
     () => value || placeholder,
@@ -138,17 +233,39 @@ export function DateInput({
 
   const open = () => {
     setCursor(toMonthCursor(value));
+    setMode('day');
     setVisible(true);
   };
 
   const close = () => setVisible(false);
 
-  const moveMonth = (delta: number) => {
-    setCursor(
-      (current) =>
-        new Date(current.getFullYear(), current.getMonth() + delta, 1),
-    );
+  const moveCursor = (delta: number) => {
+    setCursor((current) => {
+      if (mode === 'year') {
+        return new Date(current.getFullYear() + delta * 10, current.getMonth(), 1);
+      }
+      if (mode === 'month') {
+        return new Date(current.getFullYear() + delta, current.getMonth(), 1);
+      }
+      return new Date(current.getFullYear(), current.getMonth() + delta, 1);
+    });
   };
+
+  const goBack = () => {
+    if (mode === 'year') {
+      setMode('day');
+    } else if (mode === 'month') {
+      setMode('year');
+    }
+  };
+
+  const headerTitle =
+    mode === 'day'
+      ? cursor.toLocaleDateString('id-ID', {
+          month: 'long',
+          year: 'numeric',
+        })
+      : String(cursor.getFullYear());
 
   return (
     <>
@@ -182,20 +299,32 @@ export function DateInput({
           <Pressable style={StyleSheet.absoluteFill} onPress={close} />
           <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
             <View style={styles.modalHeader}>
-              <Pressable onPress={() => moveMonth(-1)} hitSlop={8}>
-                <Ionicons
-                  name="chevron-back-outline"
-                  size={20}
-                  color={colors.text}
-                />
+              <View style={styles.headerLeft}>
+                {mode !== 'day' && (
+                  <Pressable onPress={goBack} hitSlop={8} style={styles.headerIconButton}>
+                    <Ionicons
+                      name="chevron-back"
+                      size={20}
+                      color={colors.text}
+                    />
+                  </Pressable>
+                )}
+                <Pressable onPress={() => moveCursor(-1)} hitSlop={8} style={styles.headerIconButton}>
+                  <Ionicons
+                    name="chevron-back-outline"
+                    size={20}
+                    color={colors.text}
+                  />
+                </Pressable>
+              </View>
+
+              <Pressable
+                onPress={mode === 'day' ? () => setMode('year') : goBack}
+              >
+                <Text variant="subtitle">{headerTitle}</Text>
               </Pressable>
-              <Text variant="subtitle">
-                {cursor.toLocaleDateString('id-ID', {
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </Text>
-              <Pressable onPress={() => moveMonth(1)} hitSlop={8}>
+
+              <Pressable onPress={() => moveCursor(1)} hitSlop={8} style={styles.headerIconButton}>
                 <Ionicons
                   name="chevron-forward-outline"
                   size={20}
@@ -204,14 +333,36 @@ export function DateInput({
               </Pressable>
             </View>
 
-            <DateGrid
-              cursor={cursor}
-              value={value}
-              onSelect={(nextValue) => {
-                onChangeDate(nextValue);
-                setVisible(false);
-              }}
-            />
+            {mode === 'year' && (
+              <YearGrid
+                cursor={cursor}
+                onSelect={(year) => {
+                  setCursor(new Date(year, cursor.getMonth(), 1));
+                  setMode('month');
+                }}
+              />
+            )}
+
+            {mode === 'month' && (
+              <MonthGrid
+                cursor={cursor}
+                onSelect={(month) => {
+                  setCursor(new Date(cursor.getFullYear(), month, 1));
+                  setMode('day');
+                }}
+              />
+            )}
+
+            {mode === 'day' && (
+              <DateGrid
+                cursor={cursor}
+                value={value}
+                onSelect={(nextValue) => {
+                  onChangeDate(nextValue);
+                  setVisible(false);
+                }}
+              />
+            )}
 
             <View style={styles.modalActions}>
               <Pressable
@@ -284,7 +435,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  headerIconButton: {
+    padding: spacing.xs,
+  },
   grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  grid4Col: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -301,7 +464,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
-  dayText: {
+  grid4ColCell: {
+    width: '25%',
+    aspectRatio: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
+  cellText: {
     fontWeight: '600',
   },
   todayCell: {

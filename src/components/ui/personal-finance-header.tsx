@@ -1,8 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { palette, spacing } from '@/src/theme/tokens';
 
@@ -17,14 +16,9 @@ export function PersonalFinanceHeader() {
 
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <View style={styles.leftContent}>
-        <Ionicons
-          name="wallet-outline"
-          size={24}
-          color={colors.primary}
-          style={styles.icon}
-        />
-        <Text style={[styles.label, { color: colors.text }]}>Atur Uang</Text>
+      <View style={styles.titleRow}>
+        <Ionicons name="wallet-outline" size={28} color={colors.primary} />
+        <Text style={[styles.title, { color: colors.text }]}>Atur Uang</Text>
       </View>
 
       <Pressable
@@ -53,16 +47,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingTop: spacing.xl,
   },
-  leftContent: {
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    gap: spacing.xs,
   },
-  icon: {
-    marginRight: spacing.sm,
-  },
-  label: {
-    fontSize: 16,
+  title: {
+    fontSize: 18,
     fontWeight: '600',
   },
   homeButton: {

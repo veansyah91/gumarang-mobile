@@ -13,6 +13,7 @@ import { notificationService } from '@/src/services/notifications';
 import { useAppStore } from '@/src/state/app-store';
 import { useAuthStore } from '@/src/state/auth-store';
 import { palette } from '@/src/theme/tokens';
+import { toAppError } from '@/src/utils/errors';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -89,16 +90,22 @@ export function useAppBootstrap() {
           try {
             await notificationService.registerDeviceToken();
           } catch (error) {
-            console.error(
-              '[bootstrap] Failed to register device token:',
-              error,
-            );
+            const appError = toAppError(error);
+            if (appError.code === 'unauthorized') {
+              await useAuthStore.getState().handleUnauthorized();
+            }
           }
         }
       }
 
       if (mounted) {
-        setIsReady(true);
+        // Defer to next tick to let all Zustand store subscribers settle
+        // before mounting the navigation tree
+        setTimeout(() => {
+          if (mounted) {
+            setIsReady(true);
+          }
+        }, 0);
       }
     };
 

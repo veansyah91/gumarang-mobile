@@ -63,8 +63,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         const freshUser = await authApi.getProfile();
         await get().setSession({ ...session, user: freshUser });
-      } catch {
-        // Keep the cached session when offline or when the backend is unavailable.
+      } catch (error) {
+        // If the token is expired/invalid, clear the session.
+        // For other errors (network, server down), keep the cached session.
+        const appError = toAppError(error);
+        if (appError.code === 'unauthorized') {
+          await get().setSession(null);
+          return;
+        }
       }
     } catch {
       await clearStoredSession();
