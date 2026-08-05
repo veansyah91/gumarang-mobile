@@ -15,6 +15,7 @@ import {
   useUpdateFixedAsset,
 } from '@/src/hooks/use-fixed-asset';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import type { CreateFixedAssetPayload } from '@/src/types/fixed-asset';
@@ -168,7 +169,7 @@ export default function FixedAssetDetailPage() {
                 <Pressable
                   key={child.id}
                   onPress={() =>
-                    router.push(`/personal-finance/fixed-asset/${child.id}` as any)
+                    router.push(pfRoutes.fixedAssetDetail(child.id))
                   }
                   style={({ pressed }) => [
                     styles.childRow,

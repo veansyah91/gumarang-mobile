@@ -21,10 +21,10 @@ const CASH_IN_KEYS = {
   newRef: [...CASH_IN_ROOT, 'new-ref'] as const,
 };
 
-export function useCashInNewRef() {
+export function useCashInNewRef(date?: string) {
   return useQuery({
-    queryKey: CASH_IN_KEYS.newRef,
-    queryFn: () => cashInApi.getNewRef(),
+    queryKey: [...CASH_IN_KEYS.newRef, date],
+    queryFn: () => cashInApi.getNewRef(date),
     staleTime: 0,
     retry: 1,
   });
@@ -62,6 +62,8 @@ export function useCreateCashIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_IN_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }
@@ -80,6 +82,8 @@ export function useUpdateCashIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_IN_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }
@@ -92,6 +96,8 @@ export function useDeleteCashIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_IN_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }

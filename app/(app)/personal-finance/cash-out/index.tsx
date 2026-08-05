@@ -1,12 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Card } from '@/src/components/ui/card';
-import { FixedAssetSubHeader } from '@/src/components/ui/fixed-asset-sub-header';
-import { Screen } from '@/src/components/ui/screen';
-import { Skeleton } from '@/src/components/ui/skeleton';
+import {
+  FilterFab,
+  ListFab,
+  PersonalFinanceListScreen,
+} from '@/src/components/ui/personal-finance';
 import { Text } from '@/src/components/ui/text';
 import {
   CashFilterModal,
@@ -15,9 +17,14 @@ import {
 } from '@/src/components/cash-filter-modal';
 import { useCashOuts } from '@/src/hooks/use-cash-out';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
+import { cashOutApi } from '@/src/services/api/cash-out';
+import { exportTransactionsToPdf } from '@/src/services/pdf-export';
+import { useToastStore } from '@/src/state/toast-store';
 import { palette, spacing } from '@/src/theme/tokens';
 import type { CashOutTransaction } from '@/src/types/cash-out';
 import { formatIDR } from '@/src/utils/currency';
+import { toAppError } from '@/src/utils/errors';
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -36,9 +43,7 @@ function renderTransactionItem(
   return (
     <Pressable
       key={item.id}
-      onPress={() =>
-        router.push(`/personal-finance/cash-out/${item.id}` as any)
-      }
+      onPress={() => router.push(pfRoutes.cashOutDetail(item.id))}
       style={({ pressed }) => ({
         opacity: pressed ? 0.85 : 1,
       })}
@@ -82,6 +87,12 @@ export default function CashOutListPage() {
   const [filterDraft, setFilterDraft] = useState<FilterDraft>(
     createEmptyFilterDraft(),
   );
+  const [isExportVisible, setIsExportVisible] = useState(false);
+  const [exportDraft, setExportDraft] = useState<FilterDraft>(
+    createEmptyFilterDraft(),
+  );
+  const [isExporting, setIsExporting] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
 
   const {
     data,
@@ -129,87 +140,99 @@ export default function CashOutListPage() {
     setIsFilterVisible(false);
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <FixedAssetSubHeader title="Kas Keluar" />
-        <Screen
-          scrollable
-          safeAreaEdges={['left', 'right', 'bottom']}
-        >
-          <View style={styles.skeletonList}>
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} height={80} />
-            ))}
-          </View>
-        </Screen>
-      </>
-    );
-  }
+  const handleOpenExport = () => {
+    setExportDraft(createEmptyFilterDraft());
+    setIsExportVisible(true);
+  };
 
-  if (isError) {
-    return (
-      <>
-        <FixedAssetSubHeader title="Kas Keluar" />
-        <Screen
-          scrollable
-          safeAreaEdges={['left', 'right', 'bottom']}
-        >
-          <View style={styles.centerState}>
-            <Text tone="danger">Gagal memuat transaksi</Text>
-            <Pressable onPress={() => refetch()} style={styles.retryButton}>
-              <Text tone="muted">Coba Lagi</Text>
-            </Pressable>
-          </View>
-        </Screen>
-      </>
-    );
-  }
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const start = exportDraft.startDate || undefined;
+      const end = exportDraft.endDate || undefined;
+
+      let all: CashOutTransaction[] = [];
+      let page = 1;
+      let lastPage = 1;
+      do {
+        const result = await cashOutApi.getCashOuts({
+          search: exportDraft.search || undefined,
+          startDate: start,
+          endDate: end,
+          perPage: 100,
+          page,
+        });
+        all = all.concat(result.data);
+        lastPage = result.meta.last_page;
+        page += 1;
+      } while (page <= lastPage);
+
+      const rows = all.map((item) => ({
+        date: item.created_at,
+        description: item.notes || item.reference,
+        debit: 0,
+        credit: item.total_amount,
+      }));
+
+      setIsExportVisible(false);
+      await exportTransactionsToPdf({
+        title: 'Riwayat Transaksi',
+        startDate: start,
+        endDate: end,
+        rows,
+      });
+    } catch (err) {
+      showToast(toAppError(err).userMessage, 'danger');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <>
-      <FixedAssetSubHeader
+      <PersonalFinanceListScreen
         title="Kas Keluar"
         subtitle={String(total)}
+        data={allTransactions}
+        isLoading={isLoading}
+        isError={isError}
+        refetch={refetch}
+        isFetching={isFetching}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        renderItem={(item) => renderTransactionItem(item, colors, router)}
+        keyExtractor={(item) => String(item.id)}
+        emptyIcon="wallet-outline"
+        emptyTitle="Belum ada transaksi kas keluar"
+        errorTitle="Gagal memuat transaksi"
+        skeletonHeight={80}
+        filterFab={
+          <FilterFab
+            onPress={handleOpenFilter}
+            active={activeFilterCount > 0}
+            badgeCount={activeFilterCount}
+          />
+        }
+        extraFab={
+          <Pressable
+            style={({ pressed }) => [
+              styles.exportFab,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+            onPress={handleOpenExport}
+          >
+            <Ionicons name="download-outline" size={22} color={colors.text} />
+          </Pressable>
+        }
+        mainFab={
+          <ListFab onPress={() => router.push(pfRoutes.cashOutCreate())} />
+        }
       />
-      <Screen safeAreaEdges={['left', 'right', 'bottom']}>
-        <FlatList
-          data={allTransactions}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) =>
-            renderTransactionItem(item, colors, router)
-          }
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
-          }
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={styles.centerState}>
-              <Ionicons
-                name="wallet-outline"
-                size={48}
-                color={colors.muted}
-              />
-              <Text tone="muted" style={styles.emptyText}>
-                Belum ada transaksi kas keluar
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : null
-          }
-        />
-      </Screen>
 
       <CashFilterModal
         visible={isFilterVisible}
@@ -220,66 +243,28 @@ export default function CashOutListPage() {
         onReset={handleResetFilter}
       />
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.filterFab,
-          {
-            backgroundColor: activeFilterCount > 0 ? colors.warning : colors.surface,
-            borderColor: colors.border,
-            opacity: pressed ? 0.85 : 1,
-          },
-        ]}
-        onPress={handleOpenFilter}
-      >
-        <Ionicons
-          name="filter-outline"
-          size={22}
-          color={activeFilterCount > 0 ? colors.background : colors.text}
-        />
-        {activeFilterCount > 0 && (
-          <View style={[styles.filterBadge, { backgroundColor: colors.danger }]}>
-            <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
-          </View>
-        )}
-      </Pressable>
+      <CashFilterModal
+        visible={isExportVisible}
+        draft={exportDraft}
+        onChangeDraft={setExportDraft}
+        onClose={() => setIsExportVisible(false)}
+        onSubmit={handleExport}
+        onReset={() => setExportDraft(createEmptyFilterDraft())}
+        title="Export PDF"
+        submitLabel="Export"
+      />
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.fab,
-          { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-        ]}
-        onPress={() => router.push('/personal-finance/cash-out/create' as any)}
-      >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </Pressable>
+      <Modal visible={isExporting} transparent animationType="fade">
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Membuat PDF...</Text>
+        </View>
+      </Modal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  skeletonList: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  list: {
-    gap: spacing.sm,
-    paddingBottom: spacing.xl * 2,
-    flexGrow: 1,
-  },
-  centerState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-    gap: spacing.sm,
-    flex: 1,
-  },
-  emptyText: {
-    marginTop: spacing.sm,
-  },
-  retryButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -302,13 +287,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: spacing.xs,
   },
-  footerLoader: {
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  filterFab: {
+  exportFab: {
     position: 'absolute',
-    bottom: spacing.lg * 2 + 66,
+    bottom: spacing.lg * 2 + 122,
     right: spacing.md,
     width: 48,
     height: 48,
@@ -322,35 +303,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
-  filterBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
+  loadingOverlay: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    gap: spacing.md,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
   },
-  filterBadgeText: {
+  loadingText: {
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: spacing.lg * 2,
-    right: spacing.md,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

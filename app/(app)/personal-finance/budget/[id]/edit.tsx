@@ -3,6 +3,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BudgetForm } from '@/src/components/budget-form';
 import { useBudget, useUpdateBudget } from '@/src/hooks/use-budget';
 import { useToastStore } from '@/src/state/toast-store';
+import type {
+  CreateBudgetPayload,
+  UpdateBudgetPayload,
+} from '@/src/types/budget';
 import { toAppError } from '@/src/utils/errors';
 
 export default function EditBudgetPage() {
@@ -14,9 +18,11 @@ export default function EditBudgetPage() {
   const updateBudget = useUpdateBudget();
   const showToast = useToastStore((state) => state.showToast);
 
-  const handleSubmit = async (payload: unknown) => {
+  const handleSubmit = async (
+    payload: CreateBudgetPayload | UpdateBudgetPayload,
+  ) => {
     try {
-      await updateBudget.mutateAsync({ id: budgetId, payload: payload as any });
+      await updateBudget.mutateAsync({ id: budgetId, payload });
       showToast('Budget berhasil diperbarui', 'success');
       router.back();
     } catch (err) {

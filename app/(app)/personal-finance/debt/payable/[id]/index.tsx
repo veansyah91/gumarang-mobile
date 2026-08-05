@@ -1,5 +1,5 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { Badge } from '@/src/components/ui/badge';
 import { Button } from '@/src/components/ui/button';
@@ -9,6 +9,8 @@ import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useDebt, useDeleteDebt } from '@/src/hooks/use-debt';
+import { useContact } from '@/src/hooks/use-contact';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { spacing } from '@/src/theme/tokens';
 import { formatIDR } from '@/src/utils/currency';
@@ -58,6 +60,15 @@ export default function DebtPayableDetailPage() {
 
   const { data: debt, isLoading, isError, refetch } = useDebt(debtId);
   const { mutateAsync: deleteDebt, isPending: isDeleting } = useDeleteDebt();
+  const { data: contact } = useContact(debt?.contact_id ?? 0);
+
+  const handleShareWA = () => {
+    if (!contact?.phone || !debt) return;
+    const phone = contact.phone.replace(/^0/, '62');
+    const message =
+      `[Pemberitahuan Utang]\nNama: ${debt.name}\nJumlah: ${formatIDR(debt.amount)}\nSisa: ${formatIDR(debt.balance)}\nJatuh Tempo: ${formatDate(debt.due_date)}\n\nDidukung oleh https://tokomasgumarang.com`;
+    Linking.openURL(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`);
+  };
 
   const handleDelete = () => {
     Alert.alert(
@@ -202,23 +213,40 @@ export default function DebtPayableDetailPage() {
             </Card>
           )}
 
-          <View style={styles.actionButtons}>
+          {debt.status === 'pending' && (
+            <View style={styles.actionButtons}>
+              <Button
+                variant="secondary"
+                label="Edit"
+                onPress={() =>
+                  router.push(pfRoutes.payableEdit(debtId))
+                }
+              />
+              <Button
+                variant="danger"
+                label="Hapus"
+                onPress={handleDelete}
+                disabled={isDeleting}
+              />
+            </View>
+          )}
+          <View style={styles.payActionContainer}>
             <Button
-              variant="secondary"
-              label="Edit"
+              label="Bayar"
               onPress={() =>
                 router.push(
-                  `/personal-finance/debt/payable/${debtId}/edit` as any,
+                  pfRoutes.payableEntryCreateWithDebt(debtId, debt.balance),
                 )
               }
             />
-            <Button
-              variant="danger"
-              label="Hapus"
-              onPress={handleDelete}
-              disabled={isDeleting}
-            />
           </View>
+          {contact?.phone && (
+            <Button
+              variant="secondary"
+              label="Bagikan via WA"
+              onPress={handleShareWA}
+            />
+          )}
         </View>
       </Screen>
     </>
@@ -331,6 +359,9 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  payActionContainer: {
     marginTop: spacing.sm,
   },
 });

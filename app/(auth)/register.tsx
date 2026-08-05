@@ -46,8 +46,6 @@ export default function RegisterScreen() {
       agree: Boolean(form.agree),
     };
 
-    console.log('[register] submit payload', payload);
-
     const success = await register(payload);
     if (success) {
       router.push('/(auth)/verify-phone');

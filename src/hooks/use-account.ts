@@ -63,7 +63,8 @@ export function useCreateAccount() {
     mutationFn: (payload: CreateAccountPayload) =>
       accountApi.createAccount(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.tree() });
+      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -75,10 +76,8 @@ export function useUpdateAccount() {
     mutationFn: ({ id, payload }: { id: number; payload: UpdateAccountPayload }) =>
       accountApi.updateAccount(id, payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.tree() });
-      queryClient.invalidateQueries({
-        queryKey: ACCOUNT_KEYS.detail(variables.id),
-      });
+      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -89,7 +88,8 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: (id: number) => accountApi.deleteAccount(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.tree() });
+      queryClient.invalidateQueries({ queryKey: ACCOUNT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }

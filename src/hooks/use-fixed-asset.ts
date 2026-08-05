@@ -37,6 +37,8 @@ export function useCreateFixedAsset() {
       fixedAssetApi.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FIXED_ASSET_KEYS.list() });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -57,6 +59,8 @@ export function useUpdateFixedAsset() {
       queryClient.invalidateQueries({
         queryKey: FIXED_ASSET_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -68,6 +72,8 @@ export function useDeleteFixedAsset() {
     mutationFn: (id: number) => fixedAssetApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FIXED_ASSET_KEYS.list() });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }

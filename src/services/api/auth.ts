@@ -63,15 +63,11 @@ export const authApi = {
       agree: Boolean(credentials.agree),
     };
 
-    console.log('[auth.register] request payload', payload);
-
     try {
       const response = await apiClient.post<ApiResponse<User | { user: User }>>(
         '/v1/auth/register',
         payload,
       );
-
-      console.log('[auth.register] response', response.data);
 
       const user = extractRegisteredUser(response.data.data);
 

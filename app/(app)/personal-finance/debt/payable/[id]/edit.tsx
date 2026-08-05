@@ -96,7 +96,7 @@ export default function DebtPayableEditPage() {
       });
 
       showToast('Utang berhasil diperbarui', 'success');
-      router.back();
+      router.replace(`/personal-finance/debt/payable/${debtId}`);
     } catch (err) {
       const appErr = toAppError(err);
       showToast(appErr.userMessage, 'danger');

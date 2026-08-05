@@ -7,6 +7,7 @@ import { InvestmentDeleteConfirm } from '@/src/components/investment-delete-conf
 import { InvestmentFormModal } from '@/src/components/investment-form-modal';
 import { InvestmentTreeItem } from '@/src/components/investment-tree-item';
 import { InvestmentSubHeader } from '@/src/components/ui/investment-sub-header';
+import { Input } from '@/src/components/ui/input';
 import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
@@ -16,7 +17,9 @@ import {
   useInvestments,
 } from '@/src/hooks/use-investment';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
+import { filterTree } from '@/src/utils/tree';
 import { palette, spacing } from '@/src/theme/tokens';
 import type {
   CreateInvestmentPayload,
@@ -52,8 +55,10 @@ export default function InvestmentListPage() {
 
   const [formVisible, setFormVisible] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
 
   const accounts = data?.accounts ?? [];
+  const filteredAccounts = filterTree(accounts, search);
   const deleteItem = deleteId ? findAccountById(accounts, deleteId) : null;
 
   const handleCreate = async (
@@ -75,7 +80,7 @@ export default function InvestmentListPage() {
   };
 
   const handlePress = (id: number) => {
-    router.push(`/personal-finance/investment/${id}` as any);
+    router.push(pfRoutes.investmentDetail(id));
   };
 
   return (
@@ -115,13 +120,26 @@ export default function InvestmentListPage() {
             </View>
           ) : (
             <View style={styles.list}>
-              {accounts.map((item) => (
-                <InvestmentTreeItem
-                  key={item.id}
-                  item={item}
-                  onPress={handlePress}
-                />
-              ))}
+              <Input
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Cari investasi..."
+              />
+              {filteredAccounts.length === 0 ? (
+                <View style={styles.centerState}>
+                  <Text tone="muted" style={styles.emptyText}>
+                    Tidak ada investasi yang cocok
+                  </Text>
+                </View>
+              ) : (
+                filteredAccounts.map((item) => (
+                  <InvestmentTreeItem
+                    key={item.id}
+                    item={item}
+                    onPress={handlePress}
+                  />
+                ))
+              )}
             </View>
           )}
         </View>

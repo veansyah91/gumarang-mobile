@@ -74,7 +74,7 @@ export default function DebtPayableCreatePage() {
     }
 
     try {
-      await createDebt({
+      const result = await createDebt({
         contact_id: Number(contactId),
         type: 'payable',
         name: name.trim(),
@@ -86,7 +86,7 @@ export default function DebtPayableCreatePage() {
       });
 
       showToast('Utang berhasil ditambahkan', 'success');
-      router.back();
+      router.replace(`/personal-finance/debt/payable/${result.data.id}`);
     } catch (err) {
       const appErr = toAppError(err);
       showToast(appErr.userMessage, 'danger');

@@ -10,6 +10,7 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useCashIn, useDeleteCashIn } from '@/src/hooks/use-cash-in';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import { formatIDR } from '@/src/utils/currency';
@@ -186,9 +187,7 @@ export default function CashInDetailPage() {
         <View style={styles.actionRow}>
           <Pressable
             onPress={() =>
-              router.push(
-                `/personal-finance/cash-in/${transactionId}/edit` as any,
-              )
+              router.push(pfRoutes.cashInEdit(transactionId))
             }
             style={({ pressed }) => [
               styles.actionButton,

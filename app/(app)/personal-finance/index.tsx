@@ -18,6 +18,13 @@ type MenuItem = {
 
 const MAIN_MENU_ITEMS: MenuItem[] = [
   {
+    title: 'Dasbor',
+    href: '/personal-finance/dashboard',
+    icon: 'speedometer-outline',
+    color: '#2563eb',
+    tint: '#dbeafe',
+  },
+  {
     title: 'Kontak',
     href: '/personal-finance/contact',
     icon: 'people-outline',
@@ -141,21 +148,23 @@ function MenuCard({ item, cardWidth }: { item: MenuItem; cardWidth: number }) {
   );
 }
 
-export default function FixedAssetIndex() {
+export default function PersonalFinanceIndex() {
   const theme = useResolvedTheme();
   const colors = palette[theme];
   const { width } = useWindowDimensions();
 
   const breakpoint = 600;
+  const maxGridWidth = 520;
+  const screenPadding = spacing.md * 2;
   const columns = width >= breakpoint ? 4 : 3;
   const gapCount = columns - 1;
-  const horizontalPadding = spacing.md * 2;
+  const gridWidth = Math.min(width - screenPadding, maxGridWidth);
   const totalGap = spacing.sm * gapCount;
-  const cardWidth = (width - horizontalPadding - totalGap) / columns;
+  const cardWidth = (gridWidth - totalGap) / columns;
 
   return (
     <Screen scrollable safeAreaEdges={['top', 'left', 'right']}>
-      <View style={styles.grid}>
+      <View style={[styles.grid, { width: gridWidth }]}>
         {MAIN_MENU_ITEMS.map((item) => (
           <MenuCard key={item.title} item={item} cardWidth={cardWidth} />
         ))}
@@ -195,8 +204,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    alignSelf: 'center',
   },
   sectionLabel: {
     width: '100%',

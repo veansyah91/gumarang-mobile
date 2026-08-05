@@ -43,6 +43,8 @@ export function useCreateInvestment() {
       investmentApi.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVESTMENT_KEYS.list() });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -63,6 +65,8 @@ export function useBuyUnit() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -83,6 +87,8 @@ export function useSellUnit() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -103,6 +109,8 @@ export function useRevalueInvestment() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -123,6 +131,8 @@ export function useUpdateInvestment() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -134,6 +144,8 @@ export function useDeleteInvestment() {
     mutationFn: (id: number) => investmentApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVESTMENT_KEYS.list() });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -156,6 +168,8 @@ export function useEditPurchase() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -176,6 +190,8 @@ export function useDeletePurchase() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -198,6 +214,8 @@ export function useEditSale() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -218,6 +236,8 @@ export function useDeleteSale() {
       queryClient.invalidateQueries({
         queryKey: INVESTMENT_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }

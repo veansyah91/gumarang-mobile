@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { BudgetForm } from '@/src/components/budget-form';
 import { useCreateBudget } from '@/src/hooks/use-budget';
 import { useToastStore } from '@/src/state/toast-store';
+import type { CreateBudgetPayload } from '@/src/types/budget';
 import { toAppError } from '@/src/utils/errors';
 
 export default function CreateBudgetPage() {
@@ -10,9 +11,11 @@ export default function CreateBudgetPage() {
   const createBudget = useCreateBudget();
   const showToast = useToastStore((state) => state.showToast);
 
-  const handleSubmit = async (payload: unknown) => {
+  const handleSubmit = async (
+    payload: CreateBudgetPayload | import('@/src/types/budget').UpdateBudgetPayload,
+  ) => {
     try {
-      await createBudget.mutateAsync(payload as any);
+      await createBudget.mutateAsync(payload as CreateBudgetPayload);
       showToast('Budget berhasil dibuat', 'success');
       router.back();
     } catch (err) {

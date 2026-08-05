@@ -7,6 +7,7 @@ import { FixedAssetDeleteConfirm } from '@/src/components/fixed-asset-delete-con
 import { FixedAssetFormModal } from '@/src/components/fixed-asset-form-modal';
 import { FixedAssetSubHeader } from '@/src/components/ui/fixed-asset-sub-header';
 import { FixedAssetTreeItem } from '@/src/components/fixed-asset-tree-item';
+import { Input } from '@/src/components/ui/input';
 import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
@@ -16,9 +17,11 @@ import {
   useFixedAssets,
 } from '@/src/hooks/use-fixed-asset';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, spacing } from '@/src/theme/tokens';
 import type { CreateFixedAssetPayload } from '@/src/types/fixed-asset';
+import { filterTree } from '@/src/utils/tree';
 
 import { toAppError } from '@/src/utils/errors';
 
@@ -35,8 +38,10 @@ export default function FixedAssetListPage() {
 
   const [formVisible, setFormVisible] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
 
   const allAssets = data?.accounts ?? [];
+  const filteredAssets = filterTree(allAssets, search);
   const deleteItem = allAssets.find((a) => a.id === deleteId) ?? null;
 
   const handleCreate = async (payload: CreateFixedAssetPayload) => {
@@ -61,7 +66,7 @@ export default function FixedAssetListPage() {
   };
 
   const handlePress = (id: number) => {
-    router.push(`/personal-finance/fixed-asset/${id}` as any);
+    router.push(pfRoutes.fixedAssetDetail(id));
   };
 
   const handleLongPress = (id: number) => {
@@ -109,14 +114,27 @@ export default function FixedAssetListPage() {
             </View>
           ) : (
             <View style={styles.list}>
-              {allAssets.map((item) => (
-                <FixedAssetTreeItem
-                  key={item.id}
-                  item={item}
-                  onPress={handlePress}
-                  onLongPress={handleLongPress}
-                />
-              ))}
+              <Input
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Cari aset tetap..."
+              />
+              {filteredAssets.length === 0 ? (
+                <View style={styles.centerState}>
+                  <Text tone="muted" style={styles.emptyText}>
+                    Tidak ada aset yang cocok
+                  </Text>
+                </View>
+              ) : (
+                filteredAssets.map((item) => (
+                  <FixedAssetTreeItem
+                    key={item.id}
+                    item={item}
+                    onPress={handlePress}
+                    onLongPress={handleLongPress}
+                  />
+                ))
+              )}
             </View>
           )}
         </View>

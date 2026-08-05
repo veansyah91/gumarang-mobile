@@ -21,6 +21,7 @@ import {
   useDeleteAccount,
 } from '@/src/hooks/use-account';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, spacing } from '@/src/theme/tokens';
 import type { AccountTreeNode, AccountType, CreateAccountPayload } from '@/src/types/account';
@@ -121,7 +122,7 @@ export default function AccountListPage() {
   };
 
   const handlePress = (id: number) => {
-    router.push(`/personal-finance/account/${id}` as any);
+    router.push(pfRoutes.accountDetail(id));
   };
 
   const handleLongPress = (id: number) => {

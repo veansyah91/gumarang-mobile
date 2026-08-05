@@ -96,7 +96,7 @@ export default function DebtReceivableEditPage() {
       });
 
       showToast('Piutang berhasil diperbarui', 'success');
-      router.back();
+      router.replace(`/personal-finance/debt/receivable/${debtId}`);
     } catch (err) {
       const appErr = toAppError(err);
       showToast(appErr.userMessage, 'danger');

@@ -1,13 +1,14 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Badge } from '@/src/components/ui/badge';
 import { Card } from '@/src/components/ui/card';
-import { FixedAssetSubHeader } from '@/src/components/ui/fixed-asset-sub-header';
-import { Screen } from '@/src/components/ui/screen';
-import { Skeleton } from '@/src/components/ui/skeleton';
+import {
+  FilterFab,
+  ListFab,
+  PersonalFinanceListScreen,
+} from '@/src/components/ui/personal-finance';
 import { Text } from '@/src/components/ui/text';
 import {
   CashFilterModal,
@@ -16,6 +17,7 @@ import {
 } from '@/src/components/cash-filter-modal';
 import { useDebts } from '@/src/hooks/use-debt';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { palette, spacing } from '@/src/theme/tokens';
 import type { DebtItem } from '@/src/types/debt';
 import { formatIDR } from '@/src/utils/currency';
@@ -64,9 +66,7 @@ function renderDebtItem(
   return (
     <Pressable
       key={item.id}
-      onPress={() =>
-        router.push(`/personal-finance/debt/receivable/${item.id}` as any)
-      }
+      onPress={() => router.push(pfRoutes.receivableDetail(item.id))}
       style={({ pressed }) => ({
         opacity: pressed ? 0.85 : 1,
       })}
@@ -178,87 +178,36 @@ export default function DebtReceivableListPage() {
     setIsFilterVisible(false);
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <FixedAssetSubHeader title="Daftar Piutang" />
-        <Screen
-          scrollable
-          safeAreaEdges={['left', 'right', 'bottom']}
-        >
-          <View style={styles.skeletonList}>
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} height={120} />
-            ))}
-          </View>
-        </Screen>
-      </>
-    );
-  }
-
-  if (isError) {
-    return (
-      <>
-        <FixedAssetSubHeader title="Daftar Piutang" />
-        <Screen
-          scrollable
-          safeAreaEdges={['left', 'right', 'bottom']}
-        >
-          <View style={styles.centerState}>
-            <Text tone="danger">Gagal memuat data</Text>
-            <Pressable onPress={() => refetch()} style={styles.retryButton}>
-              <Text tone="muted">Coba Lagi</Text>
-            </Pressable>
-          </View>
-        </Screen>
-      </>
-    );
-  }
-
   return (
     <>
-      <FixedAssetSubHeader
+      <PersonalFinanceListScreen
         title="Daftar Piutang"
         subtitle={String(total)}
+        data={allDebts}
+        isLoading={isLoading}
+        isError={isError}
+        refetch={refetch}
+        isFetching={isFetching}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        renderItem={(item) => renderDebtItem(item, colors, router)}
+        keyExtractor={(item) => String(item.id)}
+        emptyIcon="document-text-outline"
+        emptyTitle="Belum ada piutang"
+        errorTitle="Gagal memuat data"
+        skeletonHeight={120}
+        filterFab={
+          <FilterFab
+            onPress={handleOpenFilter}
+            active={activeFilterCount > 0}
+            badgeCount={activeFilterCount}
+          />
+        }
+        mainFab={
+          <ListFab onPress={() => router.push(pfRoutes.receivableCreate())} />
+        }
       />
-      <Screen safeAreaEdges={['left', 'right', 'bottom']}>
-        <FlatList
-          data={allDebts}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) =>
-            renderDebtItem(item, colors, router)
-          }
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
-          }
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={styles.centerState}>
-              <Ionicons
-                name="document-text-outline"
-                size={48}
-                color={colors.muted}
-              />
-              <Text tone="muted" style={styles.emptyText}>
-                Belum ada piutang
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : null
-          }
-        />
-      </Screen>
 
       <CashFilterModal
         visible={isFilterVisible}
@@ -268,70 +217,11 @@ export default function DebtReceivableListPage() {
         onSubmit={handleSubmitFilter}
         onReset={handleResetFilter}
       />
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.filterFab,
-          {
-            backgroundColor:
-              activeFilterCount > 0 ? colors.warning : colors.surface,
-            borderColor: colors.border,
-            opacity: pressed ? 0.85 : 1,
-          },
-        ]}
-        onPress={handleOpenFilter}
-      >
-        <Ionicons
-          name="filter-outline"
-          size={22}
-          color={activeFilterCount > 0 ? colors.background : colors.text}
-        />
-        {activeFilterCount > 0 && (
-          <View style={[styles.filterBadge, { backgroundColor: colors.danger }]}>
-            <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
-          </View>
-        )}
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.fab,
-          { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-        ]}
-        onPress={() =>
-          router.push('/personal-finance/debt/receivable/create' as any)
-        }
-      >
-        <Ionicons name="add" size={28} color="#FFFFFF" />
-      </Pressable>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  skeletonList: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  list: {
-    gap: spacing.sm,
-    paddingBottom: spacing.xl * 2,
-    flexGrow: 1,
-  },
-  centerState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-    gap: spacing.sm,
-    flex: 1,
-  },
-  emptyText: {
-    marginTop: spacing.sm,
-  },
-  retryButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -365,56 +255,5 @@ const styles = StyleSheet.create({
   itemDue: {
     fontSize: 11,
     marginTop: spacing.xs,
-  },
-  footerLoader: {
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  filterFab: {
-    position: 'absolute',
-    bottom: spacing.lg * 2 + 66,
-    right: spacing.md,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  },
-  filterBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: spacing.lg * 2,
-    right: spacing.md,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
   },
 });

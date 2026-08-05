@@ -5,6 +5,8 @@ import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { BudgetDeleteConfirm } from '@/src/components/budget-delete-confirm';
 import { Card } from '@/src/components/ui/card';
+import { Input } from '@/src/components/ui/input';
+import { PersonalFinanceSubHeader } from '@/src/components/ui/personal-finance-sub-header';
 import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
@@ -14,6 +16,7 @@ import {
   useDeleteBudget,
 } from '@/src/hooks/use-budget';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import type { Budget } from '@/src/types/budget';
@@ -218,8 +221,18 @@ export default function BudgetListPage() {
   const showToast = useToastStore((state) => state.showToast);
 
   const [deleteId, setDeleteId] = React.useState<number | null>(null);
+  const [search, setSearch] = React.useState('');
 
   const budgets = data?.data ?? [];
+  const filteredBudgets = search.trim()
+    ? budgets.filter(
+        (b) =>
+          b.name.toLowerCase().includes(search.trim().toLowerCase()) ||
+          (b.account_name ?? '').toLowerCase().includes(
+            search.trim().toLowerCase(),
+          ),
+      )
+    : budgets;
   const deleteItem = budgets.find((b) => b.id === deleteId);
 
   const handleDelete = async () => {
@@ -235,19 +248,14 @@ export default function BudgetListPage() {
 
   return (
     <>
-      <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-          hitSlop={8}
-        >
-          <Ionicons name="chevron-back" size={28} color={colors.text} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Budget</Text>
-        <Text style={[styles.headerCount, { color: colors.muted }]}>
-          ({budgets.length})
-        </Text>
-      </View>
+      <PersonalFinanceSubHeader
+        title="Budget"
+        rightAction={
+          <Text style={[styles.headerCount, { color: colors.muted }]}>
+            ({budgets.length})
+          </Text>
+        }
+      />
       <Screen
         scrollable
         safeAreaEdges={['left', 'right', 'bottom']}
@@ -284,18 +292,29 @@ export default function BudgetListPage() {
             </View>
           ) : (
             <View style={styles.list}>
-              {budgets.map((budget) => (
-                <BudgetCard
-                  key={budget.id}
-                  budget={budget}
-                  onPress={() =>
-                    router.push(
-                      `/personal-finance/budget/${budget.id}` as any,
-                    )
-                  }
-                  onDelete={() => setDeleteId(budget.id)}
-                />
-              ))}
+              <Input
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Cari budget..."
+              />
+              {filteredBudgets.length === 0 ? (
+                <View style={styles.centerState}>
+                  <Text tone="muted" style={styles.emptyText}>
+                    Tidak ada budget yang cocok
+                  </Text>
+                </View>
+              ) : (
+                filteredBudgets.map((budget) => (
+                  <BudgetCard
+                    key={budget.id}
+                    budget={budget}
+                    onPress={() =>
+                      router.push(pfRoutes.budgetDetail(budget.id))
+                    }
+                    onDelete={() => setDeleteId(budget.id)}
+                  />
+                ))
+              )}
             </View>
           )}
         </View>
@@ -306,7 +325,7 @@ export default function BudgetListPage() {
           styles.fab,
           { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
         ]}
-        onPress={() => router.push('/personal-finance/budget/create' as any)}
+        onPress={() => router.push(pfRoutes.budgetCreate())}
       >
         <Ionicons name="add" size={28} color="#FFFFFF" />
       </Pressable>
@@ -323,19 +342,6 @@ export default function BudgetListPage() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    paddingTop: spacing.xl,
-    gap: spacing.xs,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-  },
   headerCount: {
     fontSize: 14,
     fontWeight: '600',

@@ -12,6 +12,7 @@ export default function PersonalFinanceLayout() {
           headerShadowVisible: false,
         }}
       />
+      <Stack.Screen name="dashboard/index" />
       <Stack.Screen name="account/index" />
       <Stack.Screen name="account/[id]/history" />
       <Stack.Screen name="fixed-asset/index" />
@@ -31,11 +32,17 @@ export default function PersonalFinanceLayout() {
       <Stack.Screen name="debt/payable/[id]/index" />
       <Stack.Screen name="debt/payable/[id]/edit" />
       <Stack.Screen name="debt/payable-entry/index" />
+      <Stack.Screen name="debt/payable-entry/create" />
+      <Stack.Screen name="debt/payable-entry/[id]/index" />
+      <Stack.Screen name="debt/payable-entry/[id]/edit" />
       <Stack.Screen name="debt/receivable/index" />
       <Stack.Screen name="debt/receivable/create" />
       <Stack.Screen name="debt/receivable/[id]/index" />
       <Stack.Screen name="debt/receivable/[id]/edit" />
       <Stack.Screen name="debt/receivable-entry/index" />
+      <Stack.Screen name="debt/receivable-entry/create" />
+      <Stack.Screen name="debt/receivable-entry/[id]/index" />
+      <Stack.Screen name="debt/receivable-entry/[id]/edit" />
     </Stack>
   );
 }

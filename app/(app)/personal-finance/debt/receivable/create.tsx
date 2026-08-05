@@ -2,17 +2,17 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { AccountSearchSelect } from '@/src/components/ui/account-search-select';
 import { Button } from '@/src/components/ui/button';
 import { Card } from '@/src/components/ui/card';
 import { DateInput } from '@/src/components/ui/date-input';
 import { FixedAssetSubHeader } from '@/src/components/ui/fixed-asset-sub-header';
 import { Input } from '@/src/components/ui/input';
 import { Screen } from '@/src/components/ui/screen';
-import { AccountSearchSelect } from '@/src/components/ui/account-search-select';
 import { SearchableSelect } from '@/src/components/ui/searchable-select';
 import { useContacts } from '@/src/hooks/use-contact';
-import { useCreateDebt } from '@/src/hooks/use-debt';
 import { useDebouncedValue } from '@/src/hooks/use-debounced-value';
+import { useCreateDebt } from '@/src/hooks/use-debt';
 import { useToastStore } from '@/src/state/toast-store';
 import { spacing } from '@/src/theme/tokens';
 import { formatIDR } from '@/src/utils/currency';
@@ -35,10 +35,7 @@ export default function DebtReceivableCreatePage() {
 
   const { mutateAsync: createDebt, isPending: isSubmitting } = useCreateDebt();
 
-  const {
-    data: contactsData,
-    isFetching: isContactFetching,
-  } = useContacts({
+  const { data: contactsData, isFetching: isContactFetching } = useContacts({
     search: debouncedContactSearch || undefined,
     perPage: 20,
   });
@@ -74,7 +71,7 @@ export default function DebtReceivableCreatePage() {
     }
 
     try {
-      await createDebt({
+      const result = await createDebt({
         contact_id: Number(contactId),
         type: 'receivable',
         name: name.trim(),
@@ -86,7 +83,7 @@ export default function DebtReceivableCreatePage() {
       });
 
       showToast('Piutang berhasil ditambahkan', 'success');
-      router.back();
+      router.replace(`/personal-finance/debt/receivable/${result.data.id}`);
     } catch (err) {
       const appErr = toAppError(err);
       showToast(appErr.userMessage, 'danger');
@@ -138,7 +135,6 @@ export default function DebtReceivableCreatePage() {
               placeholder="Cari akun piutang..."
               type="asset"
               hasParent
-              isCash={false}
               defaultAccountType="asset"
               defaultAssetType="current"
             />

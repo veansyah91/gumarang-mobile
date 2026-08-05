@@ -9,6 +9,7 @@ import { debtApi } from '@/src/services/api/debt';
 import type {
   CreateDebtEntryPayload,
   CreateDebtPayload,
+  DebtEntryAllListParams,
   DebtEntryListParams,
   DebtListParams,
   DebtSearchParams,
@@ -27,6 +28,8 @@ const DEBT_KEYS = {
   detail: (id: number) => [...DEBT_ROOT, 'detail', id] as const,
   entries: (debtId: number, params: DebtEntryListParams) =>
     [...DEBT_ROOT, 'entries', debtId, params] as const,
+  allEntries: (params: DebtEntryAllListParams) =>
+    [...DEBT_ROOT, 'allEntries', params] as const,
   entryDetail: (debtId: number, entryId: number) =>
     [...DEBT_ROOT, 'entry', debtId, entryId] as const,
 };
@@ -71,6 +74,7 @@ export function useCreateDebt() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -89,6 +93,7 @@ export function useUpdateDebt() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -101,6 +106,7 @@ export function useDeleteDebt() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -121,6 +127,23 @@ export function useDebtEntries(debtId: number, params: DebtEntryListParams = {})
   });
 }
 
+export function useAllDebtEntries(
+  params: DebtEntryAllListParams = {},
+) {
+  return useInfiniteQuery({
+    queryKey: DEBT_KEYS.allEntries(params),
+    queryFn: ({ pageParam }) =>
+      debtApi.getAllDebtEntries({ ...params, page: pageParam }),
+    initialPageParam: 1 as number,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.current_page < lastPage.meta.last_page) {
+        return lastPage.meta.current_page + 1;
+      }
+      return undefined;
+    },
+  });
+}
+
 export function useDebtEntry(debtId: number, entryId: number) {
   return useQuery({
     queryKey: DEBT_KEYS.entryDetail(debtId, entryId),
@@ -137,6 +160,8 @@ export function useCreateDebtEntry() {
       debtApi.createDebtEntry(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -156,6 +181,8 @@ export function useUpdateDebtEntry() {
     }) => debtApi.updateDebtEntry(debtId, entryId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -168,6 +195,8 @@ export function useDeleteDebtEntry() {
       debtApi.deleteDebtEntry(debtId, entryId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBT_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }

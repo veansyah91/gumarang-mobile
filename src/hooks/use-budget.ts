@@ -46,6 +46,7 @@ export function useCreateBudget() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.list() });
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.summary() });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -60,6 +61,7 @@ export function useUpdateBudget() {
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.list() });
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.summary() });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -72,6 +74,7 @@ export function useDeleteBudget() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.list() });
       queryClient.invalidateQueries({ queryKey: BUDGET_KEYS.summary() });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }

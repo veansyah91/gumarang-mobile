@@ -15,6 +15,7 @@ import {
   useUpdateAccount,
 } from '@/src/hooks/use-account';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import type { CreateAccountPayload } from '@/src/types/account';
@@ -163,7 +164,7 @@ export default function AccountDetailPage() {
                 <Pressable
                   key={child.id}
                   onPress={() =>
-                    router.push(`/personal-finance/account/${child.id}` as any)
+                    router.push(pfRoutes.accountDetail(child.id))
                   }
                   style={({ pressed }) => [
                     styles.childRow,
@@ -189,7 +190,7 @@ export default function AccountDetailPage() {
           {account.parent_id !== null && (
             <Pressable
               onPress={() =>
-                router.push(`/personal-finance/account/${accountId}/history` as any)
+                router.push(pfRoutes.accountHistory(accountId))
               }
               style={({ pressed }) => [
                 styles.actionButton,

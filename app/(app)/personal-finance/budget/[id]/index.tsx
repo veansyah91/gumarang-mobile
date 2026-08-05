@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { BudgetDeleteConfirm } from '@/src/components/budget-delete-confirm';
+import { BudgetSubHeader } from '@/src/components/ui/budget-sub-header';
 import { Button } from '@/src/components/ui/button';
-import { PersonalFinanceHeader } from '@/src/components/ui/personal-finance-header';
 import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useBudget, useDeleteBudget } from '@/src/hooks/use-budget';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import type { BudgetAlert } from '@/src/types/budget';
@@ -104,7 +105,7 @@ export default function BudgetDetailPage() {
   if (isLoading) {
     return (
       <>
-        <PersonalFinanceHeader />
+        <BudgetSubHeader title="Detail Budget" />
         <Screen scrollable safeAreaEdges={['left', 'right', 'bottom']}>
           <View style={styles.skeletonList}>
             {[1, 2, 3, 4].map((i) => (
@@ -119,7 +120,7 @@ export default function BudgetDetailPage() {
   if (isError || !budget) {
     return (
       <>
-        <PersonalFinanceHeader />
+        <BudgetSubHeader title="Detail Budget" />
         <Screen scrollable safeAreaEdges={['left', 'right', 'bottom']}>
           <View style={styles.centerState}>
             <Text tone="danger">Gagal memuat detail budget</Text>
@@ -137,7 +138,7 @@ export default function BudgetDetailPage() {
 
   return (
     <>
-      <PersonalFinanceHeader />
+      <BudgetSubHeader title="Detail Budget" />
       <Screen
         scrollable
         safeAreaEdges={['left', 'right', 'bottom']}
@@ -263,9 +264,7 @@ export default function BudgetDetailPage() {
               label="Edit Budget"
               variant="primary"
               onPress={() =>
-                router.push(
-                  `/personal-finance/budget/${budgetId}/edit` as any,
-                )
+                router.push(pfRoutes.budgetEdit(budgetId))
               }
             />
             <Button

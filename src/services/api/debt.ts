@@ -2,6 +2,8 @@ import type {
   CreateDebtEntryPayload,
   CreateDebtPayload,
   DebtEntry,
+  DebtEntryAll,
+  DebtEntryAllListParams,
   DebtEntryListMeta,
   DebtEntryListParams,
   DebtSearchItem,
@@ -86,6 +88,28 @@ export const debtApi = {
       data: DebtEntry[];
       meta: DebtEntryListMeta;
     }>(`/v1/member/personal-finance/debts/${debtId}/entries`, {
+      params: queryParams,
+    });
+    return response.data;
+  },
+
+  getAllDebtEntries: async (
+    params: DebtEntryAllListParams = {},
+  ) => {
+    const queryParams: Record<string, string> = {};
+    if (params.type) queryParams.type = params.type;
+    if (params.debt_id) queryParams.debt_id = String(params.debt_id);
+    if (params.entry_type) queryParams.entry_type = params.entry_type;
+    if (params.search) queryParams.search = params.search;
+    if (params.startDate) queryParams.startDate = params.startDate;
+    if (params.endDate) queryParams.endDate = params.endDate;
+    if (params.perPage) queryParams.perPage = String(params.perPage);
+    if (params.page) queryParams.page = String(params.page);
+
+    const response = await apiClient.get<{
+      data: DebtEntryAll[];
+      meta: DebtEntryListMeta;
+    }>('/v1/member/personal-finance/debt-entries', {
       params: queryParams,
     });
     return response.data;

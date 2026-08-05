@@ -21,10 +21,10 @@ const CASH_OUT_KEYS = {
   newRef: [...CASH_OUT_ROOT, 'new-ref'] as const,
 };
 
-export function useCashOutNewRef() {
+export function useCashOutNewRef(date?: string) {
   return useQuery({
-    queryKey: CASH_OUT_KEYS.newRef,
-    queryFn: () => cashOutApi.getNewRef(),
+    queryKey: [...CASH_OUT_KEYS.newRef, date],
+    queryFn: () => cashOutApi.getNewRef(date),
     staleTime: 0,
     retry: 1,
   });
@@ -62,6 +62,8 @@ export function useCreateCashOut() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_OUT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }
@@ -80,6 +82,8 @@ export function useUpdateCashOut() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_OUT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }
@@ -92,6 +96,8 @@ export function useDeleteCashOut() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_OUT_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'summary'] });
     },
   });
 }

@@ -105,9 +105,25 @@ export interface DebtEntryListParams {
   page?: number;
 }
 
+export interface DebtEntryAllListParams {
+  type?: 'payable' | 'receivable';
+  debt_id?: number;
+  entry_type?: 'debit' | 'credit';
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+  perPage?: number;
+  page?: number;
+}
+
+export interface DebtEntryAll extends DebtEntry {
+  debt_name: string;
+  debt_type: 'payable' | 'receivable';
+  contact_name: string;
+}
+
 export interface CreateDebtEntryPayload {
-  contact_id: number;
-  type: 'payable' | 'receivable';
+  debt_id: number;
   entry_type: 'debit' | 'credit';
   date: string;
   amount: number;

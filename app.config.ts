@@ -135,6 +135,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-video',
+
+    'expo-sharing',
   ],
 
   experiments: {

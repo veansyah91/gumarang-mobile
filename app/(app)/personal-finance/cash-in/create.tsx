@@ -36,7 +36,7 @@ export default function CashInCreatePage() {
   const [notes, setNotes] = useState('');
   const [details, setDetails] = useState<DetailEntry[]>([createEmptyDetail()]);
 
-  const { data: refData, isLoading: isRefLoading } = useCashInNewRef();
+  const { data: refData, isLoading: isRefLoading } = useCashInNewRef(date);
   const { mutateAsync: createCashIn, isPending: isSubmitting } =
     useCreateCashIn();
 

@@ -1,19 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
+import { ConfirmDeleteModal } from '@/src/components/ui/confirm-delete-modal';
 import { InvestmentDeleteConfirm } from '@/src/components/investment-delete-confirm';
 import { InvestmentEditTransactionModal } from '@/src/components/investment-edit-transaction-modal';
 import { InvestmentFormModal } from '@/src/components/investment-form-modal';
-import { Button } from '@/src/components/ui/button';
 import { InvestmentSubHeader } from '@/src/components/ui/investment-sub-header';
 import { Screen } from '@/src/components/ui/screen';
 import { Skeleton } from '@/src/components/ui/skeleton';
@@ -28,9 +22,12 @@ import {
   useUpdateInvestment,
 } from '@/src/hooks/use-investment';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import type {
+  EditPurchasePayload,
+  EditSalePayload,
   InvestmentPurchase,
   InvestmentSale,
   UpdateInvestmentPayload,
@@ -111,13 +108,13 @@ export default function InvestmentDetailPage() {
         await editPurchase.mutateAsync({
           id: assetId,
           transactionId: editTransaction.transaction.transaction_id!,
-          payload: payload as any,
+          payload: payload as unknown as EditPurchasePayload,
         });
       } else {
         await editSale.mutateAsync({
           id: assetId,
           transactionId: editTransaction.transaction.transaction_id!,
-          payload: payload as any,
+          payload: payload as unknown as EditSalePayload,
         });
       }
       setEditTransaction(null);
@@ -266,11 +263,7 @@ export default function InvestmentDetailPage() {
               {children.map((child) => (
                 <Pressable
                   key={child.id}
-                  onPress={() =>
-                    router.push(
-                      `/personal-finance/investment/${child.id}` as any,
-                    )
-                  }
+                  onPress={() => router.push(pfRoutes.investmentDetail(child.id))}
                   style={({ pressed }) => [
                     styles.childRow,
                     { opacity: pressed ? 0.85 : 1 },
@@ -315,31 +308,19 @@ export default function InvestmentDetailPage() {
                 label="Beli"
                 icon="add-circle-outline"
                 color={colors.primary}
-                onPress={() =>
-                  router.push(
-                    `/personal-finance/investment/${assetId}/buy` as any,
-                  )
-                }
+                onPress={() => router.push(pfRoutes.investmentBuy(assetId))}
               />
               <ActionButton
                 label="Jual"
                 icon="remove-circle-outline"
                 color={colors.danger}
-                onPress={() =>
-                  router.push(
-                    `/personal-finance/investment/${assetId}/sell` as any,
-                  )
-                }
+                onPress={() => router.push(pfRoutes.investmentSell(assetId))}
               />
               <ActionButton
                 label="Nilai"
                 icon="trending-up-outline"
                 color={colors.warning}
-                onPress={() =>
-                  router.push(
-                    `/personal-finance/investment/${assetId}/revalue` as any,
-                  )
-                }
+                onPress={() => router.push(pfRoutes.investmentRevalue(assetId))}
               />
             </>
           )}
@@ -633,41 +614,14 @@ export default function InvestmentDetailPage() {
         }
       />
 
-      <Modal
+      <ConfirmDeleteModal
         visible={deleteTransaction !== null}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setDeleteTransaction(null)}
-      >
-        <View style={styles.overlay}>
-          <View style={[styles.dialog, { backgroundColor: colors.surface }]}>
-            <Text variant="subtitle">Hapus Riwayat</Text>
-            <Text tone="muted" style={styles.message}>
-              Yakin ingin menghapus riwayat ini? Data yang sudah dihapus tidak
-              dapat dikembalikan.
-            </Text>
-
-            <View style={styles.dialogActions}>
-              <Button
-                variant="secondary"
-                label="Batal"
-                onPress={() => setDeleteTransaction(null)}
-                disabled={deletePurchase.isPending || deleteSale.isPending}
-              />
-              <Button
-                variant="danger"
-                label={
-                  deletePurchase.isPending || deleteSale.isPending
-                    ? 'Menghapus...'
-                    : 'Hapus'
-                }
-                onPress={handleDeleteTransaction}
-                disabled={deletePurchase.isPending || deleteSale.isPending}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        title="Hapus Riwayat"
+        message="Yakin ingin menghapus riwayat ini? Data yang sudah dihapus tidak dapat dikembalikan."
+        isDeleting={deletePurchase.isPending || deleteSale.isPending}
+        onClose={() => setDeleteTransaction(null)}
+        onConfirm={handleDeleteTransaction}
+      />
     </>
   );
 }
@@ -902,28 +856,5 @@ const styles = StyleSheet.create({
   },
   historyActionButton: {
     padding: spacing.sm,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  dialog: {
-    width: '100%',
-    maxWidth: 340,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  message: {
-    lineHeight: 20,
-  },
-  dialogActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
   },
 });

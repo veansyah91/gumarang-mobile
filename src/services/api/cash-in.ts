@@ -8,11 +8,13 @@ import type {
 import { apiClient } from './client';
 
 export const cashInApi = {
-  getNewRef: async (): Promise<{ ref: string }> => {
+  getNewRef: async (date?: string): Promise<{ ref: string }> => {
     const response = await apiClient.get<{
       success: boolean;
       data: { ref: string };
-    }>('/v1/member/cash-in/new-ref');
+    }>('/v1/member/cash-in/new-ref', {
+      params: date ? { date } : undefined,
+    });
     return response.data.data;
   },
 

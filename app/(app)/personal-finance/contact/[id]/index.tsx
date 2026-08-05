@@ -10,6 +10,7 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useContact, useDeleteContact } from '@/src/hooks/use-contact';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
+import { pfRoutes } from '@/src/navigation/personal-finance-routes';
 import { useToastStore } from '@/src/state/toast-store';
 import { palette, radius, spacing } from '@/src/theme/tokens';
 import { toAppError } from '@/src/utils/errors';
@@ -140,9 +141,7 @@ export default function ContactDetailPage() {
         <View style={styles.actionRow}>
           <Pressable
             onPress={() =>
-              router.push(
-                `/personal-finance/contact/${contactId}/edit` as any,
-              )
+              router.push(pfRoutes.contactEdit(contactId))
             }
             style={({ pressed }) => [
               styles.actionButton,

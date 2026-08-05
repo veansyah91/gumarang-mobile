@@ -58,7 +58,9 @@ export function AccountSearchSelect({
     useCreateAccount();
 
   const options: SelectOption[] = [
-    ...(emptyOptionLabel ? [{ label: emptyOptionLabel, value: '' }] : []),
+    ...(emptyOptionLabel && !searchText
+      ? [{ label: emptyOptionLabel, value: '' }]
+      : []),
     ...(accounts?.map((a) => ({ label: a.name, value: a.id })) ?? []),
   ];
 

@@ -36,7 +36,7 @@ export default function CashOutCreatePage() {
   const [notes, setNotes] = useState('');
   const [details, setDetails] = useState<DetailEntry[]>([createEmptyDetail()]);
 
-  const { data: refData, isLoading: isRefLoading } = useCashOutNewRef();
+  const { data: refData, isLoading: isRefLoading } = useCashOutNewRef(date);
   const { mutateAsync: createCashOut, isPending: isSubmitting } =
     useCreateCashOut();
 
