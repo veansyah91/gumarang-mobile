@@ -61,10 +61,6 @@ export function toAppError(error: unknown) {
         ? String(error.response.data.message)
         : undefined;
 
-    if (status === 422) {
-      console.warn('[API 422 validation]', JSON.stringify(error.response?.data));
-    }
-
     if (status === 401) {
       return new AppError(responseMessage ?? 'Unauthorized', {
         code: 'unauthorized',

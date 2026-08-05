@@ -28,12 +28,7 @@ export function usePushNotification() {
     isMountedRef.current = true;
 
     const notificationListener = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        console.log(
-          '[push] Notification received in foreground:',
-          notification,
-        );
-      },
+      (notification) => {},
     );
 
     const responseListener =
@@ -44,7 +39,6 @@ export function usePushNotification() {
         setTimeout(() => {
           if (!isMountedRef.current) return;
 
-          console.log('[push] Notification tapped:', response);
           const data = response.notification.request.content.data;
 
           if (data && typeof data === 'object') {
@@ -54,10 +48,6 @@ export function usePushNotification() {
               (data as Record<string, any>).referenceNumber;
 
             if (transactionType && referenceNumber) {
-              console.log(
-                `[push] Navigating to ${transactionType} detail: ${referenceNumber}`,
-              );
-
               switch (transactionType) {
                 // NOTE: app is customer POV, so mapping is reversed from backend/shop POV
                 case 'sale':
@@ -81,9 +71,6 @@ export function usePushNotification() {
                   });
                   break;
                 default:
-                  console.log(
-                    `[push] Unknown transaction type: ${transactionType}`,
-                  );
                   router.push('/notifications');
                   break;
               }
@@ -113,7 +100,6 @@ export function usePushNotification() {
     const setupPushNotification = async () => {
       // Skip for web platform
       if (Platform.OS === 'web') {
-        console.log('[push] SKIP: Web platform not supported');
         return;
       }
 
@@ -188,7 +174,6 @@ export function usePushNotification() {
         if (!mounted) return;
 
         if (cachedToken === trimmedToken) {
-          console.log('[push] Token already registered, skipping');
           return;
         }
 
@@ -199,16 +184,9 @@ export function usePushNotification() {
             Platform.OS === 'ios' ? ('ios' as const) : ('android' as const),
         };
 
-        console.log(
-          '[push] Registering token payload:',
-          JSON.stringify(payload),
-        );
-
         await memberApi.registerDeviceToken(payload);
 
         if (!mounted) return;
-
-        console.log('[push] Token registered successfully');
 
         await setJsonStorage(DEVICE_TOKEN_STORAGE_KEY, trimmedToken);
       } catch (error) {

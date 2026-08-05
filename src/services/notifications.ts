@@ -29,8 +29,7 @@ export const notificationService = {
       }
 
       return finalStatus === 'granted';
-    } catch (error) {
-      console.error('[notifications] Failed to request permissions:', error);
+    } catch {
       return false;
     }
   },
@@ -46,7 +45,6 @@ export const notificationService = {
         Constants.easConfig?.projectId;
 
       if (!projectId) {
-        console.warn('[notifications] No EAS project ID found');
         return null;
       }
 
@@ -57,8 +55,7 @@ export const notificationService = {
       ).data;
 
       return token;
-    } catch (error) {
-      console.error('[notifications] Failed to get device token:', error);
+    } catch {
       return null;
     }
   },
@@ -71,14 +68,12 @@ export const notificationService = {
       // Request permissions first
       const hasPermission = await notificationService.requestPermissions();
       if (!hasPermission) {
-        console.warn('[notifications] Notification permissions not granted');
         return false;
       }
 
       // Get device token
       const token = await notificationService.getDeviceToken();
       if (!token) {
-        console.warn('[notifications] Could not get device token');
         return false;
       }
 
@@ -92,10 +87,8 @@ export const notificationService = {
         device_type: deviceType,
       });
 
-      console.log('[notifications] Device token registered successfully');
       return true;
-    } catch (error) {
-      console.error('[notifications] Failed to register device token:', error);
+    } catch {
       return false;
     }
   },
@@ -149,18 +142,15 @@ export const notificationService = {
           notificationListeners.forEach((listener) => {
             try {
               listener(notification);
-            } catch (error) {
-              console.error('[notifications] Error in listener:', error);
+            } catch {
+              // Ignore listener errors
             }
           });
         });
 
       return () => notificationListener.remove();
-    } catch (error) {
-      console.error(
-        '[notifications] Failed to initialize notification listeners:',
-        error,
-      );
+    } catch {
+      // Failed to initialize notification listeners
     }
   },
 
@@ -178,11 +168,8 @@ export const notificationService = {
         },
         trigger: null, // Show immediately
       });
-    } catch (error) {
-      console.error(
-        '[notifications] Failed to show local notification:',
-        error,
-      );
+    } catch {
+      // Failed to show local notification
     }
   },
 
@@ -192,8 +179,8 @@ export const notificationService = {
   async clearBadge(): Promise<void> {
     try {
       await Notifications.setBadgeCountAsync(0);
-    } catch (error) {
-      console.error('[notifications] Failed to clear badge:', error);
+    } catch {
+      // Failed to clear badge
     }
   },
 };

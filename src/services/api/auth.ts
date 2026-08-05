@@ -1,5 +1,3 @@
-import { isAxiosError } from 'axios';
-
 import type {
   ForgotPasswordPayload,
   LoginCredentials,
@@ -63,41 +61,21 @@ export const authApi = {
       agree: Boolean(credentials.agree),
     };
 
-    try {
-      const response = await apiClient.post<ApiResponse<User | { user: User }>>(
-        '/v1/auth/register',
-        payload,
-      );
+    const response = await apiClient.post<ApiResponse<User | { user: User }>>(
+      '/v1/auth/register',
+      payload,
+    );
 
-      const user = extractRegisteredUser(response.data.data);
+    const user = extractRegisteredUser(response.data.data);
 
-      if (!user) {
-        throw new AppError('Register payload invalid.', {
-          code: 'invalid_auth_payload',
-          userMessage: 'Response server tidak valid.',
-        });
-      }
-
-      return user;
-    } catch (error) {
-      if (error instanceof AppError) {
-        console.error('[auth.register] invalid response', {
-          message: error.message,
-          code: error.code,
-          userMessage: error.userMessage,
-        });
-      } else if (isAxiosError(error)) {
-        console.error('[auth.register] error', {
-          message: error.message,
-          status: error.response?.status,
-          data: error.response?.data,
-        });
-      } else {
-        console.error('[auth.register] unexpected error', error);
-      }
-
-      throw error;
+    if (!user) {
+      throw new AppError('Register payload invalid.', {
+        code: 'invalid_auth_payload',
+        userMessage: 'Response server tidak valid.',
+      });
     }
+
+    return user;
   },
 
   async login(credentials: LoginCredentials): Promise<Session> {
