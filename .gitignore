@@ -32,7 +32,7 @@ yarn-error.*
 
 # local env files
 .env
-.env*.local
+.env.*
 
 # Google Play service account key (never commit this)
 google-play-service-account.json
