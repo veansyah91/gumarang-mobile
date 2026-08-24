@@ -1,48 +1,28 @@
-# Issue: Git security fixes & dependency resolution
+# Issue: Modifikasi Header Aplikasi
 
-## Task 1: Fix .gitignore and untrack sensitive files
+## Tujuan
 
-**Problems identified:**
-1. `google-services.json` is already tracked in git (committed) even though it's in `.gitignore`. Gitignore only prevents future tracking — already-tracked files stay.
-2. `.env.production` is tracked in git but NOT covered by `.gitignore`. Current pattern `.env*.local` only matches `.env.local`, `.env.development.local`, etc. — NOT `.env.production`.
-3. `node_modules/` has many modified/deleted files — indicates `package-lock.json` is out of sync with installed packages.
+Memperbarui header aplikasi agar identitas brand tampil jelas tanpa menghilangkan akses ke informasi pengguna.
 
-**Steps to fix:**
+## Kondisi Saat Ini
 
-### A. Stop tracking sensitive files
-Run these in order:
-- `git rm --cached google-services.json` — untrack from git but keep locally
-- `git rm --cached .env.production` — untrack from git but keep locally
-- Or use `git rm --cached -r google-services.json .env.production` for both at once
+Header hanya menampilkan ikon di sisi kiri dan inisial pengguna di sisi kanan.
 
-### B. Update .gitignore patterns
-Modify `.gitignore`:
-- Change `.env*.local` to `.env.*` (covers `.env.production`, `.env.staging`, etc.)
-- Keep `.env` as-is (covers the root `.env` file)
-- After fixing, git commit the changes
+## Perubahan yang Direncanakan
 
-### C. Restore clean node_modules
-Run `npm ci` or delete `node_modules` + `npm install` to get a clean dependency tree matching `package-lock.json`.
+- Tambahkan identitas brand di sebelah ikon kiri.
+- Tampilkan teks `Toko Mas` sebagai label kecil dengan ukuran font extra-small.
+- Tampilkan teks `GUMARANG` di bawahnya dengan ukuran font normal.
+- Pertahankan inisial pengguna di sisi kanan header.
+- Atur tata letak dan jarak antar elemen agar tetap rapi pada berbagai ukuran layar.
 
----
+## Hasil yang Diharapkan
 
-## Task 2: Fix npm ERESOLVE error
+Header menampilkan ikon dan identitas brand di sisi kiri dalam susunan dua baris, sementara inisial pengguna tetap berada di sisi kanan dan mudah terlihat.
 
-**Problem:** `package.json` requires `expo-router@"~55.0.17"` but `package-lock.json` / `node_modules` has `expo-router@55.0.16`. Without the lockfile, npm fails to resolve.
+## Kriteria Selesai
 
-**Steps:**
-- After fixing gitignore/untracking (Task 1), run `npm install` in the project root
-- This should regenerate `package-lock.json` matching the version ranges in `package.json`
-- If it still fails with ERESOLVE:
-  - Delete `node_modules/` and `package-lock.json`
-  - Run `npm install` clean
-  - Or run `npm install --legacy-peer-deps` as fallback
-
----
-
-## Task 3: Commit all changes
-
-After both tasks are done:
-- Stage the `.gitignore` changes, deleted `google-services.json` and `.env.production` refs, updated `package-lock.json`
-- Commit with message like `chore: fix gitignore patterns and untrack sensitive files`
-- Verify: `git ls-files | grep -E "google-services.json|.env.production"` should return nothing
+- `Toko Mas` dan `GUMARANG` tampil sesuai hierarki ukuran font yang ditentukan.
+- Posisi inisial pengguna tetap konsisten di sisi kanan.
+- Header tidak mengalami tumpang tindih atau perubahan layout yang buruk pada perangkat mobile.
+- Gaya visual mengikuti komponen dan tema aplikasi yang sudah ada.

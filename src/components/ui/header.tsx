@@ -78,7 +78,15 @@ export function Header() {
         isAuthenticated ? styles.headerAuthenticated : styles.headerGuest,
       ]}
     >
-      <Image source={logo} style={styles.logo} resizeMode="contain" />
+      <View style={styles.brandContainer}>
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <View style={styles.brandText}>
+          <Text variant="eyebrow" style={styles.brandName}>
+            Toko Mas
+          </Text>
+          <Text style={styles.brandSub}>{'GUMARANG'}</Text>
+        </View>
+      </View>
       {isAuthenticated && (
         <Pressable
           onPress={() => router.push('/more')}
@@ -116,9 +124,24 @@ const styles = StyleSheet.create({
   headerGuest: {
     justifyContent: 'flex-start',
   },
+  brandContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   logo: {
     width: 40,
     height: 40,
+  },
+  brandText: {
+    justifyContent: 'center',
+  },
+  brandName: {
+    marginBottom: 1,
+  },
+  brandSub: {
+    fontSize: 15,
+    fontWeight: '700',
   },
   userInfo: {
     marginLeft: spacing.md,
