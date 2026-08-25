@@ -1,28 +1,20 @@
-# Issue: Modifikasi Header Aplikasi
+# Planning: Harga Jual dan Harga Buyback
 
 ## Tujuan
 
-Memperbarui header aplikasi agar identitas brand tampil jelas tanpa menghilangkan akses ke informasi pengguna.
+Menyesuaikan informasi harga pada komponen list harga berdasarkan status autentikasi pengguna.
 
-## Kondisi Saat Ini
+## Rencana Implementasi
 
-Header hanya menampilkan ikon di sisi kiri dan inisial pengguna di sisi kanan.
-
-## Perubahan yang Direncanakan
-
-- Tambahkan identitas brand di sebelah ikon kiri.
-- Tampilkan teks `Toko Mas` sebagai label kecil dengan ukuran font extra-small.
-- Tampilkan teks `GUMARANG` di bawahnya dengan ukuran font normal.
-- Pertahankan inisial pengguna di sisi kanan header.
-- Atur tata letak dan jarak antar elemen agar tetap rapi pada berbagai ukuran layar.
-
-## Hasil yang Diharapkan
-
-Header menampilkan ikon dan identitas brand di sisi kiri dalam susunan dua baris, sementara inisial pengguna tetap berada di sisi kanan dan mudah terlihat.
+- Tinjau komponen list harga dan sumber data harga yang saat ini digunakan.
+- Untuk pengguna yang belum login, tampilkan hanya harga jual.
+- Untuk pengguna yang sudah login, tampilkan harga buyback sebagai harga utama atau harga yang relevan bagi pengguna tersebut.
+- Pastikan perubahan mengikuti sumber status autentikasi dan pola komponen yang sudah ada.
+- Pertahankan tampilan yang konsisten serta pastikan kondisi loading dan data harga yang tidak tersedia tetap ditangani dengan baik.
+- Verifikasi perilaku pada kondisi pengguna belum login dan sudah login.
 
 ## Kriteria Selesai
 
-- `Toko Mas` dan `GUMARANG` tampil sesuai hierarki ukuran font yang ditentukan.
-- Posisi inisial pengguna tetap konsisten di sisi kanan.
-- Header tidak mengalami tumpang tindih atau perubahan layout yang buruk pada perangkat mobile.
-- Gaya visual mengikuti komponen dan tema aplikasi yang sudah ada.
+- Pengguna anonim hanya melihat harga jual.
+- Pengguna yang sudah login melihat harga buyback.
+- Tidak ada perubahan yang mengganggu tampilan atau alur komponen list harga lainnya.

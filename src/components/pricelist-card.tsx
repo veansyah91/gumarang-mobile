@@ -177,22 +177,25 @@ export function PricelistCard() {
                 />
               </View>
               <View style={styles.priceDetails}>
-                <View style={styles.priceItem}>
-                  <Text tone="muted" style={styles.priceLabel}>
-                    Jual
-                  </Text>
-                  <Text style={styles.priceValue}>
-                    {cur ? formatIDR(cur.saleValue) : '-'}
-                  </Text>
-                </View>
-                <View style={styles.priceItem}>
-                  <Text tone="muted" style={styles.priceLabel}>
-                    Beli
-                  </Text>
-                  <Text style={styles.priceValue}>
-                    {cur ? formatIDR(cur.purchaseValue) : '-'}
-                  </Text>
-                </View>
+                {user ? (
+                  <View style={styles.priceItem}>
+                    <Text tone="muted" style={styles.priceLabel}>
+                      Beli
+                    </Text>
+                    <Text style={styles.priceValue}>
+                      {cur ? formatIDR(cur.purchaseValue) : '-'}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.priceItem}>
+                    <Text tone="muted" style={styles.priceLabel}>
+                      Jual
+                    </Text>
+                    <Text style={styles.priceValue}>
+                      {cur ? formatIDR(cur.saleValue) : '-'}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
           );

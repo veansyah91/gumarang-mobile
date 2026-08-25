@@ -7,6 +7,7 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { Text } from '@/src/components/ui/text';
 import { useResolvedTheme } from '@/src/hooks/use-resolved-theme';
 import { catalogApi } from '@/src/services/api/catalog';
+import { useAuthStore } from '@/src/state/auth-store';
 import { palette, spacing } from '@/src/theme/tokens';
 import { JewelryPriceTrend } from '@/src/types/catalog';
 
@@ -56,6 +57,7 @@ function TrendBadge({
 }
 
 export function JewelryPricelist() {
+  const user = useAuthStore((state) => state.user);
   const { data, isLoading } = useQuery({
     queryKey: ['jewelry-price-list'],
     queryFn: () => catalogApi.getJewelryPriceList(),
@@ -98,22 +100,25 @@ export function JewelryPricelist() {
             </View>
             
             <View style={styles.priceDetails}>
-              <View style={styles.priceItem}>
-                <Text tone="muted" style={styles.priceLabel}>
-                  Harga Jual
-                </Text>
-                <Text style={styles.priceValue}>
-                  {formatIDR(cur.saleValue)}
-                </Text>
-              </View>
-              <View style={styles.priceItem}>
-                <Text tone="muted" style={styles.priceLabel}>
-                  Harga Beli
-                </Text>
-                <Text style={styles.priceValue}>
-                  {formatIDR(cur.purchaseValue)}
-                </Text>
-              </View>
+              {user ? (
+                <View style={styles.priceItem}>
+                  <Text tone="muted" style={styles.priceLabel}>
+                    Harga Beli
+                  </Text>
+                  <Text style={styles.priceValue}>
+                    {formatIDR(cur.purchaseValue)}
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.priceItem}>
+                  <Text tone="muted" style={styles.priceLabel}>
+                    Harga Jual
+                  </Text>
+                  <Text style={styles.priceValue}>
+                    {formatIDR(cur.saleValue)}
+                  </Text>
+                </View>
+              )}
             </View>
             
             {item.current.date && (
